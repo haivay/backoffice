@@ -20,28 +20,6 @@
                     Обязательное поле
                   </p>
                 </div>
-                <!-- <div class="form-group">
-                  <label for="form_training">Выберете форму обучения:</label>
-                  <select 
-                    name="form_training" 
-                    id="form_training"
-                    class="form-control"
-                    :class="$v.form.formSelected.$error ? 'is-invalid' : ''"
-                    placeholder="Выберете форму обучения (поиск по трем символам)"
-                    v-model="form.formSelected"
-                  >
-                    <option
-                      v-for="(form, index) in form.formOfTrain"
-                      :value='form.value'
-                      :key='index'
-                    >
-                      {{ form.label }}
-                    </option>
-                  </select>
-                  <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
-                      Обязательное поле
-                  </p>
-                </div> -->
                 <div class="form-group">
                     <label for="form_training">Выберете форму обучения:</label>
                     <div class="form-selector">
@@ -54,7 +32,6 @@
                     <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
                       Обязательное поле
                     </p>
-                    <!-- <div>Current Value: {{ form.formSelected }}</div> -->
                 </div>
                 <div class="form-group">
                   <label for="groupName">Название группы:</label>
@@ -70,7 +47,7 @@
                     Обязательное поле
                   </p>
                 </div>
-                <!-- <div class="form-group">
+                <div class="form-group">
                   <label for="dateFrom">С какого числа справка:</label>
                   <div class="input-group date">
                     <input type="text" class="form-control">
@@ -95,7 +72,53 @@
                       </button>
                     </div>
                   </div>
-                </div> -->
+                </div>
+                <div class="form-group">
+                  <label for="btn-group">Выберите способ получения:</label>
+                  <div class="btn-group btn-group-toggle w-100" data-toggle="buttons" role="group" aria-label="Basic example">
+                    <label 
+                      class="btn btn-outline-primary"
+                      :class="{active: form.isActive}"
+                    >
+                      <input 
+                        type="radio" 
+                        name="options" 
+                        id="way_to_get_option1" 
+                        value="option1" 
+                        v-model="form.wayToGetOption"
+                      > Лично в отделе бухгалтерии
+                    </label>
+                    <label 
+                      class="btn btn-outline-primary"
+                      :class="{active: !form.isActive}"
+                    >
+                      <input 
+                        type="radio" 
+                        name="options" 
+                        id="way_to_get_option2" 
+                        value="option2" 
+                        v-model="form.wayToGetOption" 
+                      > В виде скан-копии по электронной почте
+                    </label>
+                  </div>
+                </div>
+                <div 
+                  class="form-group"
+                  v-if="!form.isActive"
+                >
+                  <label for="email">Введите электронную почту:</label>
+                  <input 
+                    type="email" 
+                    id='email'
+                    placeholder="Введите email"
+                    class="form-control"
+                    :class="$v.form.email.$error ? 'is-invalid' : ''"
+                    v-model.trim="form.email"
+                  >
+                  <p v-if="$v.form.email.$dirty && !form.email.email" class="invalid-feedback">
+                    Некорректный email
+                  </p>
+                </div>
                 <button type="submit" class="btn btn-outline-primary w-100">Отправить</button>
               </form>
             </div>
@@ -107,7 +130,7 @@
 
 <script>
 import { validationMixin } from 'vuelidate'
-import { required } from 'vuelidate/lib/validators'
+import { required, email } from 'vuelidate/lib/validators'
 // import VSelectize from '@isneezy/vue-selectize'
 
 export default {
@@ -119,39 +142,48 @@ export default {
       form: {
         fullName: '',
         groupName: '',
+        // formsOfTrain: [
+        //   'Очная форма обучения',
+        //   'Заочная форма обучения'
+        // ],
         formsOfTrain: [
           {
             id: 'fullTime',
             label: 'Очная форма обучения'
-            
           },
           {
             id: 'correspondenceCourse',
             label: 'Заочная форма обучения'
           }
         ],
-        // formsOfTrain: [
-        //   'Очная форма обучения',
-        //   'Заочная форма обучения'
-        // ],
-        formSelected: []
+        formSelected: [],
+        wayToGetOption: 'option1',
+        isActive: true,
+        email: ''
       }
+    }
+  },
+  computed: {},
+  watch: {
+    'form.wayToGetOption'(newOption) {
+      this.form.isActive = newOption === 'option1' ? true : false
     }
   },
   validations: {
     form: {
       fullName: { required },
       formSelected: { required },
-      groupName: { required }
+      groupName: { required },
+      email: { required, email }
     }
   },
   methods: {
     checkForm() {
       this.$v.form.$touch()
       if (this.$v.form.$error) {
-        console.log('Валидация прошла успешно!')
+        console.log('Валидация не прошла!')
       }
-    }
+    },
   }
 }
 </script>
