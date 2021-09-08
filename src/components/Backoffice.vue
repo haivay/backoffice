@@ -3,7 +3,6 @@
     <div class="container">
       <div class="container-fluid main-content-wrapper">
           <div class="row">
-            <div class="col-md-4"></div>
             <div class="col-md-8">
               <form class="doc" @submit.prevent="checkForm">
                 <h2 class='title'>{{ title }}</h2>
@@ -38,10 +37,10 @@
                     >
                       {{ form.label }}
                     </option>
-                    <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
-                      Обязательное поле
-                    </p>
                   </select>
+                  <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
+                      Обязательное поле
+                  </p>
                   <!-- <div class="selectize-control single">
                     <div class="selectize-input items">
                       <input 
