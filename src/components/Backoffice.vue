@@ -20,7 +20,7 @@
                     Обязательное поле
                   </p>
                 </div>
-                <div class="form-group">
+                <!-- <div class="form-group">
                   <label for="form_training">Выберете форму обучения:</label>
                   <select 
                     name="form_training" 
@@ -41,26 +41,20 @@
                   <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
                       Обязательное поле
                   </p>
-                  <!-- <div class="selectize-control single">
-                    <div class="selectize-input items">
-                      <input 
-                        type="text" 
-                        autocomplete="off" 
-                        id="form_training-selectized" 
+                </div> -->
+                <div class="form-group">
+                    <label for="form_training">Выберете форму обучения:</label>
+                    <div class="form-selector">
+                      <v-selectize 
+                        :options="form.formsOfTrain" 
+                        v-model="form.formSelected" 
                         placeholder="Выберете форму обучения (поиск по трем символам)"
-                      >
+                      />
                     </div>
-                    <div class="selectize-dropdown single">
-                      <div class="selectize-dropdown-content">
-                        <div class="option" data-selectable data-value='fullTime'>
-                          Очная форма обучения
-                        </div>
-                        <div class="option" data-selectable data-value='correspondenceCourse'>
-                          Заочная форма обучения
-                        </div>
-                      </div>
-                    </div>
-                  </div> -->
+                    <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
+                      Обязательное поле
+                    </p>
+                    <!-- <div>Current Value: {{ form.formSelected }}</div> -->
                 </div>
                 <div class="form-group">
                   <label for="groupName">Название группы:</label>
@@ -76,7 +70,33 @@
                     Обязательное поле
                   </p>
                 </div>
-                <button type="submit" class="btn btn-primary">Отправить</button>
+                <!-- <div class="form-group">
+                  <label for="dateFrom">С какого числа справка:</label>
+                  <div class="input-group date">
+                    <input type="text" class="form-control">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary input-group-addon">
+                        <span class="fa fa-calendar">
+
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="dateTo">До какого числа справка:</label>
+                  <div class="input-group date">
+                    <input type="text" class="form-control">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-secondary input-group-addon">
+                        <span class="fa fa-calendar">
+
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div> -->
+                <button type="submit" class="btn btn-outline-primary w-100">Отправить</button>
               </form>
             </div>
           </div>
@@ -88,6 +108,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
+// import VSelectize from '@isneezy/vue-selectize'
 
 export default {
   mixins: [validationMixin],
@@ -98,17 +119,22 @@ export default {
       form: {
         fullName: '',
         groupName: '',
-        formSelected: '',
-        formOfTrain: [
+        formsOfTrain: [
           {
-            label: 'Очная форма обучения',
-            value: 'fullTime'
+            id: 'fullTime',
+            label: 'Очная форма обучения'
+            
           },
           {
-            label: 'Заочная форма обучения',
-            value: 'correspondenceCourse'
+            id: 'correspondenceCourse',
+            label: 'Заочная форма обучения'
           }
-        ]
+        ],
+        // formsOfTrain: [
+        //   'Очная форма обучения',
+        //   'Заочная форма обучения'
+        // ],
+        formSelected: []
       }
     }
   },
@@ -137,5 +163,8 @@ export default {
   .title {
     font-size: 30px;
     margin-bottom: 10px;
+  }
+  .form-group {
+    margin-bottom: .7rem;
   }
 </style>
