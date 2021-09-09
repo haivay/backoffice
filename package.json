@@ -12,6 +12,7 @@
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
+    "express": "^4.17.1",
     "selectize": "^0.12.6",
     "vue": "^2.6.11",
     "vuelidate": "^0.7.6"
