@@ -4,8 +4,8 @@ import 'selectize/dist/css/selectize.default.css' // This is required, we use th
 import VSelectize from '@isneezy/vue-selectize'
 import Vue from 'vue'
 import App from './App.vue'
+// import Axios from 'axios'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-// Import Bootstrap an BootstrapVue CSS files (order is important)
 
 
 Vue.config.productionTip = false
@@ -16,6 +16,9 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 // Vue-selectize
 Vue.component('v-selectize', VSelectize)
+
+Vue.component('backoffice', require('./components/Backoffice.vue').default);
+
 
 new Vue({
   render: h => h(App),
