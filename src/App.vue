@@ -1,19 +1,25 @@
 <template>
   <div id="app">
-    <Backoffice />
+      <!-- <Backoffice /> -->
+      <FormEditor />
+      <!-- <FormFields /> -->
   </div>
 </template>
 
 <script>
-import Backoffice from './components/Backoffice'
+// import Backoffice from './components/Backoffice'
+import FormEditor from './components/FormEditor.vue'
+// import FormFields from './components/FormFields.vue'
 
 export default {
   name: 'App',
   components: {
-    Backoffice
+    // Backoffice,
+    FormEditor
   }
 }
 </script>
+
 
 
 <style>
