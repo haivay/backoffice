@@ -5,7 +5,8 @@
         <h2 class='title'>{{ title }}</h2>
         <div class="row">
           <div class="col-md-8">
-            <div class="shadow p-3 mb-5 bg-body rounded">
+            <!-- <div class="shadow p-3 mb-5 bg-body rounded"> -->
+              <div>
                 <input 
                   class="form-control form-control-lg" 
                   type="text" 
@@ -28,7 +29,8 @@
                 </div> -->
             </div>
           </div>
-          <div class="col-md-4">
+          <!-- controlPanel -->
+          <!-- <div class="col-md-4">
             <div class="btn-group-vertical me-2" role="group" aria-label="Control Panel">
               <button 
                 type="button" 
@@ -49,7 +51,7 @@
                 -
               </button>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -64,17 +66,6 @@ export default {
   data() {
     return {
       title: 'Редактор форм',
-      formName: 'Название формы',
-      formFields: {
-        fullName: '',
-        groupName: ''
-      },
-      additianalField: ''
-    }
-  },
-  methods: {
-    addNewField() {
-      this.$set(this.formFields, this.additianalField, '')
     }
   }
 }
@@ -86,12 +77,9 @@ export default {
   }
   .title {
     font-size: 30px;
-    margin-bottom: 10px;
+    margin-bottom: 30px;
   }
   .form-group {
     margin-bottom: .7rem;
-  }
-  .btn {
-    /* background-image: ; */
   }
 </style>
