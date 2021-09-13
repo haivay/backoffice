@@ -127,6 +127,7 @@ export default {
   name: 'FormFields',
   data() {
     return {
+      title: 'Редактор форм',
       formTypes: [
         'input',
         'select'
@@ -153,20 +154,20 @@ export default {
         dataType: 'text'
       },
       formFields: [
-        // {
-        //   formType: 'input',
-        //   label: 'Ваше ФИО:',
-        //   placeholder: 'Введите ФИО',
-        //   isRequire: true,
-        //   dataType: 'text'
-        // },
-        // {
-        //   formType: 'input',
-        //   label: 'Email:',
-        //   placeholder: 'Введите email',
-        //   isRequire: false,
-        //   dataType: 'email'
-        // }
+        {
+          formType: 'input',
+          label: 'Ваше ФИО:',
+          placeholder: 'Введите ФИО',
+          isRequire: true,
+          dataType: 'text'
+        },
+        {
+          formType: 'input',
+          label: 'Email:',
+          placeholder: 'Введите email',
+          isRequire: false,
+          dataType: 'email'
+        }
       ]
     }
   },
