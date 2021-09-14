@@ -6,7 +6,7 @@
         <div class="row">
           <div class="col-md-8">
             <!-- <div class="shadow p-3 mb-5 bg-body rounded"> -->
-            <form class="doc" @submit.prevent="checkForm">
+            <form class="doc" @submit.prevent="checkNewForm">
               <div>
                 <input 
                   class="form-control form-control-lg" 
@@ -21,240 +21,261 @@
                 </p>
                 <div class="form-fields mt-3">
                   <div class="shadow-sm p-3 bg-body rounded">
-                    <!-- <p class="lead" v-if="formFields.length">Текущие поля:</p> -->
-                    <div 
-                      class="field-item shadow-sm p-3 mb-2 bg-body rounded"
-                      v-for="(field, index) in formFields"
-                      :key="index"
-                    >
-                      <div class="row align-items-center h-100">
-                        <div class="col-10">
-                          <div class="form-group">
-                            <!-- <label for="input1">{{ field.label }} | Тип: {{ field.dataType.label }}</label> -->
-                            <label for="input1">{{ field.label }}</label>
-                            <div 
-                              class="field-input" 
-                              v-if="field.formType === 'input'"
-                            >
-                              <input 
-                                :type="field.dataType" 
-                                id='inputl'
-                                :placeholder="field.placeholder"
-                                class="form-control"
-                                disabled
-                              >
-                            </div>
-                            <div 
-                              class="field-select" 
-                              v-if="field.formType === 'select'"
-                            >
-                              <!-- <v-selectize 
-                                :options="field.formTypes" 
-                                :placeholder="field.placeholder"
-                              /> -->
-                              <b-form-select 
-                                :options="[{id: 0, value: field.placeholder.toString(), text: field.placeholder.toString()}].concat(field.options)"
-                                v-model="field.placeholder"
-                                disabled
-                              >
-                              </b-form-select>
-                            </div>
-                          </div>
-                          <div class="form-check">
-                            <input 
-                              type="checkbox" 
-                              class="form-check-input" 
-                              id="isRequire"
-                              :checked="field.isRequire"
-                              disabled
-                            >
-                            <label class="form-check-label" for="isRequire">{{ field.isRequire ? 'Обязательное' : 'Необязательное' }}</label>
-                          </div>
-                        </div>
-                        <div class="col-1">
-                          <button 
-                            type="button" 
-                            class="btn btn-danger"
-                            @click="deleteThisField(index)"
-                            data-bs-toggle="tooltip" 
-                            data-bs-placement="right" 
-                            title="Удалить поле"
-                          >
-                            <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div 
-                      class="form-group" 
-                        :class="formFields.length != 0  ? 'mt-5' : ''"
-                    >
-                      <p class="lead" v-if="formFields.length < 1">Добавьте в форму первое поле:</p>
-                      <div class="form-selector">
-                        <v-selectize 
-                          :options="formTypes" 
-                          v-model="formType" 
-                          placeholder="Выберете тип нового поля"
-                        />
-                      </div>
-                    </div>
-                    <hr>
-                    <!-- INPUT -->
-                    <div
-                      v-if="formType.id === 'input'"
-                      class="mt-3 mb-3"
-                    >
-                      <div class="form-group">
-                        <label for="inputLabel">Наименование поля:</label>
-                        <input 
-                          type="text" 
-                          id='inputLabel'
-                          placeholder="label"
-                          class="form-control"
-                          v-model.trim="input.label" 
-                        >
-                      </div>
-                      <div class="form-group">
-                        <label for="inputPlaceholder">Плейсхолдер:</label>
-                        <input 
-                          type="text" 
-                          id='inputPlaceholder'
-                          placeholder="placeholder"
-                          class="form-control"
-                          v-model.trim="input.placeholder"
-                        >
-                      </div>
-                      <div class="form-group">
-                        <label for="form_training">Тип вводимой информации:</label>
-                        <div class="form-selector">
-                          <v-selectize 
-                            :options="input.dataTypes" 
-                            v-model="input.dataType" 
-                            placeholder="Выберете тип вводимой информации"
-                          />
-                        </div>
-                      </div>
-                      <div class="form-check">
-                        <input 
-                          type="checkbox" 
-                          class="form-check-input" 
-                          id="inputIsRequire"
-                          v-model="input.isRequire"
-                          :class="input.isRequire === true ? 'checked' : ''"
-                        >
-                        <label 
-                          class="form-check-label" 
-                          for="inputIsRequire"
-                        >
-                          Обязательное
-                        </label>
-                      </div>
-                    </div>
-                    <!-- SELECT -->
-                    <div
-                      v-if="formType.id === 'select'"
-                      class="mt-3 mb-3"
-                    >
-                      <div class="form-group">
-                        <label for="selectLabel">Наименование поля:</label>
-                        <input 
-                          type="text" 
-                          id='selectLabel'
-                          placeholder="label"
-                          class="form-control" 
-                          v-model.trim="select.label" 
-                        >
-                      </div>
-                      <div class="form-group">
-                        <label for="selectPlaceholder">Плейсхолдер:</label>
-                        <input 
-                          type="text" 
-                          id='selectPlaceholder'
-                          placeholder="placeholder"
-                          class="form-control"
-                          v-model.trim="select.placeholder"
-                        >
-                      </div>
-                      <p>Варианты выбора:</p>
-                      <div
-                        class="option-item shadow-sm p-2 ml-3 mb-1 bg-body rounded"
-                        v-for="(option, index) in select.options"
+                    <form class="doc">
+                      <!-- <p class="lead" v-if="formFields.length">Текущие поля:</p> -->
+                      <div 
+                        class="field-item shadow-sm p-3 mb-2 bg-body rounded"
+                        v-for="(field, index) in formFields"
                         :key="index"
                       >
                         <div class="row align-items-center h-100">
                           <div class="col-10">
-                              {{ option.label }}
+                            <div class="form-group">
+                              <!-- <label for="input1">{{ field.label }} | Тип: {{ field.dataType.label }}</label> -->
+                              <label for="input1">{{ field.label }}</label>
+                              <div 
+                                class="field-input" 
+                                v-if="field.fieldType === 'input'"
+                              >
+                                <input 
+                                  :type="field.dataType" 
+                                  id='inputl'
+                                  :placeholder="field.placeholder"
+                                  class="form-control"
+                                  disabled
+                                >
+                              </div>
+                              <div 
+                                class="field-select" 
+                                v-if="field.fieldType === 'select'"
+                              >
+                                <!-- <v-selectize 
+                                  :options="field.fieldTypes" 
+                                  :placeholder="field.placeholder"
+                                /> -->
+                                <b-form-select 
+                                  :options="[{id: 0, value: field.placeholder.toString(), text: field.placeholder.toString()}].concat(field.options)"
+                                  v-model.trim="field.placeholder"
+                                  disabled
+                                >
+                                </b-form-select>
+                              </div>
+                            </div>
+                            <div class="form-check">
+                              <input 
+                                type="checkbox" 
+                                class="form-check-input" 
+                                id="isRequire"
+                                :checked="field.isRequire"
+                                disabled
+                              >
+                              <label class="form-check-label" for="isRequire">{{ field.isRequire ? 'Обязательное' : 'Необязательное' }}</label>
+                            </div>
                           </div>
                           <div class="col-1">
                             <button 
                               type="button" 
                               class="btn btn-danger"
-                              @click="deleteThisOption(index)"
+                              @click="deleteThisField(index)"
                               data-bs-toggle="tooltip" 
                               data-bs-placement="right" 
-                              title="Удалить"
+                              title="Удалить поле"
                             >
                               <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
                             </button>
                           </div>
                         </div>
                       </div>
-                      <div class="form-group mt-3">
-                        <div class="input-group mb-3">
-                          <div class="input-group-prepend">
-                            <button 
-                              class="btn btn-outline-secondary" 
-                              type="button" 
-                              id="button-addon1"
-                              @click="addNewOption"
-                            >
-                              Добавить
-                            </button>
-                          </div>
+                      <div 
+                        class="form-group" 
+                          :class="formFields.length != 0  ? 'mt-5' : ''"
+                      >
+                        <p class="lead" v-if="formFields.length < 1">Добавьте в форму первое поле:</p>
+                        <div class="form-selector">
+                          <v-selectize 
+                            :options="fieldTypes" 
+                            v-model.trim="fieldType" 
+                            placeholder="Выберете тип нового поля"
+                          />
+                        </div>
+                      </div>
+                      <hr>
+                      <!-- INPUT -->
+                      <div
+                        v-if="fieldType.id === 'input'"
+                        class="mt-3 mb-3"
+                      >
+                        <div class="form-group">
+                          <label for="inputLabel">Наименование поля:</label>
                           <input 
                             type="text" 
-                            class="form-control" 
-                            placeholder="Введите новый вариант (Enter чтобы добавить)" 
-                            v-model.trim="select.newOption"
-                            @keydown.enter="addNewOption"
+                            id='inputLabel'
+                            placeholder="label"
+                            class="form-control"
+                            :class="$v.input.label.$error ? 'is-invalid' : ''"
+                            v-model.trim="input.label" 
                           >
+                          <p v-if="$v.input.label.$dirty && !$v.input.label.required" class="invalid-feedback">
+                            Обязательное поле
+                          </p>
                         </div>
-
+                        <div class="form-group">
+                          <label for="inputPlaceholder">Плейсхолдер:</label>
+                          <input 
+                            type="text" 
+                            id='inputPlaceholder'
+                            placeholder="placeholder"
+                            class="form-control"
+                            :class="$v.input.placeholder.$error ? 'is-invalid' : ''"
+                            v-model.trim="input.placeholder"
+                          >
+                          <p v-if="$v.input.placeholder.$dirty && !$v.input.placeholder.required" class="invalid-feedback">
+                            Обязательное поле
+                          </p>
+                        </div>
+                        <div class="form-group">
+                          <label for="form_training">Тип вводимой информации:</label>
+                          <div class="form-selector">
+                            <v-selectize 
+                              :options="input.dataTypes" 
+                              v-model.trim="input.dataType" 
+                              placeholder="Выберете тип вводимой информации"
+                            />
+                          </div>
+                        </div>
+                        <div class="form-check">
+                          <input 
+                            type="checkbox" 
+                            class="form-check-input" 
+                            id="inputIsRequire"
+                            v-model="input.isRequire"
+                            :class="input.isRequire === true ? 'checked' : ''"
+                          >
+                          <label 
+                            class="form-check-label" 
+                            for="inputIsRequire"
+                          >
+                            Обязательное
+                          </label>
+                        </div>
                       </div>
-                      <div class="form-check">
-                        <input 
-                          type="checkbox" 
-                          class="form-check-input" 
-                          id="selectIsRequire"
-                          v-model="select.isRequire"
-                          :class="select.isRequire === true ? 'checked' : ''"
+                      <!-- SELECT -->
+                      <div
+                        v-if="fieldType.id === 'select'"
+                        class="mt-3 mb-3"
+                      >
+                        <div class="form-group">
+                          <label for="selectLabel">Наименование поля:</label>
+                          <input 
+                            type="text" 
+                            id='selectLabel'
+                            placeholder="label"
+                            class="form-control" 
+                            :class="$v.select.label.$error ? 'is-invalid' : ''"
+                            v-model.trim="select.label" 
+                          >
+                          <p v-if="$v.select.label.$dirty && !$v.select.label.required" class="invalid-feedback">
+                            Обязательное поле
+                          </p>
+                        </div>
+                        <div class="form-group">
+                          <label for="selectPlaceholder">Плейсхолдер:</label>
+                          <input 
+                            type="text" 
+                            id='selectPlaceholder'
+                            placeholder="placeholder"
+                            class="form-control" 
+                            :class="$v.select.placeholder.$error ? 'is-invalid' : ''"
+                            v-model.trim="select.placeholder"
+                          >
+                          <p v-if="$v.select.placeholder.$dirty && !$v.select.placeholder.required" class="invalid-feedback">
+                            Обязательное поле
+                          </p>
+                        </div>
+                        <p>Варианты выбора:</p>
+                        <div
+                          class="option-item shadow-sm p-2 ml-3 mb-1 bg-body rounded"
+                          v-for="(option, index) in select.options"
+                          :key="index"
                         >
-                        <label 
-                          class="form-check-label" 
-                          for="selectIsRequire"
-                        >
-                          Обязательное
-                        </label>
+                          <div class="row align-items-center h-100">
+                            <div class="col-10 pl-4">
+                                {{ option.label }}
+                            </div>
+                            <div class="col-1">
+                              <button 
+                                type="button" 
+                                class="btn btn-danger"
+                                @click="deleteThisOption(index)"
+                                data-bs-toggle="tooltip" 
+                                data-bs-placement="right" 
+                                title="Удалить"
+                              >
+                                <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="form-group mt-3">
+                          <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                              <button 
+                                class="btn btn-outline-secondary" 
+                                type="button" 
+                                id="button-addon1"
+                                @click="addNewOption"
+                              >
+                                Добавить
+                              </button>
+                            </div>
+                            <input 
+                              type="text" 
+                              class="form-control" 
+                              :class="$v.select.options.$error ? 'is-invalid' : ''"
+                              placeholder="Введите новый вариант (Enter чтобы добавить)" 
+                              v-model.trim="select.newOption"
+                              @keydown.enter="addNewOption"
+                            >
+                            <p v-if="$v.select.options.$dirty && !$v.select.options.required" class="invalid-feedback">
+                              Добавьте хотя бы один вариант
+                            </p>
+                          </div>
+                        </div>
+                        <div class="form-check">
+                          <input 
+                            type="checkbox" 
+                            class="form-check-input" 
+                            id="selectIsRequire"
+                            v-model="select.isRequire"
+                            :class="select.isRequire === true ? 'checked' : ''"
+                          >
+                          <label 
+                            class="form-check-label" 
+                            for="selectIsRequire"
+                          >
+                            Обязательное
+                          </label>
+                        </div>
                       </div>
-                    </div>
-                    <!-- FOOTER -->
-                    <div v-if="isFormTypeSelected">
-                      <hr>
-                      <button 
-                        type="button" 
-                        class="btn btn-outline-success w-100 mb-3"
-                        @click="addNewField"
-                      >
-                        Завершить редактирование и добавить поле
-                      </button>
-                      <button 
-                        type="button" 
-                        class="btn btn-outline-primary w-100"
-                        @click="stopEditing"
-                      >
-                        Назад
-                      </button>
-                    </div>
+                      <!-- FOOTER -->
+                      <div v-if="isFieldTypeSelected">
+                        <hr>
+                        <button 
+                          type="button" 
+                          class="btn btn-outline-success w-100 mb-3"
+                          @click="addNewField()"
+                        >
+                          Завершить редактирование и добавить поле
+                        </button>
+                        <button 
+                          type="button" 
+                          class="btn btn-outline-primary w-100"
+                          @click="stopEditing(fieldType.id)"
+                        >
+                          Назад
+                        </button>
+                      </div>
+                    </form>
                   </div>
                   <button 
                     type="submit" 
@@ -285,7 +306,7 @@ export default {
     return {
       title: 'Редактор форм',
       formName: '',
-      formTypes: [
+      fieldTypes: [
         {
           id: 'input',
           label: 'Однострочный ввод'
@@ -295,14 +316,15 @@ export default {
           label: 'Выпадающий список'
         }
       ],
-      formType: [],
-      isFormTypeSelected: false,
+      fieldType: [],
+      isFieldTypeSelected: false,
 // input
       input: {
-        formType: 'input',
+        fieldType: 'input',
         label: '',
         placeholder: '',
         isRequire: false,
+        formIsFull: false,
         dataTypes: [
           {
             id: 'text',
@@ -320,65 +342,47 @@ export default {
         dataType: {
           id: 'text',
           label: 'Текст'
-        },
-        formIsFull: false
+        }
       },
 // select
       select: {
-        formType: 'select',
+        fieldType: 'select',
         label: '',
         placeholder: '',
+        isRequire: false,
         newOption: '',
         options: [],
         selectedOption: [],
-        isRequire: false,
         formIsFull: false
       },
 //массив полей формы
-      formFields: [
-        // {
-        //   formType: 'input',
-        //   label: 'Ваше ФИО:',
-        //   placeholder: 'Введите ФИО',
-        //   isRequire: true,
-        //   dataType: {
-        //     id: 'text',
-        //     label: 'Текст'
-        //   }
-        // },
-        // {
-        //   formType: 'input',
-        //   label: 'Email:',
-        //   placeholder: 'Введите email',
-        //   isRequire: false,
-        //   dataType: {
-        //     id: 'email',
-        //     label: 'Email'
-        //   }
-        // }
-      ]
+      formFields: []
     }
   },
   validations: {
     formName: { required },
+    input: {
+      label: { required },
+      placeholder: { required },
+      dataType: { required }
+    },
+    select: {
+      label: { required },
+      placeholder: { required },
+      options: { required }
+    }
   },
   computed: {
     newFormIsFull() {
-      return (!this.isFormTypeSelected && this.formFields.length > 0) ? true : false
+      return (!this.isFieldTypeSelected && this.formFields.length > 0) ? true : false
     }
   },
   watch: {
-    "formType"() {
-      if (this.formType != '') {
-        this.isFormTypeSelected = true
+    "fieldType"() {
+      if (this.fieldType != '') {
+        this.isFieldTypeSelected = true
       }
     },
-    "input.label"() {
-      this.checkFormFull()
-    },
-    "input.placeholder"() {
-      this.checkFormFull()
-    }
   },
   methods: {
     deleteThisField(index) {
@@ -386,13 +390,56 @@ export default {
     },
     addNewField() {
       let newObj = {}
-      if (this.formType.id === 'input') {
-        newObj = _cloneDeep(this.input);
+      let fieldType = this.fieldType.id;
+
+      if (fieldType === 'input') {
+        this.checkNewField(fieldType);
+        if (!this.$v.input.$error) {
+          newObj = _cloneDeep(this.input);
+          this.resetField(fieldType)
+        }
+        else return
+      }
+      if (fieldType === 'select') {
+        this.checkNewField(fieldType);
+        if (!this.$v.select.$error) {
+          newObj = _cloneDeep(this.select)
+          this.resetField(fieldType)
+        }
+        else return
+      }
+
+      this.formFields.push(newObj)
+      this.fieldType = [],
+      this.isFieldTypeSelected = false,
+      console.log('Field was added.');
+    },
+    checkNewField(fieldType) {
+      if (fieldType === 'input') {
+        this.$v.input.$touch()
+        if (this.$v.input.$error) {
+          console.log(`Error: Invalid! ${fieldType}`)
+        }
+      }
+      if (fieldType === 'select') {
+        this.$v.select.$touch()
+        if (this.$v.select.$error) {
+          console.log(`Error: Invalid! ${fieldType}`)
+        }
+      }
+
+    },
+    resetField(fieldType) {
+      if (fieldType === 'input') {
         this.input.label = '';
         this.input.placeholder = '';
+        this.dataType = {
+          id: 'text',
+          label: 'Текст'
+        };
+        this.input.isRequire = false;
       }
-      if (this.formType.id === 'select') {
-        newObj = _cloneDeep(this.select)
+      if (fieldType === 'select') {
         this.select.label = '';
         this.select.placeholder = '';
         this.select.newOption ='';
@@ -400,44 +447,47 @@ export default {
         this.select.selectedOption = [];
         this.select.isRequire = false;
       }
-      this.formFields.push(newObj)
-      this.formType = [],
-      this.isFormTypeSelected = false,
-      console.log('Field was added');
+      this.resetValidation(fieldType);
     },
-    // makeRequire() {
-    //   if (this.formType.id === 'input') {
-    //     this.input.isRequire = !this.input.isRequire;
-    //   }
-    //   if (this.formType.id === 'select') {
-    //     this.select.isRequire = !this.select.isRequire;
-    //   }
-    // },
-    checkFormFull() {
-      return this.input.formIsFull = this.input.label && this.input.placeholder ? true : false
+    resetValidation(fieldType) {
+      if (fieldType === 'input') {
+        this.$v.input.$reset()
+      }
+      if (fieldType === 'select') {
+        this.$v.select.$reset()
+      }
     },
-    stopEditing() {
-      this.formType = ''
-      this.isFormTypeSelected = false
+    stopEditing(fieldType) {
+      this.resetValidation(fieldType);
+      this.fieldType = [];
+      this.isFieldTypeSelected = false;
     },
     addNewOption() {
-      let currentOptionIndex = this.select.options.length;
-      this.select.options.push({
-        id: currentOptionIndex,
-        label: this.select.newOption,
-        text: this.select.newOption
-      });
-      currentOptionIndex++;
-      this.select.newOption = '';
+      if (this.select.newOption) {
+        let currentOptionIndex = this.select.options.length;
+        this.select.options.push({
+          id: currentOptionIndex,
+          label: this.select.newOption,
+          text: this.select.newOption
+        });
+        currentOptionIndex++;
+        this.select.newOption = '';
+        }
     },
     deleteThisOption(index) {
       this.select.options.splice(index, 1);
     },
-    checkForm() {
-      this.$v.$touch()
-      if (this.$v.$error) {
-        console.log('Валидация не прошла!')
+    checkNewForm() {
+      this.$v.formName.$touch()
+
+      if (this.$v.formName.$error) {
+        console.log('Error: Invalid! Имя формы пустое!')
+        return
       }
+
+      console.log('Form sent.')
+      console.log(JSON.stringify(this.formName));
+      console.log(JSON.stringify(this.formFields))
     }
   }
 }

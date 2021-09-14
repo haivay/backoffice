@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "type_name": "orderCertificate",
+    "document_fields": [
+      {
+        "id": 1,
+        "formType": "input",
+        "label": "ФИО:",
+        "placeholder": "Введите ФИО",
+        "isRequire": true,
+        "formIsFull": true,
+        "dataTypes": [
+          {
+            "id": "text",
+            "label": "Текст"
+          },
+          {
+            "id": "number",
+            "label": "Число"
+          },
+          {
+            "id": "email",
+            "label": "Email"
+          }
+        ],
+        "dataType": {
+          "id": "text",
+          "label": "Текст"
+        }
+      },
+      {
+        "id": 2,
+        "formType": "select",
+        "label": "Группа:",
+        "placeholder": "Выберете группу",
+        "isRequire": true,
+        "formIsFull": true,
+        "newOption": "",
+        "options": [
+          {
+            "id": 0,
+            "label": "ПИб-41",
+            "text": "ПИб-41"
+          },
+          {
+            "id": 1,
+            "label": "ПИнб-41",
+            "text": "ПИнб-41"
+          }
+        ],
+        "selectedOption": []
+      }
+    ]
+  }
+]
