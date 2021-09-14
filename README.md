@@ -4,6 +4,14 @@
 ```
 npm install
 ```
+Чтобы запустить на сервере, нужно "собрать проект":
+```
+npm run build
+```
+После чего запускать сервер:
+```
+node app.js
+```
 
 ### Compiles and hot-reloads for development
 ```
