@@ -6,7 +6,7 @@
         <div class="row">
           <div class="col-md-8">
             <!-- <div class="shadow p-3 mb-5 bg-body rounded"> -->
-            <form class="doc" @submit.prevent="checkNewForm">
+            <form class="doc" @submit.prevent="addNewForm">
               <div>
                 <input 
                   class="form-control form-control-lg" 
@@ -491,6 +491,15 @@ export default {
     deleteThisOption(index) {
       this.select.options.splice(index, 1);
     },
+    addNewForm(){
+      this.checkNewForm();
+      if (this.$v.formName.$error) return
+      // fetch('http://localhost:8080/') 
+      
+      console.log('Form sent.')
+      console.log(JSON.stringify(this.formName));
+      console.log(JSON.stringify(this.formFields))
+    },
     checkNewForm() {
       this.$v.formName.$touch()
 
@@ -498,10 +507,6 @@ export default {
         console.log('Error: Invalid! Имя формы пустое!')
         return
       }
-
-      console.log('Form sent.')
-      console.log(JSON.stringify(this.formName));
-      console.log(JSON.stringify(this.formFields))
     }
   }
 }
