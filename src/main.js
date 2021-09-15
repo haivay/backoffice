@@ -8,10 +8,10 @@ import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 //fontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
+import { faTrashAlt, faEdit } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faTrashAlt)
+library.add(faTrashAlt, faEdit)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

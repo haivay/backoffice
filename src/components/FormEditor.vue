@@ -194,25 +194,39 @@
                         </div>
                         <p>Варианты выбора:</p>
                         <div
-                          class="option-item shadow-sm p-2 ml-3 mb-1 bg-body rounded"
+                          class="option-item shadow-sm p-2 ml-3 mr-3 mb-1 bg-body rounded"
                           v-for="(option, index) in select.options"
                           :key="index"
                         >
-                          <div class="row align-items-center h-100">
-                            <div class="col-10 pl-4">
-                                {{ option.label }}
-                            </div>
-                            <div class="col-1">
-                              <button 
-                                type="button" 
-                                class="btn btn-danger"
-                                @click="deleteThisOption(index)"
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="right" 
-                                title="Удалить"
-                              >
-                                <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                              </button>
+                          <div class="container">
+                            <div class="row align-items-center h-100">
+                              <div class="col-10 pl-3">
+                                  {{ option.label }}
+                              </div>
+                              <div class="col-1">
+                                <button 
+                                  type="button" 
+                                  class="btn btn-primary"
+                                  @click="deleteThisOption(index)"
+                                  data-bs-toggle="tooltip" 
+                                  data-bs-placement="right" 
+                                  title="Изменить"
+                                >
+                                  <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
+                                </button>
+                              </div>
+                              <div class="col-1">
+                                <button 
+                                  type="button" 
+                                  class="btn btn-danger"
+                                  @click="deleteThisOption(index)"
+                                  data-bs-toggle="tooltip" 
+                                  data-bs-placement="right" 
+                                  title="Удалить"
+                                >
+                                  <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
