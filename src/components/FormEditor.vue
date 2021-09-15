@@ -46,19 +46,14 @@
                                 >
                               </div>
                               <div 
-                                class="field-select" 
+                                class="field-select form-check-label" 
                                 v-if="field.fieldType === 'select'"
                               >
-                                <!-- <v-selectize 
-                                  :options="field.fieldTypes" 
+                                <v-selectize 
+                                  :options="field.options" 
                                   :placeholder="field.placeholder"
-                                /> -->
-                                <b-form-select 
-                                  :options="[{id: 0, value: field.placeholder.toString(), text: field.placeholder.toString()}].concat(field.options)"
-                                  v-model.trim="field.placeholder"
-                                  disabled
-                                >
-                                </b-form-select>
+                                  :disabled="true"
+                                />
                               </div>
                             </div>
                             <div class="form-check">
@@ -92,9 +87,10 @@
                       >
                         <p class="lead" v-if="formFields.length < 1">Добавьте в форму первое поле:</p>
                         <div class="form-selector">
-                          <v-selectize 
+                          <v-selectize
                             :options="fieldTypes" 
                             v-model.trim="fieldType" 
+                            :disableSearch="true"
                             placeholder="Выберете тип нового поля"
                           />
                         </div>
@@ -137,8 +133,8 @@
                           <label for="form_training">Тип вводимой информации:</label>
                           <div class="form-selector">
                             <v-selectize 
-                              :options="input.dataTypes" 
-                              v-model.trim="input.dataType" 
+                              :options="customSettings.inputDataTypes" 
+                              v-model.trim="input.dataType"
                               placeholder="Выберете тип вводимой информации"
                             />
                           </div>
@@ -200,20 +196,8 @@
                         >
                           <div class="container">
                             <div class="row align-items-center h-100">
-                              <div class="col-10 pl-3">
+                              <div class="col">
                                   {{ option.label }}
-                              </div>
-                              <div class="col-1">
-                                <button 
-                                  type="button" 
-                                  class="btn btn-primary"
-                                  @click="deleteThisOption(index)"
-                                  data-bs-toggle="tooltip" 
-                                  data-bs-placement="right" 
-                                  title="Изменить"
-                                >
-                                  <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
-                                </button>
                               </div>
                               <div class="col-1">
                                 <button 
@@ -247,7 +231,7 @@
                               class="form-control" 
                               :class="$v.select.options.$error ? 'is-invalid' : ''"
                               placeholder="Введите новый вариант (Enter чтобы добавить)" 
-                              v-model.trim="select.newOption"
+                              v-model.trim="customSettings.selectNewOption"
                               @keydown.enter="addNewOption"
                             >
                             <p v-if="$v.select.options.$dirty && !$v.select.options.required" class="invalid-feedback">
@@ -332,14 +316,8 @@ export default {
       ],
       fieldType: [],
       isFieldTypeSelected: false,
-// input
-      input: {
-        fieldType: 'input',
-        label: '',
-        placeholder: '',
-        isRequire: false,
-        formIsFull: false,
-        dataTypes: [
+      customSettings: {
+        inputDataTypes: [
           {
             id: 'text',
             label: 'Текст'
@@ -353,6 +331,14 @@ export default {
             label: 'Email'
           },
         ],
+        selectNewOption: '',
+      },
+// input
+      input: {
+        fieldType: 'input',
+        label: '',
+        placeholder: '',
+        isRequire: false,
         dataType: {
           id: 'text',
           label: 'Текст'
@@ -364,10 +350,7 @@ export default {
         label: '',
         placeholder: '',
         isRequire: false,
-        newOption: '',
         options: [],
-        selectedOption: [],
-        formIsFull: false
       },
 //массив полей формы
       formFields: []
@@ -393,7 +376,12 @@ export default {
   },
   watch: {
     "fieldType"() {
+      if (this.fieldType === null) {
+        this.fieldType = this.fieldTypes[0];
+        this.stopEditing(this.fieldType.id);
+      }
       if (this.fieldType != '') {
+        this.resetValidation(this.fieldType.id);
         this.isFieldTypeSelected = true
       }
     },
@@ -406,22 +394,12 @@ export default {
       let newObj = {}
       let fieldType = this.fieldType.id;
 
-      if (fieldType === 'input') {
-        this.checkNewField(fieldType);
-        if (!this.$v.input.$error) {
-          newObj = _cloneDeep(this.input);
-          this.resetField(fieldType)
-        }
-        else return
+      this.checkNewField(fieldType);
+      if (!this.$v[fieldType].$error) {
+        newObj = _cloneDeep(this[fieldType]);
+        this.resetField(fieldType);
       }
-      if (fieldType === 'select') {
-        this.checkNewField(fieldType);
-        if (!this.$v.select.$error) {
-          newObj = _cloneDeep(this.select)
-          this.resetField(fieldType)
-        }
-        else return
-      }
+      else return
 
       this.formFields.push(newObj)
       this.fieldType = [],
@@ -429,47 +407,30 @@ export default {
       console.log('Field was added.');
     },
     checkNewField(fieldType) {
-      if (fieldType === 'input') {
-        this.$v.input.$touch()
-        if (this.$v.input.$error) {
-          console.log(`Error: Invalid! ${fieldType}`)
-        }
+      this.$v[fieldType].$touch();
+      if (this.$v[fieldType].$error) {
+        console.log(`Error: Invalid! ${fieldType}`)
       }
-      if (fieldType === 'select') {
-        this.$v.select.$touch()
-        if (this.$v.select.$error) {
-          console.log(`Error: Invalid! ${fieldType}`)
-        }
-      }
-
     },
     resetField(fieldType) {
+      this[fieldType].label = '';
+      this[fieldType].placeholder = '';
+      this[fieldType].isRequire = false;
+
       if (fieldType === 'input') {
-        this.input.label = '';
-        this.input.placeholder = '';
-        this.dataType = {
+        this.input.dataType = {
           id: 'text',
           label: 'Текст'
-        };
-        this.input.isRequire = false;
+        }
       }
       if (fieldType === 'select') {
-        this.select.label = '';
-        this.select.placeholder = '';
-        this.select.newOption ='';
+        this.customSettings.selectNewOption ='';
         this.select.options = [];
-        this.select.selectedOption = [];
-        this.select.isRequire = false;
       }
       this.resetValidation(fieldType);
     },
     resetValidation(fieldType) {
-      if (fieldType === 'input') {
-        this.$v.input.$reset()
-      }
-      if (fieldType === 'select') {
-        this.$v.select.$reset()
-      }
+      this.$v[fieldType].$reset();
     },
     stopEditing(fieldType) {
       this.resetValidation(fieldType);
@@ -477,16 +438,15 @@ export default {
       this.isFieldTypeSelected = false;
     },
     addNewOption() {
-      if (this.select.newOption) {
+      if (this.customSettings.selectNewOption) {
         let currentOptionIndex = this.select.options.length;
         this.select.options.push({
           id: currentOptionIndex,
-          label: this.select.newOption,
-          text: this.select.newOption
+          label: this.customSettings.selectNewOption,
         });
         currentOptionIndex++;
-        this.select.newOption = '';
-        }
+        this.customSettings.selectNewOption = '';
+      }
     },
     deleteThisOption(index) {
       this.select.options.splice(index, 1);
@@ -498,14 +458,13 @@ export default {
       
       console.log('Form sent.')
       console.log(JSON.stringify(this.formName));
-      console.log(JSON.stringify(this.formFields))
+      console.log(JSON.stringify(this.formFields));
     },
     checkNewForm() {
       this.$v.formName.$touch()
 
       if (this.$v.formName.$error) {
         console.log('Error: Invalid! Имя формы пустое!')
-        return
       }
     }
   }

@@ -2,14 +2,12 @@
   <div id="app">
       <!-- <Backoffice /> -->
       <FormEditor />
-      <!-- <FormFields /> -->
   </div>
 </template>
 
 <script>
 // import Backoffice from './components/Backoffice'
 import FormEditor from './components/FormEditor.vue'
-// import FormFields from './components/FormFields.vue'
 
 export default {
   name: 'App',

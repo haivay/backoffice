@@ -1,6 +1,6 @@
 [
   {
-    "id": 1,
+    "id": "2dea738c-7d66-444b-a72d-e57e70021b05",
     "type_name": "orderCertificate",
     "document_fields": [
       {
@@ -9,21 +9,6 @@
         "label": "ФИО:",
         "placeholder": "Введите ФИО",
         "isRequire": true,
-        "formIsFull": true,
-        "dataTypes": [
-          {
-            "id": "text",
-            "label": "Текст"
-          },
-          {
-            "id": "number",
-            "label": "Число"
-          },
-          {
-            "id": "email",
-            "label": "Email"
-          }
-        ],
         "dataType": {
           "id": "text",
           "label": "Текст"
@@ -35,21 +20,16 @@
         "label": "Группа:",
         "placeholder": "Выберете группу",
         "isRequire": true,
-        "formIsFull": true,
-        "newOption": "",
         "options": [
           {
             "id": 0,
-            "label": "ПИб-41",
-            "text": "ПИб-41"
+            "label": "ПИб-41"
           },
           {
             "id": 1,
-            "label": "ПИнб-41",
-            "text": "ПИнб-41"
+            "label": "ПИнб-41"
           }
-        ],
-        "selectedOption": []
+        ]
       }
     ]
   }
