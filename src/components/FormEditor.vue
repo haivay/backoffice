@@ -28,49 +28,63 @@
                         v-for="(field, index) in formFields"
                         :key="index"
                       >
-                        <div class="row align-items-center h-100">
-                          <div class="col-10">
-                            <div class="form-group">
-                              <!-- <label for="input1">{{ field.label }} | Тип: {{ field.dataType.label }}</label> -->
-                              <label for="input1">{{ field.label }}</label>
-                              <div 
-                                class="field-input" 
-                                v-if="field.fieldType === 'input'"
-                              >
+                        <div class="row justify-content-between align-items-center h-100">
+                          <div class="col-9 col-sm-9 col-lg-10">
+                            <div>
+                              <div class="form-group">
+                                <!-- <label for="input1">{{ field.label }} | Тип: {{ field.dataType.label }}</label> -->
+                                <label for="input1">{{ field.label }}</label>
+                                <div 
+                                  class="field-input" 
+                                  v-if="field.fieldType === 'input'"
+                                >
+                                  <input 
+                                    :type="field.dataType" 
+                                    id='inputl'
+                                    :placeholder="field.placeholder"
+                                    class="form-control"
+                                    disabled
+                                  >
+                                </div>
+                                <div 
+                                  class="field-select form-check-label" 
+                                  v-if="field.fieldType === 'select'"
+                                >
+                                  <v-selectize 
+                                    :options="field.options" 
+                                    :placeholder="field.placeholder"
+                                    :disabled="true"
+                                  />
+                                </div>
+                              </div>
+                              <div class="form-check">
                                 <input 
-                                  :type="field.dataType" 
-                                  id='inputl'
-                                  :placeholder="field.placeholder"
-                                  class="form-control"
+                                  type="checkbox" 
+                                  class="form-check-input" 
+                                  id="isRequire"
+                                  :checked="field.isRequire"
                                   disabled
                                 >
+                                <label class="form-check-label" for="isRequire">{{ field.isRequire ? 'Обязательное' : 'Необязательное' }}</label>
                               </div>
-                              <div 
-                                class="field-select form-check-label" 
-                                v-if="field.fieldType === 'select'"
-                              >
-                                <v-selectize 
-                                  :options="field.options" 
-                                  :placeholder="field.placeholder"
-                                  :disabled="true"
-                                />
-                              </div>
-                            </div>
-                            <div class="form-check">
-                              <input 
-                                type="checkbox" 
-                                class="form-check-input" 
-                                id="isRequire"
-                                :checked="field.isRequire"
-                                disabled
-                              >
-                              <label class="form-check-label" for="isRequire">{{ field.isRequire ? 'Обязательное' : 'Необязательное' }}</label>
                             </div>
                           </div>
-                          <div class="col-1">
+                          <div class="col-1 col-md nopadding">
                             <button 
                               type="button" 
-                              class="btn btn-danger"
+                              class="btn btn-edit btn-primary"
+                              @click="editThisField(index)"
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="right" 
+                              title="Редактировать поле"
+                            >
+                              <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
+                            </button>
+                          </div>
+                          <div class="col-1 col-md nopadding">
+                            <button 
+                              type="button" 
+                              class="btn btn-delete btn-danger"
                               @click="deleteThisField(index)"
                               data-bs-toggle="tooltip" 
                               data-bs-placement="right" 
@@ -387,6 +401,9 @@ export default {
     },
   },
   methods: {
+    editThisField(index) {
+      console.log(index);
+    },
     deleteThisField(index) {
       this.formFields.splice(index, 1);
     },
@@ -491,5 +508,9 @@ export default {
     -ms-user-select: none;       /* Internet Explorer/Edge */
     user-select: none;           /* Non-prefixed version, currently
                                     not supported by any browser */
+  }
+  .nopadding {
+   padding: 0 !important;
+   margin: 0 !important;
   }
 </style>
