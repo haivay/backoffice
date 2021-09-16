@@ -509,7 +509,7 @@ export default {
       }
       axios.post('/testTry', form)
       .then((response) => {
-        console.log(response);
+        console.log(response.data);
       });
     }
   }
