@@ -508,8 +508,8 @@ export default {
         formId: this.formId
       }
       axios.post('/testTry', form)
-      .then(function (response){
-        console.log(response.data);
+      .then((response) => {
+        console.log(response);
       });
     }
   }

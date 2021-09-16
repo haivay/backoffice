@@ -1,4 +1,4 @@
-import express, { query } from 'express';
+import express from 'express';
 import pkg from 'pg';
 const { Client } = pkg;
 import path from 'path'
@@ -6,7 +6,6 @@ import serveStatic from 'serve-static';
 import bodyParser from 'body-parser';
 
 const app = express()
-const urlencodedParser = express.urlencoded({extended: false});
 const port = 3000
 
 const client = new Client({
@@ -50,6 +49,7 @@ app.post('/testTry', (req, res) => {
   client.query(query, [formId], (err, data) => {
     if (err) return console.log(err);
     console.log(data.rows[0]);
+    res = data.rows[0];
   });
 });
 
