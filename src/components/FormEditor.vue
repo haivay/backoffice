@@ -296,6 +296,14 @@
                   >
                     Отправить форму
                   </button>
+                  <!-- Тестовая кнопка для отлова БД -->
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-primary w-100 mt-4"
+                    @click="testTry()"
+                  >
+                    Попытка словить
+                  </button>
                 </div>
               </div>
             </form>
@@ -309,6 +317,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
+import axios from 'axios';
 var _cloneDeep = require('lodash/cloneDeep');
 
 export default {
@@ -317,6 +326,7 @@ export default {
   data() {
     return {
       title: 'Редактор форм',
+      formId: '5f044367-4b5a-421a-b5a1-d14b624b81e8',
       formName: '',
       fieldTypes: [
         {
@@ -476,6 +486,12 @@ export default {
       console.log('Form sent.')
       console.log(JSON.stringify(this.formName));
       console.log(JSON.stringify(this.formFields));
+      const form = {
+        formName: this.formName,
+        formFields: this.formFields
+      }
+      console.log(form);
+      axios.post('/saveForm', form);
     },
     checkNewForm() {
       this.$v.formName.$touch()
@@ -483,6 +499,18 @@ export default {
       if (this.$v.formName.$error) {
         console.log('Error: Invalid! Имя формы пустое!')
       }
+    },
+    // editForm(formName){
+    //   axios.get('/editForm', form);
+    // }
+    testTry(){
+      const form = {
+        formId: this.formId
+      }
+      axios.post('/testTry', form)
+      .then(function (response){
+        console.log(response.data);
+      });
     }
   }
 }
