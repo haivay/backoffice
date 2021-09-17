@@ -59,7 +59,7 @@ app.post('/testTry', (req, res) => {
   client.query(query, [formId], (err, data) => {
     if (err) return console.log(err);
     // console.log(data.rows[0]);
-    res.status(200).send(data.rows)
+    res.status(200).send(data.rows[0])
   });
 });
 
