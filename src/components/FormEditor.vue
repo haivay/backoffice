@@ -2,10 +2,9 @@
   <div class="form-editor">
     <div class="container">
       <div class="container-fluid main-content-wrapper">
-        <h2 class='title'>{{ title }}</h2>
         <div class="row">
-          <div class="col-md-8">
-            <!-- <div class="shadow p-3 mb-5 bg-body rounded"> -->
+          <div class="col-md-8 mx-auto">
+            <h2 class="title">{{ title }}</h2>
             <form class="doc" @submit.prevent="addNewForm">
               <div>
                 <input 
@@ -478,10 +477,9 @@ export default {
     deleteThisOption(index) {
       this.select.options.splice(index, 1);
     },
-    addNewForm(){
+    addNewForm() {
       this.checkNewForm();
       if (this.$v.formName.$error) return
-      // fetch('http://localhost:8080/') 
       
       console.log('Form sent.')
       console.log(JSON.stringify(this.formName));
@@ -503,13 +501,13 @@ export default {
     // editForm(formName){
     //   axios.get('/editForm', form);
     // }
-    testTry(){
+    testTry() {
       const form = {
         formId: this.formId
       }
       axios.post('/testTry', form)
       .then((response) => {
-        console.log(response);
+        console.log(response.data);
       });
     }
   }

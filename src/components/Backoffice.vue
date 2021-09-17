@@ -3,9 +3,36 @@
     <div class="container">
       <div class="container-fluid main-content-wrapper">
           <div class="row">
-            <div class="col-md-8">
+            <div class="col-4">
+              <div class="formList">
+                <div 
+                  class="form"
+                  v-for="(form, index) in forms"
+                  :key="index"
+                >
+                  <div class="list-group list-group-flush">
+                    <button 
+                      type="button" 
+                      class="list-group-item list-group-item-action" 
+                      aria-current="true"
+                    >
+                      {{ form.type_name }} 
+                    </button>
+                    <!-- {{ form.document_fields }} -->
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-8">
+              <div 
+                v-if="selectedForm != {}"
+                class="alert alert-primary" 
+                role="alert"
+              >
+                Форма не выбрана
+              </div>
+              <!-- <h2 class='title'>{{ title }}</h2>
               <form class="doc" @submit.prevent="checkForm">
-                <h2 class='title'>{{ title }}</h2>
                 <div class="form-group">
                   <label for="fullName">Ваше полное имя (ФИО):</label>
                   <input 
@@ -120,7 +147,7 @@
                   </p>
                 </div>
                 <button type="submit" class="btn btn-outline-primary w-100">Отправить</button>
-              </form>
+              </form> -->
             </div>
           </div>
         </div>
@@ -131,6 +158,7 @@
 <script>
 import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
+import axios from 'axios';
 // import VSelectize from '@isneezy/vue-selectize'
 
 export default {
@@ -138,14 +166,24 @@ export default {
   name: 'Backoffice',
   data() {
     return {
-      title: 'Заказать справку',
+      title: 'Backoffice',
+      forms: [],
+      // forms: [
+      //   {
+      //     id: '5dc9f2e2-f5eb-4fda-85a7-7dde8f3bd8a7',
+      //     type_name: 'Тестовый ввод',
+      //     document_fields: [ [Object], [Object] ]
+      //   },
+      //   {
+      //     id: '5f044367-4b5a-421a-b5a1-d14b624b81e8',
+      //     type_name: 'Тестовая форма',
+      //     document_fields: [ [Object], [Object] ]
+      //   }
+      // ],
+      selectedForm: [],
       form: {
         fullName: '',
         groupName: '',
-        // formsOfTrain: [
-        //   'Очная форма обучения',
-        //   'Заочная форма обучения'
-        // ],
         formsOfTrain: [
           {
             id: 'fullTime',
@@ -163,6 +201,9 @@ export default {
       }
     }
   },
+  created() {
+    this.getForms();
+  },
   computed: {},
   watch: {
     'form.wayToGetOption'(newOption) {
@@ -178,6 +219,14 @@ export default {
     }
   },
   methods: {
+    getForms() {
+      axios.post('/getForms')
+      .then((response) => {
+        this.forms = response.data;
+        console.log(response.data);
+      });
+      console.log(`this.forms after json metds: ${this.forms}`)
+    },
     checkForm() {
       this.$v.form.$touch()
       if (this.$v.form.$error) {
@@ -198,5 +247,8 @@ export default {
   }
   .form-group {
     margin-bottom: .7rem;
+  }
+  .list-group-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125) !important;
   }
 </style>

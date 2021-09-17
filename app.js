@@ -18,8 +18,8 @@ const client = new Client({
 client.connect();
 
 const __dirname = path.resolve();
-app.use('/', express.static(path.join(__dirname, '/src')));
-app.use(serveStatic(__dirname + "/dist"));
+app.use(express.static(path.join(__dirname, './public')));
+
 app.use(bodyParser.json({
   limit: '500mb',
   parameterLimit:50000
@@ -30,8 +30,18 @@ app.use(bodyParser.urlencoded({
   extended: true
 }))
 
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve('./views/index.html'));
+app.get('/', (req,res) => {
+  res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
+app.post('/getForms', (req, res) => {
+  const query = 'SELECT * FROM practice.tblformtypes';
+  client.query(query, (err, data) => {
+    if (err) return console.log(err);
+    console.log(data.rows);
+    // res = data.rows;
+    res.status(200).send(data.rows)
+  })
 })
 
 app.post('/saveForm', async(req, res) =>{
@@ -48,8 +58,8 @@ app.post('/testTry', (req, res) => {
   const query = 'SELECT * FROM practice.tblformtypes WHERE id = $1';
   client.query(query, [formId], (err, data) => {
     if (err) return console.log(err);
-    console.log(data.rows[0]);
-    res = data.rows[0];
+    // console.log(data.rows[0]);
+    res.status(200).send(data.rows)
   });
 });
 
