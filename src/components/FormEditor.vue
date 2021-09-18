@@ -517,6 +517,7 @@ export default {
       }
       console.log(form);
       axios.post('/saveForm', form);
+      this.update()
     },
     checkNewForm() {
       this.$v.formName.$touch()
@@ -539,6 +540,9 @@ export default {
     },
     closeEditor() {
       this.$emit('closeEditor')
+    },
+    update() {
+      this.$emit('update');
     }
   }
 }

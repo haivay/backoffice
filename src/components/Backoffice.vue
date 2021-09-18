@@ -265,22 +265,23 @@
         </div>
     </div>
     <hr>
+    <FormEditor
+      v-if="isFormCreating && !isAnyFormEditing"
+      :formName="''"
+      :formFields="[]"
+      :saveButtonTitle="'Добавить форму'"
+      :backButtonTitle="'Назад'"
+      @update="getForms"
+      @closeEditor="stopCreatingForm"
+      :key="1"
+    />
     <FormEditor 
       v-if="isAnyFormEditing && !isFormCreating"
       :formName="formName"
       :formFields="formFields"
-      :saveButtonTitle="'Сохранить форму'"
+      :saveButtonTitle="'Сохранить изменения'"
       :backButtonTitle="'Прекратить редактирование'"
       @closeEditor="stopEditingForm"
-      :key="1"
-    />
-    <FormEditor
-      v-if="isFormCreating && !isAnyFormEditing"
-      
-      :formFields="[]"
-      :saveButtonTitle="'Отправить форму'"
-      :backButtonTitle="'Назад'"
-      @closeEditor="stopCreatingForm"
       :key="2"
     />
   </div>
@@ -291,6 +292,7 @@ import FormEditor from './FormEditor.vue'
 import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
 import axios from 'axios';
+var _cloneDeep = require('lodash/cloneDeep');
 // import VSelectize from '@isneezy/vue-selectize'
 
 export default {
@@ -360,14 +362,17 @@ export default {
   },
   methods: {
     forceUpdate(){
-        this.$forceUpdate()
+      this.$forceUpdate()
     },
     getForms() {
       axios.post('/getForms')
       .then((response) => {
         this.forms = JSON.parse(JSON.stringify(response.data));
         console.log(response.data);
+        this.forceUpdate();
       });
+      this.stopEditingForm();
+      this.stopCreatingForm();
     },
     createForm() {
       this.stopEditingForm();
@@ -375,7 +380,6 @@ export default {
     },
     selectForm(index) {
       this.selectedFormNonParse = this.forms[index]; //для метода checkSelectedForm
-
       let parsedObj = JSON.parse(JSON.stringify(this.forms[index]))
       this.selectedForm = parsedObj;
       this.isFormSelected = true;
@@ -388,15 +392,27 @@ export default {
     checkSelectedForm(index) {
       return this.forms.indexOf(this.selectedFormNonParse) == index ? true : false
     },
-    editThisForm(selectedForm) {
+    async editThisForm(selectedForm) {
       this.stopCreatingForm()
       this.isAnyFormEditing = true;
-      console.log(`Редактируется форма:`)
-      this.editingForm = selectedForm;
+      this.editingForm = _cloneDeep(selectedForm)
+      // this.editingForm = selectedForm;
+      // this.formName = this.editingForm.type_name;
+      // this.formFields = this.editingForm.document_fields;
       console.log(this.editingForm)
-      // console.log(this.editingForm.form_type)
-      this.formName = this.editingForm.type_name;
-      this.formFields = this.editingForm.document_fields;
+      
+      // await this.updateForm(this.editingForm);
+
+      this.getForms();
+      this.unselectForm();
+    },
+    updateForm(editingForm) {
+      // const form = {
+      //   id: this.editingForm.id,
+      //   formName: this.formName,
+      //   formFields: this.formFields
+      // }
+      axios.post('/updateForm', editingForm)
     },
     stopEditingForm() {
       this.isAnyFormEditing = false;
@@ -413,9 +429,9 @@ export default {
         formName: this.selectedForm.type_name,
         formFields: this.selectedForm.document_fields
       }
-      console.log(form);
       axios.post('/deleteForm', form)
-      this.forceUpdate()
+      this.getForms();
+      this.unselectForm();
     },
     checkForm() {
       this.$v.form.$touch()

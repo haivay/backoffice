@@ -26,6 +26,12 @@ export function deleteForm(id) {
   return client.query(query, [id]);
 }
 
+export function updateForm(id, formName, formFields) {
+  // const query = "DELETE FROM practice.tblformtypes WHERE id = $1;";
+  const query = "UPDATE practice.tblformtypes SET type_name = $2, document_fields = $3 WHERE id = $1;";
+  return client.query(query, [id, formName, formFields]);
+}
+
 export async function testTry(formId){
   const query = 'SELECT * FROM practice.tblformtypes WHERE id = $1';
   const query_result = await client.query(query, [formId]);
