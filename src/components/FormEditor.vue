@@ -293,19 +293,26 @@
                     class="btn btn-outline-primary w-100 mt-4"
                     v-if="newFormIsFull"
                   >
-                    Отправить форму
+                    {{ saveButtonTitle }}
                   </button>
                   <!-- Тестовая кнопка для отлова БД -->
-                  <button 
+                  <!-- <button 
                     type="button" 
                     class="btn btn-outline-primary w-100 mt-4"
                     @click="testTry()"
                   >
                     Попытка словить
-                  </button>
+                  </button> -->
                 </div>
               </div>
             </form>
+            <button 
+              type="button" 
+              class="btn btn-outline-warning w-100 mt-2 mb-4"
+              @click="closeEditor"
+            >
+              {{ backButtonTitle }}
+            </button>
           </div>
         </div>
       </div>
@@ -322,11 +329,31 @@ var _cloneDeep = require('lodash/cloneDeep');
 export default {
   mixins: [validationMixin],
   name: 'FormEditor',
+  props: {
+    formName: {
+      type: String,
+      default: ''
+    },
+    formFields: {
+      type: Array,
+      default: function () {
+        return {}
+      }
+    },
+    saveButtonTitle: {
+      type: String,
+      default: 'Сохранить изменения'
+    },
+    backButtonTitle: {
+      type: String,
+      default: 'Кнопка деф'
+    }
+  },
   data() {
     return {
       title: 'Редактор форм',
       formId: '5f044367-4b5a-421a-b5a1-d14b624b81e8',
-      formName: '',
+      // formName: '',
       fieldTypes: [
         {
           id: 'input',
@@ -376,7 +403,7 @@ export default {
         options: [],
       },
 //массив полей формы
-      formFields: []
+      // formFields: []
     }
   },
   validations: {
@@ -509,6 +536,9 @@ export default {
       .then((response) => {
         console.log(response.data);
       });
+    },
+    closeEditor() {
+      this.$emit('closeEditor')
     }
   }
 }
