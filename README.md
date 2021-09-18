@@ -4,15 +4,15 @@
 ```
 npm install
 ```
-Чтобы запустить на сервере, нужно "собрать" проект:
+В первом терминале запустить 
 ```
-npm run build
+npm run serve
 ```
-После чего запускать сервер:
+Во втором терминале запустить сервер через nodemon
 ```
-node app.js
+npm run dev
 ```
-
+-------------------------------------------------------
 ### Compiles and hot-reloads for development
 ```
 npm run serve
