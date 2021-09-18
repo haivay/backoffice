@@ -8,7 +8,7 @@ npm install
 ```
 npm run serve
 ```
-После чего запускать сервер через nodemon
+Во втором терминале запустить сервер через nodemon
 ```
 npm run dev
 ```
