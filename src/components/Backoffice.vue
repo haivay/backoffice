@@ -129,7 +129,7 @@
                 </button>
                 <button 
                   type="button" 
-                  class="btn btn-outline-warning w-100 mb-4" 
+                  class="btn btn-outline-secondary w-100 mb-4" 
                   @click="unselectForm"
                 >
                   Назад

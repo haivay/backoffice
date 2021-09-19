@@ -203,27 +203,54 @@
                           </p>
                         </div>
                         <p>Варианты выбора:</p>
-                        <div
-                          class="option-item shadow-sm p-2 ml-3 mr-3 mb-1 bg-body rounded"
-                          v-for="(option, index) in select.options"
-                          :key="index"
+                        <div 
+                          class="option-items"
+                          v-if="renderOptionItems"
+                          @dragenter.prevent
+                          @dragover.prevent
                         >
-                          <div class="container">
-                            <div class="row align-items-center h-100">
-                              <div class="col">
-                                  {{ option.label }}
-                              </div>
-                              <div class="col-1">
-                                <button 
-                                  type="button" 
-                                  class="btn btn-danger"
-                                  @click="deleteThisOption(index)"
-                                  data-bs-toggle="tooltip" 
-                                  data-bs-placement="right" 
-                                  title="Удалить"
-                                >
-                                  <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                                </button>
+                          <div
+                            class="option-item"
+                            
+                            v-for="(option, index) in select.options"
+                            :key="index"
+                            draggable="true"
+                            @dragstart="startDrag($event, option)"
+                            @dragover="dragOver(index)"
+                            @drop="onDrop($event, index)"
+                          >
+                            <div class="container">
+                              <div 
+                                class="row align-items-center h-100 shadow-sm p-2 ml-3 mr-3 mb-1 bg-body rounded"
+                                :class="checkDropOver(index) ? 'borderForDragOver' : ''"
+                              >
+                                <div class="col-1 nopadding reorder">
+                                  <button 
+                                    type="button" 
+                                    class="btn btn-grab"
+                                    @click="deleteThisOptio(index)"
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="Нажать и держать для перетаскивания"
+                                  >
+                                    <font-awesome-icon :icon="['fas', 'grip-lines']" class="icon alt"/>
+                                  </button>
+                                </div>
+                                <div class="col nopadding">
+                                    {{ option.label }}
+                                </div>
+                                <div class="col-1 nopadding">
+                                  <button 
+                                    type="button" 
+                                    class="btn btn-danger"
+                                    @click="deleteThisOption(index)"
+                                    data-bs-toggle="tooltip" 
+                                    data-bs-placement="right" 
+                                    title="Удалить"
+                                  >
+                                    <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -299,7 +326,7 @@
                   </button>
                   <button 
                     type="button" 
-                    class="btn btn-outline-warning w-100 mt-2 mb-4"
+                    class="btn btn-outline-secondary w-100 mt-2 mb-4"
                     @click="closeEditor"
                   >
                     {{ backButtonTitle }}
@@ -372,6 +399,8 @@ export default {
       ],
       fieldType: [],
       isFieldTypeSelected: false,
+      renderOptionItems: true,
+      dragOverId: -1,
       customSettings: {
         inputDataTypes: [
           {
@@ -444,7 +473,7 @@ export default {
   },
   methods: {
     editThisField(index) {
-      console.log(index);
+      console.log(`Пока не работает :) index: ${index}`);
     },
     deleteThisField(index) {
       this.formFields.splice(index, 1);
@@ -506,6 +535,45 @@ export default {
         currentOptionIndex++;
         this.customSettings.selectNewOption = '';
       }
+    },
+    startDrag(event, item) {
+      event.dataTransfer.dropEffect = 'move'
+      event.dataTransfer.effectAllowed = 'move'
+      event.dataTransfer.setData('itemID', item.id)
+    },
+    dragOver(index) {
+      // console.log(index)
+      this.dragOverId = index;
+    },
+    checkDropOver(index) {
+      if (this.dragOverId === index) {
+        return true
+      }
+      else {
+        return false
+      }
+    },
+    onDrop(event, index) {
+      const itemID = event.dataTransfer.getData('itemID')
+      console.log(`Первый элемент id: ${itemID}`)
+      console.log(`Второй элемент id: ${index}`)
+      //меняем индексы элементов
+      var tempID = this.select.options[index].id
+      this.select.options[index].id = this.select.options[itemID].id
+      this.select.options[itemID].id = tempID
+      // меняем элементы местами
+      var temp = this.select.options[index];
+      this.select.options[index] = this.select.options[itemID];
+      this.select.options[itemID] = temp;
+      // перерендериваем список
+      this.forceRerenderOptionItems()
+      this.dragOverId = -1;
+    },
+    forceRerenderOptionItems() {
+      this.renderOptionItems = false;
+      this.$nextTick(() => {
+        this.renderOptionItems = true;
+      })
     },
     deleteThisOption(index) {
       this.select.options.splice(index, 1);
@@ -580,5 +648,17 @@ export default {
   .nopadding {
    padding: 0 !important;
    margin: 0 !important;
+  }
+  .btn-grab {
+    color: #c4c4c4 !important;
+    cursor: grab !important;
+  }
+  .btn-grab:focus,
+  .btn-grab:active{
+    box-shadow: none !important;
+    outline: 0px !important;
+  }
+  .borderForDragOver {
+    border: dashed 1px #acacac !important;
   }
 </style>

@@ -9,9 +9,10 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 //fontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faTrashAlt, faEdit } from '@fortawesome/free-regular-svg-icons'
+import { faGripLines } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faTrashAlt, faEdit)
+library.add(faTrashAlt, faEdit, faGripLines)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
