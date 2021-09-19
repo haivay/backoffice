@@ -18,11 +18,8 @@
                       @click="selectForm(index)" 
                       :class="checkSelectedForm(index) ? 'list-group-item-border-blue' : ''"
                     >
-                    <!-- :class="isFormSelected ? 'list-group-item-border-blue' : ''" -->
-                    <!-- :class="checkSelectedForm(form, index) != index ? 'list-group-item-border-blue' : ''" -->
-                      {{ form.type_name }} 
+                      {{ form.type_name }}
                     </button>
-                    <!-- {{ form.document_fields }} -->
                   </div>
                 </div>
               </div>
@@ -49,7 +46,7 @@
               >
                 <div class="row justify-content-between h-100">
                   <div class="col-10">
-                    <h2 class="title mb-3">{{ selectedForm.type_name }}</h2>
+                    <h2 class="title mb-3">{{ selectedForm.type_name | formNameLength(selectedForm.type_name) }}</h2>
                   </div>
                   <div class="col-md nopadding">
                     <button 
@@ -267,8 +264,10 @@
     <!-- добавить форму -->
     <FormEditor
       v-if="isFormCreating && !isAnyFormEditing"
+      :formName="formName"
       :saveButtonTitle="'Добавить форму'"
       :backButtonTitle="'Назад'"
+      v-model="formName"
       @update="getForms"
       @closeEditor="stopCreatingForm"
       :key="1"
@@ -281,6 +280,7 @@
       :formFields="editingForm.document_fields"
       :saveButtonTitle="'Сохранить изменения'"
       :backButtonTitle="'Прекратить редактирование'"
+      v-model="editingForm.type_name"
       @update="getForms"
       @closeEditor="stopEditingForm"
       :key="2"
@@ -295,7 +295,6 @@ import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
 import axios from 'axios';
 var _cloneDeep = require('lodash/cloneDeep');
-// import VSelectize from '@isneezy/vue-selectize'
 
 export default {
   mixins: [validationMixin],
@@ -305,6 +304,8 @@ export default {
     return {
       title: 'Backoffice',
       forms: [],
+      formName: '',
+      formFields: [],
       selectedForm: {},
       selectedFormNonParse: {},
       isFormSelected: false,
@@ -312,7 +313,6 @@ export default {
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
-      formFields: [],
       form: {
         fullName: '',
         groupName: '',
@@ -336,6 +336,17 @@ export default {
   mounted() {
     this.getForms();
   },
+  filters: {
+    formNameLength(name) {
+      if (name.split('').length < 32) {
+        return name
+      }
+      else {
+        name = name.split('').slice(0, 32).concat(['...']).join('')
+        return name
+      }
+    }
+  },
   computed: {},
   watch: {
     'form.wayToGetOption'(newOption) {
@@ -358,11 +369,10 @@ export default {
       axios.post('/getForms')
       .then((response) => {
         this.forms = JSON.parse(JSON.stringify(response.data));
-        console.log(response.data);
         this.forceUpdate();
+        this.stopEditingForm();
+        this.stopCreatingForm();
       });
-      this.stopEditingForm();
-      this.stopCreatingForm();
     },
     createForm() {
       this.stopEditingForm();
@@ -389,6 +399,8 @@ export default {
     },
     stopCreatingForm() {
       this.isFormCreating = false;
+      this.formName = ''
+      this.formFields = []
     },
     stopEditingForm() {
       this.isAnyFormEditing = false;
@@ -426,16 +438,17 @@ export default {
   .form-group {
     margin-bottom: .7rem;
   }
+  .list-group-item {
+    word-break: break-all;
+  }
   .list-group-item-border {
     border-bottom: 1px solid #dfdfdf !important;
   }
   .list-group-item-border-blue {
-    /* border-bottom: 1px solid #a9ccff !important;
-    border-left: 1px solid #a9ccff !important; */
     background-color: #f0f5ff;
   }
   .nopadding {
-   padding: 0 !important;
-   margin: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 </style>

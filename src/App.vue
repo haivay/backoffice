@@ -1,20 +1,16 @@
 <template>
   <div id="app">
       <Backoffice />
-      <!-- <hr> -->
-      <!-- <FormEditor /> -->
   </div>
 </template>
 
 <script>
 import Backoffice from './components/Backoffice.vue'
-// import FormEditor from './components/FormEditor.vue'
 
 export default {
   name: 'App',
   components: {
     Backoffice,
-    // FormEditor
   }
 }
 </script>
