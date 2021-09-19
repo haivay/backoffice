@@ -1,9 +1,9 @@
 <template>
   <div class="form-editor">
-    <div class="container">
-      <div class="container-fluid main-content-wrapper">
+    <!-- <div class="container">
+      <div class="container-fluid main-content-wrapper"> -->
         <div class="row">
-          <div class="col-md-8 mx-auto">
+          <div class="col-md mx-auto">
             <h2 class="title">{{ title }}</h2>
             <div>
               <input 
@@ -343,8 +343,8 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      <!-- </div>
+    </div> -->
   </div>
 </template>
 

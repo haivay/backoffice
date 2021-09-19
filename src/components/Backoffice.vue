@@ -34,14 +34,14 @@
             </div>
             <div class="col-8">
               <div 
-                v-if="!isFormSelected"
+                v-if="!isFormSelected && !isAnyFormEditing && !isFormCreating"
                 class="alert alert-primary" 
                 role="alert"
               >
                 Форма не выбрана
               </div>
               <div 
-                v-else
+                v-else-if="isFormSelected && !isAnyFormEditing && !isFormCreating"
                 class="form"
               >
                 <div class="row justify-content-between h-100">
@@ -85,10 +85,10 @@
                         v-if="field.fieldType === 'input'" 
                         class="form-group"
                       >
-                        <label for="fullName">{{ field.label }}</label>
+                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
                         <input 
-                          type="text" 
-                          id='fullName'
+                          :type="field.dataType" 
+                          :id="field.fieldType + index.toString()"
                           :placeholder="field.placeholder"
                           class="form-control"
                           :class="$v.form.fullName.$error ? 'is-invalid' : ''"
@@ -102,7 +102,7 @@
                         v-if="field.fieldType === 'select'" 
                         class="form-group"
                       >
-                        <label for="form_training">{{ field.label }}</label>
+                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
                         <div class="form-selector">
                           <v-selectize 
                             :options="field.options" 
@@ -131,6 +131,35 @@
                 >
                   Назад
                 </button>
+              </div>
+              <div 
+                v-else
+                class="form-editor"
+              >
+                <!-- добавить форму -->
+                <FormEditor
+                  v-if="isFormCreating && !isAnyFormEditing"
+                  :formName="formName"
+                  :saveButtonTitle="'Добавить форму'"
+                  :backButtonTitle="'Назад'"
+                  v-model="formName"
+                  @update="getForms"
+                  @closeEditor="stopCreatingForm"
+                  :key="1"
+                />
+                <!-- редактировать форму -->
+                <FormEditor 
+                  v-if="isAnyFormEditing && !isFormCreating"
+                  :id="editingForm.id"
+                  :formName="editingForm.type_name"
+                  :formFields="editingForm.document_fields"
+                  :saveButtonTitle="'Сохранить изменения'"
+                  :backButtonTitle="'Прекратить редактирование'"
+                  v-model="editingForm.type_name"
+                  @update="getForms"
+                  @closeEditor="stopEditingForm"
+                  :key="2"
+                />
               </div>
               <!-- <h2 class='title'>{{ title }}</h2>
               <form class="doc" @submit.prevent="checkForm">
@@ -261,30 +290,32 @@
     </div>
     
     <hr>
-    <!-- добавить форму -->
-    <FormEditor
-      v-if="isFormCreating && !isAnyFormEditing"
-      :formName="formName"
-      :saveButtonTitle="'Добавить форму'"
-      :backButtonTitle="'Назад'"
-      v-model="formName"
-      @update="getForms"
-      @closeEditor="stopCreatingForm"
-      :key="1"
-    />
-    <!-- редактировать форму -->
-    <FormEditor 
-      v-if="isAnyFormEditing && !isFormCreating"
-      :id="editingForm.id"
-      :formName="editingForm.type_name"
-      :formFields="editingForm.document_fields"
-      :saveButtonTitle="'Сохранить изменения'"
-      :backButtonTitle="'Прекратить редактирование'"
-      v-model="editingForm.type_name"
-      @update="getForms"
-      @closeEditor="stopEditingForm"
-      :key="2"
-    />
+    <!-- <div class="form-editor">
+      добавить форму
+      <FormEditor
+        v-if="isFormCreating && !isAnyFormEditing"
+        :formName="formName"
+        :saveButtonTitle="'Добавить форму'"
+        :backButtonTitle="'Назад'"
+        v-model="formName"
+        @update="getForms"
+        @closeEditor="stopCreatingForm"
+        :key="1"
+      />
+      редактировать форму
+      <FormEditor 
+        v-if="isAnyFormEditing && !isFormCreating"
+        :id="editingForm.id"
+        :formName="editingForm.type_name"
+        :formFields="editingForm.document_fields"
+        :saveButtonTitle="'Сохранить изменения'"
+        :backButtonTitle="'Прекратить редактирование'"
+        v-model="editingForm.type_name"
+        @update="getForms"
+        @closeEditor="stopEditingForm"
+        :key="2"
+      />
+    </div> -->
   </div>
 </template>
 
@@ -376,6 +407,7 @@ export default {
     },
     createForm() {
       this.stopEditingForm();
+      this.unselectForm();
       this.isFormCreating = true;
     },
     selectForm(index) {
@@ -394,8 +426,8 @@ export default {
     editThisForm() {
       this.stopCreatingForm()
       this.editingForm = _cloneDeep(this.selectedForm)
-      this.isAnyFormEditing = true;
       this.unselectForm();
+      this.isAnyFormEditing = true;
     },
     stopCreatingForm() {
       this.isFormCreating = false;
@@ -409,7 +441,7 @@ export default {
       this.isModalOpen = true;
     },
     deleteThisForm() {
-      console.log(this.selectedForm)
+      console.log(`Removed: ${this.selectedForm.type_name}`)
       const form = {
         id: this.selectedForm.id,
       }
