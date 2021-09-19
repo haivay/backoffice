@@ -5,7 +5,8 @@
         <div class="row">
           <div class="col-md-8 mx-auto">
             <h2 class="title">{{ title }}</h2>
-            <form class="doc" @submit.prevent="addNewForm">
+            <!-- <form class="doc" @submit.prevent="addNewForm(formName, formFields)"> -->
+            <!-- <form class="doc"> -->
               <div>
                 <input 
                   class="form-control form-control-lg" 
@@ -289,11 +290,19 @@
                     </form>
                   </div>
                   <button 
-                    type="submit" 
+                    type="button" 
                     class="btn btn-outline-primary w-100 mt-4"
                     v-if="newFormIsFull"
+                    @click="addNewForm"
                   >
                     {{ saveButtonTitle }}
+                  </button>
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-warning w-100 mt-2 mb-4"
+                    @click="closeEditor"
+                  >
+                    {{ backButtonTitle }}
                   </button>
                   <!-- Тестовая кнопка для отлова БД -->
                   <!-- <button 
@@ -305,14 +314,7 @@
                   </button> -->
                 </div>
               </div>
-            </form>
-            <button 
-              type="button" 
-              class="btn btn-outline-warning w-100 mt-2 mb-4"
-              @click="closeEditor"
-            >
-              {{ backButtonTitle }}
-            </button>
+            <!-- </form> -->
           </div>
         </div>
       </div>
@@ -330,6 +332,10 @@ export default {
   mixins: [validationMixin],
   name: 'FormEditor',
   props: {
+    id: {
+      type: String,
+      default: ''
+    },
     formName: {
       type: String,
       default: ''
@@ -337,7 +343,7 @@ export default {
     formFields: {
       type: Array,
       default: function () {
-        return {}
+        return []
       }
     },
     saveButtonTitle: {
@@ -507,16 +513,21 @@ export default {
     addNewForm() {
       this.checkNewForm();
       if (this.$v.formName.$error) return
-      
+
       console.log('Form sent.')
-      console.log(JSON.stringify(this.formName));
-      console.log(JSON.stringify(this.formFields));
       const form = {
+        id: this.id,
         formName: this.formName,
         formFields: this.formFields
       }
-      console.log(form);
-      axios.post('/saveForm', form);
+
+      if (this.id === '') {
+        axios.post('/saveForm', form);
+      }
+      else {
+        axios.post('/updateForm', form);
+      }
+
       this.update()
     },
     checkNewForm() {
@@ -526,9 +537,6 @@ export default {
         console.log('Error: Invalid! Имя формы пустое!')
       }
     },
-    // editForm(formName){
-    //   axios.get('/editForm', form);
-    // }
     testTry() {
       const form = {
         formId: this.formId

@@ -18,18 +18,17 @@ export async function getForms() {
 
 export function saveForm(formName, formFields) {
   const query = "INSERT INTO practice.tblformtypes(type_name, document_fields) VALUES ($1, $2)";
-  return client.query(query, [formName, formFields]);
+  client.query(query, [formName, formFields]);
 }
 
 export function deleteForm(id) {
   const query = "DELETE FROM practice.tblformtypes WHERE id = $1;";
-  return client.query(query, [id]);
+  client.query(query, [id]);
 }
 
 export function updateForm(id, formName, formFields) {
-  // const query = "DELETE FROM practice.tblformtypes WHERE id = $1;";
   const query = "UPDATE practice.tblformtypes SET type_name = $2, document_fields = $3 WHERE id = $1;";
-  return client.query(query, [id, formName, formFields]);
+  client.query(query, [id, formName, formFields]);
 }
 
 export async function testTry(formId){

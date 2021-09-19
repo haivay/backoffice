@@ -8,7 +8,7 @@
                 <div 
                   class="forms"
                   v-for="(form, index) in forms"
-                  :key="index"
+                  :key="form.id"
                 >
                   <div class="list-group list-group-flush">
                     <button 
@@ -55,7 +55,7 @@
                     <button 
                       type="button" 
                       class="btn btn-edit btn-primary"
-                      @click="editThisForm(selectedForm)"
+                      @click="editThisForm"
                       data-bs-toggle="tooltip" 
                       data-bs-placement="right" 
                       title="Редактировать форму"
@@ -67,7 +67,7 @@
                     <button 
                       type="button" 
                       class="btn btn-edit btn-danger"
-                      @click="deleteThisForm(selectedForm)"
+                      @click="openModal"
                       data-bs-toggle="tooltip" 
                       data-bs-placement="right" 
                       title="Удалить форму"
@@ -120,28 +120,20 @@
                     </div>
                   </div>
                 </form>
-                <button type="submit" class="btn btn-outline-primary w-100 mt-4 mb-2">Отправить</button>
-                <button type="button" class="btn btn-outline-warning w-100 mb-4" @click="unselectForm">Назад</button>
-                <!-- <button 
-                  type="button" 
-                  class="btn btn-edit btn-primary"
-                  @click="editThisForm(selectedForm)"
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="right" 
-                  title="Редактировать форму"
+                <button 
+                  type="submit" 
+                  class="btn btn-outline-primary w-100 mt-4 mb-2"
+                  :class="isAnyFormEditing ? 'disabled' : ''"
                 >
-                  <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
+                  Отправить
                 </button>
                 <button 
                   type="button" 
-                  class="btn btn-edit btn-danger ml-5"
-                  @click="deleteThisForm(selectedForm)"
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="right" 
-                  title="Удалить форму"
+                  class="btn btn-outline-warning w-100 mb-4" 
+                  @click="unselectForm"
                 >
-                  <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                </button> -->
+                  Назад
+                </button>
               </div>
               <!-- <h2 class='title'>{{ title }}</h2>
               <form class="doc" @submit.prevent="checkForm">
@@ -263,24 +255,33 @@
             </div>
           </div>
         </div>
+        <Modal 
+          v-if="isModalOpen"
+          :title="'Подтвердите действие'"
+          @close="isModalOpen = false"
+          @deleteForm="deleteThisForm"
+        />
     </div>
+    
     <hr>
+    <!-- добавить форму -->
     <FormEditor
       v-if="isFormCreating && !isAnyFormEditing"
-      :formName="''"
-      :formFields="[]"
       :saveButtonTitle="'Добавить форму'"
       :backButtonTitle="'Назад'"
       @update="getForms"
       @closeEditor="stopCreatingForm"
       :key="1"
     />
+    <!-- редактировать форму -->
     <FormEditor 
       v-if="isAnyFormEditing && !isFormCreating"
-      :formName="formName"
-      :formFields="formFields"
+      :id="editingForm.id"
+      :formName="editingForm.type_name"
+      :formFields="editingForm.document_fields"
       :saveButtonTitle="'Сохранить изменения'"
       :backButtonTitle="'Прекратить редактирование'"
+      @update="getForms"
       @closeEditor="stopEditingForm"
       :key="2"
     />
@@ -289,6 +290,7 @@
 
 <script>
 import FormEditor from './FormEditor.vue'
+import Modal from './Modal.vue'
 import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
 import axios from 'axios';
@@ -298,30 +300,18 @@ var _cloneDeep = require('lodash/cloneDeep');
 export default {
   mixins: [validationMixin],
   name: 'Backoffice',
-  components: { FormEditor },
+  components: { FormEditor, Modal },
   data() {
     return {
       title: 'Backoffice',
       forms: [],
-      // forms: [
-      //   {
-      //     id: '5dc9f2e2-f5eb-4fda-85a7-7dde8f3bd8a7',
-      //     type_name: 'Тестовый ввод',
-      //     document_fields: [ [Object], [Object] ]
-      //   },
-      //   {
-      //     id: '5f044367-4b5a-421a-b5a1-d14b624b81e8',
-      //     type_name: 'Тестовая форма',
-      //     document_fields: [ [Object], [Object] ]
-      //   }
-      // ],
       selectedForm: {},
       selectedFormNonParse: {},
       isFormSelected: false,
+      isModalOpen: false,
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
-      formName: '',
       formFields: [],
       form: {
         fullName: '',
@@ -343,7 +333,7 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     this.getForms();
   },
   computed: {},
@@ -361,7 +351,7 @@ export default {
     }
   },
   methods: {
-    forceUpdate(){
+    forceUpdate() {
       this.$forceUpdate()
     },
     getForms() {
@@ -380,8 +370,7 @@ export default {
     },
     selectForm(index) {
       this.selectedFormNonParse = this.forms[index]; //для метода checkSelectedForm
-      let parsedObj = JSON.parse(JSON.stringify(this.forms[index]))
-      this.selectedForm = parsedObj;
+      this.selectedForm = JSON.parse(JSON.stringify(this.forms[index]))
       this.isFormSelected = true;
     },
     unselectForm() {
@@ -392,42 +381,25 @@ export default {
     checkSelectedForm(index) {
       return this.forms.indexOf(this.selectedFormNonParse) == index ? true : false
     },
-    async editThisForm(selectedForm) {
+    editThisForm() {
       this.stopCreatingForm()
+      this.editingForm = _cloneDeep(this.selectedForm)
       this.isAnyFormEditing = true;
-      this.editingForm = _cloneDeep(selectedForm)
-      // this.editingForm = selectedForm;
-      // this.formName = this.editingForm.type_name;
-      // this.formFields = this.editingForm.document_fields;
-      console.log(this.editingForm)
-      
-      // await this.updateForm(this.editingForm);
-
-      this.getForms();
       this.unselectForm();
-    },
-    updateForm(editingForm) {
-      // const form = {
-      //   id: this.editingForm.id,
-      //   formName: this.formName,
-      //   formFields: this.formFields
-      // }
-      axios.post('/updateForm', editingForm)
-    },
-    stopEditingForm() {
-      this.isAnyFormEditing = false;
-      this.editingForm = {};
-      this.formFields = [];
     },
     stopCreatingForm() {
       this.isFormCreating = false;
     },
-    deleteThisForm(selectedForm) {
-      console.log(selectedForm)
+    stopEditingForm() {
+      this.isAnyFormEditing = false;
+    },
+    openModal() {
+      this.isModalOpen = true;
+    },
+    deleteThisForm() {
+      console.log(this.selectedForm)
       const form = {
         id: this.selectedForm.id,
-        formName: this.selectedForm.type_name,
-        formFields: this.selectedForm.document_fields
       }
       axios.post('/deleteForm', form)
       this.getForms();
