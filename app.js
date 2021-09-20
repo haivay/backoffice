@@ -28,20 +28,20 @@ app.post('/getForms', async (req, res) => {
     res.status(200).send(await ut.getForms())
 })
 
-app.post('/saveForm',(req, res) =>{
+app.post('/saveForm',(req) =>{
   const formName = req.body.formName;
   const formFields = JSON.stringify(req.body.formFields);
   ut.saveForm(formName, formFields);
 });
 
-app.post('/updateForm',(req, res) =>{
+app.post('/updateForm',(req) =>{
   const id = req.body.id;
   const formName = req.body.formName;
   const formFields = JSON.stringify(req.body.formFields);
   ut.updateForm(id, formName, formFields);
 })
 
-app.post('/deleteForm',(req, res) =>{
+app.post('/deleteForm',(req) =>{
   const id = req.body.id;
   ut.deleteForm(id);
 })
