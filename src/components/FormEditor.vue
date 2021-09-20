@@ -46,6 +46,20 @@
                                 >
                               </div>
                               <div 
+                                class="field-textarea" 
+                                v-if="field.fieldType === 'textarea'"
+                              >
+                                <!-- <label for="exampleFormControlTextarea1">Example textarea</label> -->
+                                <textarea 
+                                  class="form-control textareaExample" 
+                                  id="Textarea1" 
+                                  size="sm"
+                                  :placeholder="field.placeholder"
+                                  disabled
+                                >
+                                </textarea>
+                              </div>
+                              <div 
                                 class="field-select form-check-label" 
                                 v-if="field.fieldType === 'select'"
                               >
@@ -168,6 +182,55 @@
                         </label>
                       </div>
                     </div>
+                    <!-- TEXTAREA -->
+                    <div
+                      v-if="fieldType.id === 'textarea'"
+                      class="mt-3 mb-3"
+                    >
+                      <div class="form-group">
+                        <label for="textareaLabel">Наименование поля:</label>
+                        <input 
+                          type="text" 
+                          id='textareaLabel'
+                          placeholder="label"
+                          class="form-control"
+                          :class="$v.textarea.label.$error ? 'is-invalid' : ''"
+                          v-model.trim="textarea.label" 
+                        >
+                        <p v-if="$v.textarea.label.$dirty && !$v.textarea.label.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p>
+                      </div>
+                      <div class="form-group">
+                        <label for="textareaPlaceholder">Плейсхолдер:</label>
+                        <input 
+                          type="text" 
+                          id='textareaPlaceholder'
+                          placeholder="placeholder"
+                          class="form-control"
+                          :class="$v.textarea.placeholder.$error ? 'is-invalid' : ''"
+                          v-model.trim="textarea.placeholder"
+                        >
+                        <p v-if="$v.textarea.placeholder.$dirty && !$v.textarea.placeholder.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p>
+                      </div>
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
+                          id="textareaIsRequire"
+                          v-model="textarea.isRequire"
+                          :class="textarea.isRequire === true ? 'checked' : ''"
+                        >
+                        <label 
+                          class="form-check-label" 
+                          for="textareaIsRequire"
+                        >
+                          Обязательное
+                        </label>
+                      </div>
+                    </div>
                     <!-- SELECT -->
                     <div
                       v-if="fieldType.id === 'select'"
@@ -284,6 +347,21 @@
                         <input 
                           type="checkbox" 
                           class="form-check-input" 
+                          id="selectIsMultiple"
+                          v-model="select.isMultiple"
+                          :class="select.isMultiple === true ? 'checked' : ''"
+                        >
+                        <label 
+                          class="form-check-label" 
+                          for="selectIsMultiple"
+                        >
+                          Возможность выбрать несколько вариантов
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
                           id="selectIsRequire"
                           v-model="select.isRequire"
                           :class="select.isRequire === true ? 'checked' : ''"
@@ -362,6 +440,10 @@ export default {
     event: 'input'
   },
   props: {
+    title: {
+      type: String,
+      default: 'Редактор форм'
+    },
     id: {
       type: String,
       default: ''
@@ -387,12 +469,16 @@ export default {
   },
   data() {
     return {
-      title: 'Редактор форм',
+      // title: '',
       // formId: '5f044367-4b5a-421a-b5a1-d14b624b81e8',
       fieldTypes: [
         {
           id: 'input',
           label: 'Однострочный ввод'
+        },
+        {
+          id: 'textarea',
+          label: 'Многострочный ввод'
         },
         {
           id: 'select',
@@ -429,16 +515,28 @@ export default {
         dataType: {
           id: 'text',
           label: 'Текст'
-        }
+        },
+        value: ''
+      },
+// textarea
+      textarea: {
+        fieldType: 'textarea',
+        label: '',
+        placeholder: '',
+        isRequire: false,
+        value: ''
       },
 // select
       select: {
         fieldType: 'select',
         label: '',
         placeholder: '',
+        isMultiple: false,
         isRequire: false,
         options: [],
+        value: []
       },
+
 //массив полей формы
       // formFields: []
     }
@@ -449,6 +547,10 @@ export default {
       label: { required },
       placeholder: { required },
       dataType: { required }
+    },
+    textarea: {
+      label: { required },
+      placeholder: { required }
     },
     select: {
       label: { required },
@@ -481,7 +583,7 @@ export default {
       this.formFields.splice(index, 1);
     },
     addNewField() {
-      let newObj = {}
+      let newObj = {};
       let fieldType = this.fieldType.id;
 
       this.checkNewField(fieldType);
@@ -491,9 +593,9 @@ export default {
       }
       else return
 
-      this.formFields.push(newObj)
-      this.fieldType = [],
-      this.isFieldTypeSelected = false,
+      this.formFields.push(newObj);
+      this.fieldType = [];
+      this.isFieldTypeSelected = false;
       console.log('Field was added.');
     },
     checkNewField(fieldType) {
@@ -515,6 +617,7 @@ export default {
       }
       if (fieldType === 'select') {
         this.customSettings.selectNewOption ='';
+        this.select.isMultiple = false;
         this.select.options = [];
       }
       this.resetValidation(fieldType);
@@ -644,6 +747,9 @@ export default {
   .nopadding {
    padding: 0 !important;
    margin: 0 !important;
+  }
+  .textareaExample {
+    resize: none;
   }
   .btn-grab {
     color: #c4c4c4 !important;

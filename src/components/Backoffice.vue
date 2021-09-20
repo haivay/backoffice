@@ -81,6 +81,7 @@
                       :key="index"
                     >
                       <!-- {{ field.fieldType }} -->
+                      <!-- INPUT -->
                       <div 
                         v-if="field.fieldType === 'input'" 
                         class="form-group"
@@ -91,13 +92,32 @@
                           :id="field.fieldType + index.toString()"
                           :placeholder="field.placeholder"
                           class="form-control"
-                          :class="$v.form.fullName.$error ? 'is-invalid' : ''"
-                          v-model.trim="form.fullName"
+                          
+                          v-model.trim="field.value"
                         >
                         <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
                           Обязательное поле
-                        </p> -->
+                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
                       </div>
+                      <!-- TEXTAREA -->
+                      <div 
+                        v-if="field.fieldType === 'textarea'" 
+                        class="form-group"
+                      >
+                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                        <textarea 
+                          :id="field.fieldType + index.toString()"
+                          :placeholder="field.placeholder"
+                          class="form-control textareaExample" 
+                          rows="5"
+                          v-model.trim="field.value"
+                        >
+                        </textarea>
+                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
+                      </div>
+                      <!-- SELECT -->
                       <div 
                         v-if="field.fieldType === 'select'" 
                         class="form-group"
@@ -105,9 +125,10 @@
                         <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
                         <div class="form-selector">
                           <v-selectize 
-                            :options="field.options" 
-                            v-model="form.formSelected" 
                             :placeholder="field.placeholder"
+                            :options="field.options" 
+                            :multiple="field.isMultiple"
+                            v-model="field.value" 
                           />
                         </div>
                         <!-- <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
@@ -116,14 +137,15 @@
                       </div>
                     </div>
                   </div>
+                  <button 
+                    type="submit" 
+                    class="btn btn-outline-primary w-100 mt-4 mb-2"
+                    :class="isAnyFormEditing ? 'disabled' : ''"
+                  >
+                    Отправить
+                  </button>
                 </form>
-                <button 
-                  type="submit" 
-                  class="btn btn-outline-primary w-100 mt-4 mb-2"
-                  :class="isAnyFormEditing ? 'disabled' : ''"
-                >
-                  Отправить
-                </button>
+                
                 <button 
                   type="button" 
                   class="btn btn-outline-secondary w-100 mb-4" 
@@ -139,6 +161,7 @@
                 <!-- добавить форму -->
                 <FormEditor
                   v-if="isFormCreating && !isAnyFormEditing"
+                  :title="'Создание формы'"
                   :formName="formName"
                   :saveButtonTitle="'Добавить форму'"
                   :backButtonTitle="'Назад'"
@@ -150,6 +173,7 @@
                 <!-- редактировать форму -->
                 <FormEditor 
                   v-if="isAnyFormEditing && !isFormCreating"
+                  :title="'Редактирование формы'"
                   :id="editingForm.id"
                   :formName="editingForm.type_name"
                   :formFields="editingForm.document_fields"
@@ -344,24 +368,29 @@ export default {
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
-      form: {
-        fullName: '',
-        groupName: '',
-        formsOfTrain: [
-          {
-            id: 'fullTime',
-            label: 'Очная форма обучения'
-          },
-          {
-            id: 'correspondenceCourse',
-            label: 'Заочная форма обучения'
-          }
-        ],
-        formSelected: [],
-        wayToGetOption: 'option1',
-        isActive: true,
-        email: ''
-      }
+      // form: {
+      //   inputs: [],
+      //   selects: [],
+      //   textareas: []
+      // }
+      // form: {
+      //   fullName: '',
+      //   groupName: '',
+      //   formsOfTrain: [
+      //     {
+      //       id: 'fullTime',
+      //       label: 'Очная форма обучения'
+      //     },
+      //     {
+      //       id: 'correspondenceCourse',
+      //       label: 'Заочная форма обучения'
+      //     }
+      //   ],
+      //   formSelected: [],
+      //   wayToGetOption: 'option1',
+      //   isActive: true,
+      //   email: ''
+      // }
     }
   },
   mounted() {
@@ -369,11 +398,11 @@ export default {
   },
   filters: {
     formNameLength(name) {
-      if (name.split('').length < 32) {
+      if (name.split('').length < 35) {
         return name
       }
       else {
-        name = name.split('').slice(0, 32).concat(['...']).join('')
+        name = name.split('').slice(0, 35).concat(['...']).join('')
         return name
       }
     }
@@ -411,6 +440,8 @@ export default {
       this.isFormCreating = true;
     },
     selectForm(index) {
+      this.stopCreatingForm();
+      this.stopEditingForm();
       this.selectedFormNonParse = this.forms[index]; //для метода checkSelectedForm
       this.selectedForm = JSON.parse(JSON.stringify(this.forms[index]))
       this.isFormSelected = true;
@@ -450,11 +481,45 @@ export default {
       this.unselectForm();
     },
     checkForm() {
-      this.$v.form.$touch()
-      if (this.$v.form.$error) {
-        console.log('Валидация не прошла!')
+      // this.$v.form.$touch()
+      // if (this.$v.form.$error) {
+      //   console.log('Валидация не прошла!')
+      //   return
+      // }
+
+      
+
+      // for (let i = 0; i < fields.length; i++) {
+      //   console.log(fields[i].value.label)
+      // }
+
+      let fields = this.selectedForm.document_fields;
+
+      // for (let field of fields) {
+      //   if (field.fieldType === 'select') {
+      //     for (let option of field.value) {
+      //       console.log(option.label)
+      //     }
+      //   }
+      //   else {
+      //     console.log(field.value)
+      //   }
+      // }
+
+      for (let field of fields) {
+        if (field.fieldType == 'select' && field.isMultiple) {
+          for (let j = 0; j < field.value.length; j++) {
+            console.log(field.value[j].label)
+          }
+        }
+        else if (field.fieldType == 'select') {
+          console.log(field.value.label)
+        }
+        else {
+          console.log(field.value)
+        }
       }
-    },
+    }
   }
 }
 </script>
@@ -478,6 +543,9 @@ export default {
   }
   .list-group-item-border-blue {
     background-color: #f0f5ff;
+  }
+  .textareaExample {
+    resize: none;
   }
   .nopadding {
     padding: 0 !important;
