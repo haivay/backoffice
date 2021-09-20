@@ -690,8 +690,7 @@ export default {
 
       if (this.id === '') {
         axios.post('/saveForm', form);
-      }
-      else {
+      } else {
         axios.post('/updateForm', form);
       }
 

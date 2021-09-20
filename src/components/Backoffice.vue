@@ -128,7 +128,7 @@
                             :placeholder="field.placeholder"
                             :options="field.options" 
                             :multiple="field.isMultiple"
-                            v-model="field.value" 
+                            v-model="field.value[0]" 
                           />
                         </div>
                         <!-- <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
@@ -400,8 +400,7 @@ export default {
     formNameLength(name) {
       if (name.split('').length < 35) {
         return name
-      }
-      else {
+      } else {
         name = name.split('').slice(0, 35).concat(['...']).join('')
         return name
       }
@@ -481,44 +480,41 @@ export default {
       this.unselectForm();
     },
     checkForm() {
+      // валидация
       // this.$v.form.$touch()
       // if (this.$v.form.$error) {
       //   console.log('Валидация не прошла!')
       //   return
       // }
 
-      
-
-      // for (let i = 0; i < fields.length; i++) {
-      //   console.log(fields[i].value.label)
-      // }
-
       let fields = this.selectedForm.document_fields;
 
-      // for (let field of fields) {
-      //   if (field.fieldType === 'select') {
-      //     for (let option of field.value) {
-      //       console.log(option.label)
+      for (let field of fields) {
+        if (field.fieldType == 'select') {
+          let flatted = field.value.flat();
+          let selected = [];
+          for (let option of flatted) {
+            selected.push(option.label)
+          }
+          console.log(`${field.label} ${selected}`)
+        } else {
+          console.log(`${field.label} ${field.value}`)
+        }
+      }
+
+      // for (let field of fields) {                                    //работает, если поставить у селекта v-model="field.value"
+      //   if (field.fieldType == 'select' && field.isMultiple) {
+      //     for (let j = 0; j < field.value.length; j++) {
+      //       console.log(field.value[j].label)
       //     }
+      //   }
+      //   else if (field.fieldType == 'select') {
+      //     console.log(field.value.label)
       //   }
       //   else {
       //     console.log(field.value)
       //   }
       // }
-
-      for (let field of fields) {
-        if (field.fieldType == 'select' && field.isMultiple) {
-          for (let j = 0; j < field.value.length; j++) {
-            console.log(field.value[j].label)
-          }
-        }
-        else if (field.fieldType == 'select') {
-          console.log(field.value.label)
-        }
-        else {
-          console.log(field.value)
-        }
-      }
     }
   }
 }
