@@ -30,9 +30,3 @@ export function updateForm(id, formName, formFields) {
   const query = "UPDATE practice.tblformtypes SET type_name = $2, document_fields = $3 WHERE id = $1;";
   client.query(query, [id, formName, formFields]);
 }
-
-export async function testTry(formId){
-  const query = 'SELECT * FROM practice.tblformtypes WHERE id = $1';
-  const query_result = await client.query(query, [formId]);
-  return query_result.rows[0];
-}
