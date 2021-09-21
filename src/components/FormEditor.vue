@@ -362,6 +362,21 @@
                         <input 
                           type="checkbox" 
                           class="form-check-input" 
+                          id="selectIsAddable"
+                          v-model="select.isAddable"
+                          :class="select.isAddable === true ? 'checked' : ''"
+                        >
+                        <label 
+                          class="form-check-label" 
+                          for="selectIsAddable"
+                        >
+                          Возможность пользователю добавлять свои параметры
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
                           id="selectIsRequire"
                           v-model="select.isRequire"
                           :class="select.isRequire === true ? 'checked' : ''"
@@ -380,9 +395,9 @@
                       <button 
                         type="button" 
                         class="btn btn-outline-success w-100 mb-3"
-                        @click="addNewField()"
+                        @click="addNewField(indexOfEditingField)"
                       >
-                        Завершить редактирование и добавить поле
+                        Сохранить
                       </button>
                       <button 
                         type="button" 
@@ -431,6 +446,7 @@ import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import axios from 'axios';
 var _cloneDeep = require('lodash/cloneDeep');
+var _fromPairs = require('lodash/fromPairs')
 
 export default {
   mixins: [validationMixin],
@@ -487,6 +503,8 @@ export default {
       ],
       fieldType: [],
       isFieldTypeSelected: false,
+      isAnyFieldEditing: false,
+      indexOfEditingField: -1,
       renderOptionItems: true,
       dragOverId: -1,
       customSettings: {
@@ -532,6 +550,7 @@ export default {
         label: '',
         placeholder: '',
         isMultiple: false,
+        isAddable: false,
         isRequire: false,
         options: [],
         value: []
@@ -570,19 +589,42 @@ export default {
         this.stopEditing(this.fieldType.id);
       }
       if (this.fieldType != '') {
-        this.resetValidation(this.fieldType.id);
+        // this.resetValidation(this.fieldType.id);
         this.isFieldTypeSelected = true
       }
-    },
+    }
   },
   methods: {
     editThisField(index) {
-      console.log(`Пока не работает :) index: ${index}`);
+      this.isAnyFieldEditing = true;
+      this.indexOfEditingField = index;
+      this.fieldType.id = this.formFields[index].fieldType; // определяем id
+      for (let fieldType of this.fieldTypes) {
+        let values = Object.values(fieldType);
+        let i = values.indexOf(this.formFields[index].fieldType)
+        if (i == 0) {
+          this.fieldType.label = values[1] // определяем label
+          break
+        }
+      }
+      this.fieldType = _fromPairs([['id', this.fieldType.id], ['label', this.fieldType.label]]) //из массива в объект
+
+      this[this.fieldType.id].label = this.formFields[index].label
+      this[this.fieldType.id].placeholder = this.formFields[index].placeholder
+      this[this.fieldType.id].isRequire = this.formFields[index].isRequire
+      if (this.fieldType.id === 'input') {
+        this[this.fieldType.id].dataType = this.formFields[index].dataType
+      }
+      if (this.fieldType.id === 'select') {
+        this[this.fieldType.id].options = this.formFields[index].options
+        this[this.fieldType.id].isMultiple = this.formFields[index].isMultiple
+        this[this.fieldType.id].isAddable = this.formFields[index].isAddable
+      }
     },
     deleteThisField(index) {
       this.formFields.splice(index, 1);
     },
-    addNewField() {
+    addNewField(indexOfEditingField) {
       let newObj = {};
       let fieldType = this.fieldType.id;
 
@@ -593,10 +635,18 @@ export default {
       }
       else return
 
-      this.formFields.push(newObj);
+      if (!this.isAnyFieldEditing) {
+        this.formFields.push(newObj);
+        console.log('Field was added.');
+      } else {
+        this.formFields[indexOfEditingField] = newObj;
+        this.isAnyFieldEditing = false;
+        console.log('Field was edited.');
+      }
+
       this.fieldType = [];
       this.isFieldTypeSelected = false;
-      console.log('Field was added.');
+      
     },
     checkNewField(fieldType) {
       this.$v[fieldType].$touch();
@@ -618,6 +668,7 @@ export default {
       if (fieldType === 'select') {
         this.customSettings.selectNewOption ='';
         this.select.isMultiple = false;
+        this.select.isAddable = false;
         this.select.options = [];
       }
       this.resetValidation(fieldType);
@@ -654,8 +705,6 @@ export default {
     },
     onDrop(event, index) {
       const itemID = event.dataTransfer.getData('itemID')
-      console.log(`Первый элемент id: ${itemID}`)
-      console.log(`Второй элемент id: ${index}`)
       //меняем индексы элементов
       var tempID = this.select.options[index].id
       this.select.options[index].id = this.select.options[itemID].id

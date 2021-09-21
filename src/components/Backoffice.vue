@@ -52,7 +52,7 @@
                     <button 
                       type="button" 
                       class="btn btn-edit btn-primary"
-                      @click="editThisForm"
+                      @click="editThisForm(selectedForm.id)"
                       data-bs-toggle="tooltip" 
                       data-bs-placement="right" 
                       title="Редактировать форму"
@@ -127,6 +127,7 @@
                           <v-selectize 
                             :placeholder="field.placeholder"
                             :options="field.options" 
+                            @search="text = $event"
                             :multiple="field.isMultiple"
                             v-model="field.value[0]" 
                           />
@@ -361,6 +362,7 @@ export default {
       forms: [],
       formName: '',
       formFields: [],
+      text: '',
       selectedForm: {},
       selectedFormNonParse: {},
       isFormSelected: false,
@@ -368,29 +370,6 @@ export default {
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
-      // form: {
-      //   inputs: [],
-      //   selects: [],
-      //   textareas: []
-      // }
-      // form: {
-      //   fullName: '',
-      //   groupName: '',
-      //   formsOfTrain: [
-      //     {
-      //       id: 'fullTime',
-      //       label: 'Очная форма обучения'
-      //     },
-      //     {
-      //       id: 'correspondenceCourse',
-      //       label: 'Заочная форма обучения'
-      //     }
-      //   ],
-      //   formSelected: [],
-      //   wayToGetOption: 'option1',
-      //   isActive: true,
-      //   email: ''
-      // }
     }
   },
   mounted() {
