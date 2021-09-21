@@ -409,14 +409,6 @@
                 >
                   {{ backButtonTitle }}
                 </button>
-                <!-- Тестовая кнопка для отлова БД -->
-                <!-- <button 
-                  type="button" 
-                  class="btn btn-outline-primary w-100 mt-4"
-                  @click="testTry()"
-                >
-                  Попытка словить
-                </button> -->
               </div>
             </div>
           </div>
@@ -702,15 +694,6 @@ export default {
       if (this.$v.formName.$error) {
         console.log('Error: Invalid! Имя формы пустое!')
       }
-    },
-    testTry() {
-      const form = {
-        formId: this.formId
-      }
-      axios.post('/testTry', form)
-      .then((response) => {
-        console.log(response.data);
-      });
     },
     closeEditor() {
       this.$emit('closeEditor')

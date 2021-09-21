@@ -46,11 +46,6 @@ app.post('/deleteForm',(req) =>{
   ut.deleteForm(id);
 })
 
-app.post('/testTry', async (req, res) => {
-  const formId = req.body.formId;
-  res.status(200).send(await ut.testTry(formId));
-});
-
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
