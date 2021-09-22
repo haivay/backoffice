@@ -92,7 +92,6 @@
                           :id="field.fieldType + index.toString()"
                           :placeholder="field.placeholder"
                           class="form-control"
-                          
                           v-model.trim="field.value"
                         >
                         <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
@@ -127,7 +126,7 @@
                           <v-selectize 
                             :placeholder="field.placeholder"
                             :options="field.options" 
-                            @search="text = $event"
+                            :create-item="maybeCreate(field)"
                             :multiple="field.isMultiple"
                             v-model="field.value[0]" 
                           />
@@ -313,34 +312,6 @@
           @deleteForm="deleteThisForm"
         />
     </div>
-    
-    <hr>
-    <!-- <div class="form-editor">
-      добавить форму
-      <FormEditor
-        v-if="isFormCreating && !isAnyFormEditing"
-        :formName="formName"
-        :saveButtonTitle="'Добавить форму'"
-        :backButtonTitle="'Назад'"
-        v-model="formName"
-        @update="getForms"
-        @closeEditor="stopCreatingForm"
-        :key="1"
-      />
-      редактировать форму
-      <FormEditor 
-        v-if="isAnyFormEditing && !isFormCreating"
-        :id="editingForm.id"
-        :formName="editingForm.type_name"
-        :formFields="editingForm.document_fields"
-        :saveButtonTitle="'Сохранить изменения'"
-        :backButtonTitle="'Прекратить редактирование'"
-        v-model="editingForm.type_name"
-        @update="getForms"
-        @closeEditor="stopEditingForm"
-        :key="2"
-      />
-    </div> -->
   </div>
 </template>
 
@@ -349,20 +320,20 @@ import FormEditor from './FormEditor.vue'
 import Modal from './Modal.vue'
 import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
+import VSelectize from '@isneezy/vue-selectize'
 import axios from 'axios';
 var _cloneDeep = require('lodash/cloneDeep');
 
 export default {
   mixins: [validationMixin],
   name: 'Backoffice',
-  components: { FormEditor, Modal },
+  components: { FormEditor, Modal, VSelectize },
   data() {
     return {
       title: 'Backoffice',
       forms: [],
       formName: '',
       formFields: [],
-      text: '',
       selectedForm: {},
       selectedFormNonParse: {},
       isFormSelected: false,
@@ -446,6 +417,14 @@ export default {
     stopEditingForm() {
       this.isAnyFormEditing = false;
     },
+    maybeCreate(field) {
+      if (field.isAddable) return this.createContact
+      return false
+    },
+    createOption (label) {
+      const option = {label}
+      return option
+    },
     openModal() {
       this.isModalOpen = true;
     },
@@ -460,6 +439,7 @@ export default {
     },
     checkForm() {
       // валидация
+      //
       // this.$v.form.$touch()
       // if (this.$v.form.$error) {
       //   console.log('Валидация не прошла!')
@@ -469,31 +449,18 @@ export default {
       let fields = this.selectedForm.document_fields;
 
       for (let field of fields) {
-        if (field.fieldType == 'select') {
+        if (field.fieldType === 'select') {
           let flatted = field.value.flat();
           let selected = [];
           for (let option of flatted) {
-            selected.push(option.label)
+            if (typeof option === 'object') selected.push(option.label)
+            if (typeof option === 'string') selected.push(option)
           }
           console.log(`${field.label} ${selected}`)
         } else {
           console.log(`${field.label} ${field.value}`)
         }
       }
-
-      // for (let field of fields) {                                    //работает, если поставить у селекта v-model="field.value"
-      //   if (field.fieldType == 'select' && field.isMultiple) {
-      //     for (let j = 0; j < field.value.length; j++) {
-      //       console.log(field.value[j].label)
-      //     }
-      //   }
-      //   else if (field.fieldType == 'select') {
-      //     console.log(field.value.label)
-      //   }
-      //   else {
-      //     console.log(field.value)
-      //   }
-      // }
     }
   }
 }

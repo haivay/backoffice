@@ -370,7 +370,7 @@
                           class="form-check-label" 
                           for="selectIsAddable"
                         >
-                          Возможность пользователю добавлять свои параметры
+                          Возможность пользователю добавлять свои варианты
                         </label>
                       </div>
                       <div class="form-check">
