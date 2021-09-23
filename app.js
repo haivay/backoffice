@@ -8,7 +8,7 @@ const port = 3000
 ut.client.connect();
 
 const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, './public')));
+app.use('/', express.static(path.join(__dirname, '/dist')));
 
 app.use(bodyParser.json({
   limit: '500mb',
@@ -20,8 +20,8 @@ app.use(bodyParser.urlencoded({
   extended: true
 }))
 
-app.get('/', (req,res) => {
-  res.sendFile(path.join(__dirname, './public/index.html'));
+app.get('/data', (req,res) => {
+  res.sendFile(path.join(__dirname, './dist/data.html'));
 });
 
 app.post('/getForms', async (req, res) => {

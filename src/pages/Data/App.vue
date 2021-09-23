@@ -5,10 +5,10 @@
 </template>
 
 <script>
-import Backoffice from './components/Backoffice.vue'
+import Backoffice from '../../components/Backoffice.vue'
 
 export default {
-  name: 'App',
+  name: 'Data',
   components: {
     Backoffice,
   }

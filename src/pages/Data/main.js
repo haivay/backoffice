@@ -4,7 +4,6 @@ import 'selectize/dist/css/selectize.default.css' // This is required, we use th
 import VSelectize from '@isneezy/vue-selectize'
 import Vue from 'vue'
 import App from './App.vue'
-// import Axios from 'axios'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 //fontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -25,7 +24,7 @@ Vue.use(IconsPlugin)
 // Vue-selectize
 Vue.component('v-selectize', VSelectize)
 
-Vue.component('backoffice', require('./components/Backoffice.vue').default);
+Vue.component('backoffice', require('../../components/Backoffice.vue').default);
 
 
 new Vue({
