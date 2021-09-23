@@ -32,7 +32,7 @@
                           <div>
                             <div class="form-group">
                               <!-- <label for="input1">{{ field.label }} | Тип: {{ field.dataType.label }}</label> -->
-                              <label for="input1">{{ field.label }}</label>
+                              <label v-if="field.fieldType != 'checkbox'" for="input1">{{ field.label }}</label>
                               <div 
                                 class="field-input" 
                                 v-if="field.fieldType === 'input'"
@@ -69,8 +69,20 @@
                                   :disabled="true"
                                 />
                               </div>
+                              <div 
+                                class="field-checkbox custom-control custom-checkbox mt-3" 
+                                v-if="field.fieldType === 'checkbox'"
+                              >
+                                <input 
+                                  type="checkbox" 
+                                  class="custom-control-input" 
+                                  id="checkboxl"
+                                  disabled
+                                >
+                                <label class="custom-control-label" for="checkboxl">{{ field.label }}</label>
+                              </div>
                             </div>
-                            <div class="form-check">
+                            <div v-if="field.fieldType != 'checkbox'" class="form-check">
                               <input 
                                 type="checkbox" 
                                 class="form-check-input" 
@@ -78,7 +90,12 @@
                                 :checked="field.isRequire"
                                 disabled
                               >
-                              <label class="form-check-label" for="isRequire">{{ field.isRequire ? 'Обязательное' : 'Необязательное' }}</label>
+                              <label 
+                                class="form-check-label" 
+                                for="isRequire"
+                              >
+                                {{ field.isRequire ? 'Обязательное' : 'Необязательное' }}
+                              </label>
                             </div>
                           </div>
                         </div>
@@ -389,6 +406,26 @@
                         </label>
                       </div>
                     </div>
+                    <!-- CHECKBOX -->
+                    <div
+                      v-if="fieldType.id === 'checkbox'"
+                      class="mt-3 mb-3"
+                    >
+                      <div class="form-group">
+                        <label for="checkboxLabel">Наименование поля:</label>
+                        <input 
+                          type="text" 
+                          id='checkboxLabel'
+                          placeholder="label"
+                          class="form-control"
+                          :class="$v.checkbox.label.$error ? 'is-invalid' : ''"
+                          v-model.trim="checkbox.label" 
+                        >
+                        <p v-if="$v.checkbox.label.$dirty && !$v.checkbox.label.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p>
+                      </div>
+                    </div>
                     <!-- FOOTER -->
                     <div v-if="isFieldTypeSelected">
                       <hr>
@@ -491,6 +528,10 @@ export default {
         {
           id: 'select',
           label: 'Выпадающий список'
+        },
+        {
+          id: 'checkbox',
+          label: 'Чекбокс'
         }
       ],
       fieldType: [],
@@ -547,7 +588,12 @@ export default {
         options: [],
         value: []
       },
-
+// checkbox
+      checkbox: {
+        fieldType: 'checkbox',
+        label: '',
+        value: false
+      }
 //массив полей формы
       // formFields: []
     }
@@ -567,6 +613,9 @@ export default {
       label: { required },
       placeholder: { required },
       options: { required }
+    },
+    checkbox: {
+      label: { required }
     }
   },
   computed: {
@@ -647,6 +696,10 @@ export default {
       }
     },
     resetField(fieldType) {
+      if (fieldType === 'checkbox') {
+        this[fieldType].label = '';
+        return
+      }
       this[fieldType].label = '';
       this[fieldType].placeholder = '';
       this[fieldType].isRequire = false;

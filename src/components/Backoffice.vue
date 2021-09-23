@@ -135,6 +135,28 @@
                           Обязательное поле
                         </p> -->
                       </div>
+                      <!-- CHECKBOX -->
+                      <div 
+                        v-if="field.fieldType === 'checkbox'" 
+                        class="custom-control custom-checkbox"
+                      >
+                        <input 
+                          :type="field.fieldType" 
+                          class="custom-control-input" 
+                          :id="field.fieldType + index.toString()"
+                          :class="field.value === true ? 'checked' : ''"
+                          v-model="field.value"
+                        >
+                        <label 
+                          class="custom-control-label" 
+                          :for="field.fieldType + index.toString()"
+                        >
+                          {{ field.label }}
+                        </label>
+                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
+                      </div>
                     </div>
                   </div>
                   <button 
@@ -437,6 +459,20 @@ export default {
       this.getForms();
       this.unselectForm();
     },
+    resetValues() {
+      for (let form of this.forms) {
+        for (let field of form.document_fields) {
+          if (field.fieldType === 'select') {
+            field.value = []
+          } 
+          if (field.fieldType === 'checkbox') {
+            field.value = false
+          } else {
+            field.value = ''
+          }
+        }
+      }
+    },
     checkForm() {
       // валидация
       //
@@ -461,6 +497,7 @@ export default {
           console.log(`${field.label} ${field.value}`)
         }
       }
+      this.resetValues()
     }
   }
 }
