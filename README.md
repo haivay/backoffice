@@ -4,13 +4,13 @@
 ```
 npm install
 ```
-В первом терминале запустить 
+Сначала собрать проект в папке dist
 ```
-npm run serve
+npm run build
 ```
-Во втором терминале запустить сервер через nodemon
+После чего запустить сервер
 ```
-npm run dev
+node app.js
 ```
 -------------------------------------------------------
 ### Compiles and hot-reloads for development
