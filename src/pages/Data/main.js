@@ -24,7 +24,7 @@ Vue.use(IconsPlugin)
 // Vue-selectize
 Vue.component('v-selectize', VSelectize)
 
-Vue.component('backoffice', require('../../components/Backoffice.vue').default);
+Vue.component('data', require('../../components/Data.vue').default);
 
 
 new Vue({

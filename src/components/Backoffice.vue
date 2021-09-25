@@ -483,6 +483,7 @@ export default {
       // }
 
       let fields = this.selectedForm.document_fields;
+      let data = {}
 
       for (let field of fields) {
         if (field.fieldType === 'select') {
@@ -492,11 +493,22 @@ export default {
             if (typeof option === 'object') selected.push(option.label)
             if (typeof option === 'string') selected.push(option)
           }
-          console.log(`${field.label} ${selected}`)
+          data[field.label] = selected
         } else {
-          console.log(`${field.label} ${field.value}`)
+          data[field.label] = field.value
         }
       }
+      console.log(JSON.stringify(data))
+
+      const form = {
+        id: this.selectedForm.id,
+        formName: this.selectedForm.type_name,
+        data: JSON.stringify(data)
+      }
+
+      axios.post('/sendData', form);
+      
+      console.log('data send')
       this.resetValues()
     }
   }

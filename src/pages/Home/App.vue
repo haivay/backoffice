@@ -1,21 +1,22 @@
 <template>
   <div id="app">
       <Backoffice />
+      <!-- <Data /> -->
   </div>
 </template>
 
 <script>
 import Backoffice from '../../components/Backoffice.vue'
+// import Data from '../../components/Data.vue'
 
 export default {
   name: 'App',
   components: {
     Backoffice,
+    // Data
   }
 }
 </script>
-
-
 
 <style>
 #app {

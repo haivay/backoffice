@@ -290,7 +290,6 @@
                       >
                         <div
                           class="option-item"
-                          
                           v-for="(option, index) in select.options"
                           :key="index"
                           draggable="true"
