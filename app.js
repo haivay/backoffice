@@ -47,6 +47,12 @@ app.post('/saveForm',(req) =>{
   ut.saveForm(formName, formFields);
 });
 
+app.post('/sendData', (req) => {
+  const typeFormId = req.body.id;
+  const formData = req.body.data;
+  ut.sendData(typeFormId, formData);
+});
+
 app.post('/updateForm',(req) =>{
   const id = req.body.id;
   const formName = req.body.formName;

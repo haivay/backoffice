@@ -30,3 +30,8 @@ export function updateForm(id, formName, formFields) {
   const query = "UPDATE practice.tblformtypes SET type_name = $2, document_fields = $3 WHERE id = $1;";
   client.query(query, [id, formName, formFields]);
 }
+
+export function sendData(formId, formData){
+  const query = "INSERT INTO practice.tblformrequest(type_id, request_data, ts) VALUES($1, $2, $3)";
+  client.query(query, [formId, formData, 'now']);
+}
