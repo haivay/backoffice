@@ -8,8 +8,18 @@ const port = 3000
 ut.client.connect();
 
 const __dirname = path.resolve();
-// app.use('/', express.static(path.join(__dirname, '/dist')));
-app.use(express.static(path.join(__dirname, './public')));
+
+// app.use(express.static(path.join(__dirname, './public')));
+
+// app.get('/', (req,res) => {
+//   res.sendFile(path.join(__dirname, './public/index.html'));
+// });
+
+app.use('/', express.static(path.join(__dirname, '/dist')));
+
+app.get('/data', (req,res) => {
+  res.sendFile(path.join(__dirname, './dist/data.html'));
+});
 
 app.use(bodyParser.json({
   limit: '500mb',
@@ -20,18 +30,6 @@ app.use(bodyParser.urlencoded({
   parameterLimit: 50000,
   extended: true
 }))
-
-// app.get('/data', (req,res) => {
-//   res.sendFile(path.join(__dirname, './dist/data.html'));
-// });
-
-app.get('/', (req,res) => {
-  res.sendFile(path.join(__dirname, './public/index.html'));
-});
-
-// app.get('/data', (req,res) => {
-//   res.sendFile(path.join(__dirname, './public/data.html'));
-// });
 
 app.post('/getForms', async (req, res) => {
     res.status(200).send(await ut.getForms());

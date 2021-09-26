@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" ref="modal">
+  <div class="modal-delete" ref="modal">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

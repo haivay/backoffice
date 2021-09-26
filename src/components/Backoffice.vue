@@ -7,8 +7,8 @@
               <div class="formList">
                 <div 
                   class="forms"
-                  v-for="(form, index) in forms"
-                  :key="form.id"
+                  v-for="(form, index) of forms"
+                  :key="index"
                 >
                   <div class="list-group list-group-flush">
                     <button 
@@ -77,7 +77,7 @@
                   <div class="fields">
                     <div 
                       class="field"
-                      v-for="(field, index) in selectedForm.document_fields"
+                      v-for="(field, index) of selectedForm.document_fields"
                       :key="index"
                     >
                       <!-- {{ field.fieldType }} -->
@@ -327,8 +327,14 @@
             </div>
           </div>
         </div>
-        <Modal 
-          v-if="isModalOpen"
+        <transition name="fade">
+          <ModalSendData 
+            v-if="isModalSendDataOpen"
+            @close="isModalSendDataOpen = false"
+          />
+        </transition>
+        <ModalDelete 
+          v-if="isModalDeleteOpen"
           :title="'Подтвердите действие'"
           @close="isModalOpen = false"
           @deleteForm="deleteThisForm"
@@ -339,7 +345,8 @@
 
 <script>
 import FormEditor from './FormEditor.vue'
-import Modal from './Modal.vue'
+import ModalDelete from './ModalDelete.vue'
+import ModalSendData from './ModalSendData.vue'
 import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
 import VSelectize from '@isneezy/vue-selectize'
@@ -349,7 +356,7 @@ var _cloneDeep = require('lodash/cloneDeep');
 export default {
   mixins: [validationMixin],
   name: 'Backoffice',
-  components: { FormEditor, Modal, VSelectize },
+  components: { FormEditor, ModalDelete, ModalSendData, VSelectize },
   data() {
     return {
       title: 'Backoffice',
@@ -359,7 +366,8 @@ export default {
       selectedForm: {},
       selectedFormNonParse: {},
       isFormSelected: false,
-      isModalOpen: false,
+      isModalDeleteOpen: false,
+      isModalSendDataOpen: false,
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
@@ -448,7 +456,7 @@ export default {
       return option
     },
     openModal() {
-      this.isModalOpen = true;
+      this.isModalDeleteOpen = true;
     },
     deleteThisForm() {
       console.log(`Removed: ${this.selectedForm.type_name}`)
@@ -508,8 +516,7 @@ export default {
 
       axios.post('/sendData', form);
       
-      console.log('data send')
-      this.resetValues()
+      this.isModalSendDataOpen = true;
     }
   }
 }
@@ -541,5 +548,11 @@ export default {
   .nopadding {
     padding: 0 !important;
     margin: 0 !important;
+  }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+    opacity: 0;
   }
 </style>

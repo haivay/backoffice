@@ -37,7 +37,7 @@ export function sendData(formId, formData){
 }
 
 export async function getData(typeId){
-  const query = "SELECT request_data FROM practice.tblformrequest WHERE type_id = $1";
+  const query = "SELECT request_data, ts FROM practice.tblformrequest WHERE type_id = $1";
   const queryResult = await client.query(query, [typeId]);
   return queryResult.rows
 }

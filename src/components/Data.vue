@@ -4,7 +4,7 @@
       <div class="container-fluid main-content-wrapper">
         <h2>{{ title }}</h2>
         <div class="form-group">
-          <label for="form_training">Форма:</label>
+          <label for="form-selector_label">Форма:</label>
           <div class="form-selector">
             <v-selectize
               :options="forms" 
@@ -22,42 +22,35 @@
         >
           Форма не выбрана...
         </div>
-        <div v-if="isFormSelected" class="table_container">
-          <table class="table table-hover">
-            <thead class="thead-dark">
-              <tr>
-                <td>№</td>
-                <td>Время заявки</td>
-                <td 
-                  v-for="(head, index) in selectedForm.document_fields"
-                  :key="index"
-                >
-                  {{ head.label }}
-                </td>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-              </tr>
-              <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-              </tr>
-              <tr>
-                <th scope="row">3</th>
-                <td>Larry</td>
-                <td>the Bird</td>
-                <td>@twitter</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table v-if="isFormSelected" class="table">
+          <thead class="thead-dark">
+            <tr>
+              <td>№</td>
+              <td>Время заявки</td>
+              <td 
+                v-for="(value, name, index) in this.header"
+                :key="index"
+              >
+                {{ name }}
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(row, index) in data"
+              :key="index"
+            >
+              <th scope="row">{{ index + 1 }}</th>
+              <td>{{ getDateFromISO(row.ts) }}</td>
+              <td
+                v-for="(value, name, index) in row.request_data"
+                :key="index"
+              >
+                {{ value.toString() }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -74,17 +67,17 @@ export default {
     return {
       title: 'Данные из форм',
       forms: [],
-      formName: 'formName1',
-      formFields: [],
       selectedForm: null,
-      selectedFormNonParse: {},
       isFormSelected: false,
+      data: [],
+      header: {}
     }
   },
   watch: {
     "selectedForm"() {
       if (this.selectedForm != {}) {
         this.isFormSelected = true
+        this.getData()
       }
       if (this.selectedForm === null) {
         this.isFormSelected = false
@@ -104,6 +97,23 @@ export default {
         this.forms = JSON.parse(JSON.stringify(response.data));
         this.forceUpdate();
       });
+    },
+    getData() {
+      const form = {
+        id: this.selectedForm.id
+      }
+
+      axios.post('/getData', form)
+      .then((response) => {
+        this.data = response.data
+        this.header = response.data[0].request_data
+      });
+    },
+    getDateFromISO(dateIso) {
+      let someDate = new Date(dateIso);
+      var options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+      let date = someDate.toLocaleDateString('ru-RU', options)
+      return date
     }
   }
 }
@@ -113,27 +123,8 @@ export default {
   .body {
     font-family: "Bliss Pro",Helvetica,Arial,sans-serif;
   }
-  .title {
-    font-size: 30px;
-    margin-bottom: 10px;
-  }
-  .form-group {
-    margin-bottom: .7rem;
-  }
-  .list-group-item {
-    word-break: break-all;
-  }
-  .list-group-item-border {
-    border-bottom: 1px solid #dfdfdf !important;
-  }
-  .list-group-item-border-blue {
-    background-color: #f0f5ff;
-  }
-  .textareaExample {
-    resize: none;
-  }
-  .nopadding {
-    padding: 0 !important;
-    margin: 0 !important;
+  .thead-dark {
+    color: #495057;
+    background-color: #e9ecef;
   }
 </style>
