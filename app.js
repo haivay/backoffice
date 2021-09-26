@@ -34,12 +34,16 @@ app.get('/', (req,res) => {
 // });
 
 app.post('/getForms', async (req, res) => {
-    res.status(200).send(await ut.getForms())
-})
+    res.status(200).send(await ut.getForms());
+});
 
 app.post('/data/getForms', async (req, res) => {
-  res.status(200).send(await ut.getForms())
-})
+  res.status(200).send(await ut.getForms());
+});
+
+app.post('/getData', async(req, res) => {
+  res.status(200).send(await ut.getData());
+});
 
 app.post('/saveForm',(req) =>{
   const formName = req.body.formName;
