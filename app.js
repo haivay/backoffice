@@ -42,7 +42,8 @@ app.post('/data/getForms', async (req, res) => {
 });
 
 app.post('/getData', async(req, res) => {
-  res.status(200).send(await ut.getData());
+  const typeId = req.body.id;
+  res.status(200).send(await ut.getData(typeId));
 });
 
 app.post('/saveForm',(req) =>{
