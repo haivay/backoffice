@@ -333,12 +333,14 @@
             @close="isModalSendDataOpen = false"
           />
         </transition>
-        <ModalDelete 
-          v-if="isModalDeleteOpen"
-          :title="'Подтвердите действие'"
-          @close="isModalOpen = false"
-          @deleteForm="deleteThisForm"
-        />
+        <transition name="fade">
+          <ModalDelete 
+            v-if="isModalDeleteOpen"
+            :title="'Подтвердите действие'"
+            @close="isModalDeleteOpen = false"
+            @deleteForm="deleteThisForm"
+          />
+        </transition>
     </div>
   </div>
 </template>
@@ -463,6 +465,7 @@ export default {
       const form = {
         id: this.selectedForm.id,
       }
+      axios.post('/deleteData', form)
       axios.post('/deleteForm', form)
       this.getForms();
       this.unselectForm();

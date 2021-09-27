@@ -68,6 +68,11 @@ app.post('/deleteForm',(req) =>{
   ut.deleteForm(id);
 })
 
+app.post('/deleteData',(req) =>{
+  const id = req.body.id;
+  ut.deleteData(id);
+})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
