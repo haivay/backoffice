@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-delete" ref="modal">
+  <div class="modal modal-delete" ref="modalDelete">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -65,7 +65,7 @@ export default {
   mounted() {
     let vm =this;
     document.addEventListener('click', function(item) {
-      if (item.target === vm.$refs['modal']) {
+      if (item.target === vm.$refs['modalDelete']) {
         vm.closeModal()
       }
     })

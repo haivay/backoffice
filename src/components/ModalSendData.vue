@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-send-data">
+  <div class="modal-send-data" ref="modalSendData">
     <div 
       class="alert alert-success" 
       role="alert" 
@@ -44,7 +44,7 @@ export default {
   mounted() {
     let vm =this;
     document.addEventListener('click', function(item) {
-      if (item.target === vm.$refs['modal']) {
+      if (item.target === vm.$refs['modalSendData']) {
         vm.closeModal()
       }
     })
@@ -65,8 +65,8 @@ export default {
   .modal-send-data {
     display: block;
     position: fixed;
-    top: 100px;
-    right: 100px;
+    top: 50px;
+    right: 420px;
     z-index: 10;
     cursor: pointer;
   }
