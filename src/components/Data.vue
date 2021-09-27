@@ -37,16 +37,24 @@
           </thead>
           <tbody>
             <tr
-              v-for="(row, index) in data"
-              :key="index"
+              v-for="(row, indexRow) in data"
+              :key="indexRow"
             >
-              <th scope="row">{{ index + 1 }}</th>
+              <th scope="row">{{ indexRow + 1 }}</th>
               <td>{{ getDateFromISO(row.ts) }}</td>
               <td
-                v-for="(value, name, index) in row.request_data"
-                :key="index"
+                v-for="(value, name, indexCell) in JSON.parse(row.request_data.data)"
+                :key="indexCell"
               >
-                {{ value.toString() }}
+                {{ getValue(value) }}
+                <button 
+                  v-if="isFile && value === ''"
+                  type="button" 
+                  class="btn btn-primary"
+                  @click="downloadFile(indexRow)"
+                >
+                  Скачать
+                </button>
               </td>
             </tr>
           </tbody>
@@ -70,7 +78,8 @@ export default {
       selectedForm: null,
       isFormSelected: false,
       data: [],
-      header: {}
+      header: {},
+      isFile: false
     }
   },
   watch: {
@@ -105,8 +114,14 @@ export default {
 
       axios.post('/getData', form)
       .then((response) => {
+        console.log(response.data)
         this.data = response.data
-        this.header = response.data[0].request_data
+        this.header = JSON.parse(response.data[0].request_data.data)
+        if ('file' in response.data[0].request_data) {
+          this.isFile = true
+        } else {
+          this.isFile = false
+        }
       });
     },
     getDateFromISO(dateIso) {
@@ -114,6 +129,27 @@ export default {
       var options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
       let date = someDate.toLocaleDateString('ru-RU', options)
       return date
+    },
+    getValue(value) {
+      if (Array.isArray(value)) {
+        return value.toString()
+      } else if (value == {}) {
+        return ''
+      } else {
+        return value.toString()
+      }
+    },
+    downloadFile(index) {
+      const file = {
+        filename: this.data[index].request_data.file.filename
+      }
+      console.log(file.filename)
+
+      // axios.post('/download', file)
+      //   .then((response) => {
+      //     console.log('response in data.vue')
+      //     console.log(response)
+      //   })
     }
   }
 }

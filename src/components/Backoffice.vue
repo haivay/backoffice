@@ -64,7 +64,7 @@
                     <button 
                       type="button" 
                       class="btn btn-edit btn-danger"
-                      @click="openModal"
+                      @click="openModalDelete"
                       data-bs-toggle="tooltip" 
                       data-bs-placement="right" 
                       title="Удалить форму"
@@ -73,7 +73,7 @@
                     </button>
                   </div>
                 </div>
-                <form class="doc" @submit.prevent="checkForm">
+                <form class="doc" @submit.prevent="checkForm" enctype="multipart/form-data">
                   <div class="fields">
                     <div 
                       class="field"
@@ -157,12 +157,34 @@
                           Обязательное поле
                         </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
                       </div>
+                      <!-- FILE -->
+                      <div 
+                        v-if="field.fieldType === 'file'"
+                        class="custom-file"
+                      >
+                        <label 
+                          :for="field.fieldType + index.toString()"
+                        >
+                          {{ field.label }}
+                        </label>
+                        <input 
+                          :type="field.fieldType"  
+                          class="form-control-file" 
+                          :id="field.fieldType + index.toString()"
+                          ref="file"
+                          @change="handleFileUpload()"
+                        >
+                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
+                      </div>
                     </div>
                   </div>
                   <button 
                     type="submit" 
                     class="btn btn-outline-primary w-100 mt-4 mb-2"
                     :class="isAnyFormEditing ? 'disabled' : ''"
+                    @keypress.enter="console.log('enter pressed')"
                   >
                     Отправить
                   </button>
@@ -327,7 +349,7 @@
             </div>
           </div>
         </div>
-        <transition name="fade">
+        <transition name="slide-fade">
           <ModalSendData 
             v-if="isModalSendDataOpen"
             @close="isModalSendDataOpen = false"
@@ -373,6 +395,7 @@ export default {
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
+      file: ''
     }
   },
   mounted() {
@@ -457,7 +480,10 @@ export default {
       const option = {label}
       return option
     },
-    openModal() {
+    handleFileUpload() {
+      this.file = this.$refs.file[0].files[0];
+    },
+    openModalDelete() {
       this.isModalDeleteOpen = true;
     },
     deleteThisForm() {
@@ -509,16 +535,32 @@ export default {
           data[field.label] = field.value
         }
       }
-      console.log(JSON.stringify(data))
 
-      const form = {
-        id: this.selectedForm.id,
-        formName: this.selectedForm.type_name,
-        data: JSON.stringify(data)
-      }
-
-      axios.post('/sendData', form);
+      let formData = new FormData();
+      formData.append('id', this.selectedForm.id)
+      formData.append('data', JSON.stringify(data))
+      formData.append('file', this.file);
       
+      axios.post( '/sendFile', formData, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        }
+      }).then(function(){
+        console.log('SUCCESS!!');
+      }).catch(function(){
+        console.log('FAILURE!!');
+      });
+
+      // const form = {
+      //   id: this.selectedForm.id,
+      //   formName: this.selectedForm.type_name,
+      //   data: JSON.stringify(data)
+      // }
+
+      // axios.post('/sendData', form);
+
+      // this.file = '';
       this.isModalSendDataOpen = true;
     }
   }
@@ -552,10 +594,23 @@ export default {
     padding: 0 !important;
     margin: 0 !important;
   }
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
+  .fileLabel {
+    display: block;
   }
-  .fade-enter, .fade-leave-to /* .fade-leave-active до версии 2.1.8 */ {
+  .fade-enter-active {
+    transition: opacity .3s;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+  .slide-fade-enter-active {
+    transition: all .3s ease;
+  }
+  .slide-fade-leave-active {
+    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter, .slide-fade-leave-to {
+    transform: translateX(50px);
     opacity: 0;
   }
 </style>

@@ -7,7 +7,7 @@
     >
       Данные успешно отправлены!
     </div>
-    <div class="progress" style="height: 1px;">
+    <div class="progress">
       <div 
         class="progress-bar bg-success" 
         role="progressbar" 
@@ -34,21 +34,21 @@ export default {
       this.$emit('close')
     },
     borderWidthDown() {
-      this.borderWidth = this.borderWidth - 0.2
+      this.borderWidth = this.borderWidth - 2
     },
     progress() {
-      let timerId = setInterval(() => this.borderWidthDown(), 10);
+      let timerId = setInterval(() => this.borderWidthDown(), 100);
       setTimeout(() => { clearInterval(timerId) }, 5000);
     }
   },
   mounted() {
-    let vm =this;
+    let vm = this;
     document.addEventListener('click', function(item) {
       if (item.target === vm.$refs['modalSendData']) {
         vm.closeModal()
       }
     })
-    setTimeout(this.closeModal, 5000)
+    setTimeout(this.closeModal, 5300)
     this.progress()
   }
 }
@@ -72,5 +72,13 @@ export default {
   }
   .alert {
     margin: 0 !important
+  }
+  .progress {
+    position: relative;
+    bottom: 2px;
+    height: 2px;
+  }
+  .progress-bar {
+    background: rgb(120, 199, 130) !important;
   }
 </style>

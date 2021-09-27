@@ -1,11 +1,15 @@
 import express from 'express';
 import path from 'path'
 import bodyParser from 'body-parser';
+import multer from 'multer';
 import * as ut from './utils.js';
 
 const app = express()
 const port = 3000
 ut.client.connect();
+const upload = multer({
+  dest: './uploads'
+});
 
 const __dirname = path.resolve();
 
@@ -35,9 +39,9 @@ app.post('/getForms', async (req, res) => {
     res.status(200).send(await ut.getForms());
 });
 
-app.post('/data/getForms', async (req, res) => {
-  res.status(200).send(await ut.getForms());
-});
+// app.post('/data/getForms', async (req, res) => {
+//   res.status(200).send(await ut.getForms());
+// });
 
 app.post('/getData', async(req, res) => {
   const typeId = req.body.id;
@@ -55,6 +59,22 @@ app.post('/sendData', (req) => {
   const formData = req.body.data;
   ut.sendData(typeFormId, formData);
 });
+
+app.post('/sendFile', upload.single('file'), (req, res) => {
+  res.json({ file: req.file });
+  const typeFormId = req.body.id
+  const formData = {file: req.file, data: req.body.data}
+  ut.sendData(typeFormId, formData)
+})
+
+// app.post('/download', (req, res) => {
+//   const filename = req.body.filename;
+//   const dirname = path.resolve();
+//   const fullfilepath = path.join(dirname, 'uploads/' + filename);
+//   console.log(fullfilepath)
+//   res.sendFile(fullfilepath);
+//   // res.download(fullfilepath);
+// });
 
 app.post('/updateForm',(req) =>{
   const id = req.body.id;

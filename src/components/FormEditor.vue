@@ -425,6 +425,26 @@
                         </p>
                       </div>
                     </div>
+                    <!-- FILE -->
+                    <div
+                      v-if="fieldType.id === 'file'"
+                      class="mt-3 mb-3"
+                    >
+                      <div class="form-group">
+                        <label for="fileLabel">Наименование поля:</label>
+                        <input 
+                          type="text" 
+                          id='fileLabel'
+                          placeholder="label"
+                          class="form-control"
+                          :class="$v.file.label.$error ? 'is-invalid' : ''"
+                          v-model.trim="file.label" 
+                        >
+                        <p v-if="$v.file.label.$dirty && !$v.file.label.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p>
+                      </div>
+                    </div>
                     <!-- FOOTER -->
                     <div v-if="isFieldTypeSelected">
                       <hr>
@@ -531,6 +551,10 @@ export default {
         {
           id: 'checkbox',
           label: 'Чекбокс'
+        },
+        {
+          id: 'file',
+          label: 'Загрузка файла'
         }
       ],
       fieldType: [],
@@ -592,6 +616,12 @@ export default {
         fieldType: 'checkbox',
         label: '',
         value: false
+      },
+// file
+      file : {
+        fieldType: 'file',
+        label: '',
+        value: ''
       }
 //массив полей формы
       // formFields: []
@@ -614,6 +644,9 @@ export default {
       options: { required }
     },
     checkbox: {
+      label: { required }
+    },
+    file: {
       label: { required }
     }
   },
@@ -695,7 +728,7 @@ export default {
       }
     },
     resetField(fieldType) {
-      if (fieldType === 'checkbox') {
+      if (fieldType === 'checkbox' || fieldType === 'file') {
         this[fieldType].label = '';
         return
       }
