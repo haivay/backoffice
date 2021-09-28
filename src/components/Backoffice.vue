@@ -548,6 +548,7 @@ export default {
         }
       }).then(function(){
         console.log('SUCCESS!!');
+        this.file = ''
       }).catch(function(){
         console.log('FAILURE!!');
       });

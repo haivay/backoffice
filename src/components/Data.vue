@@ -140,16 +140,14 @@ export default {
       }
     },
     downloadFile(index) {
-      const file = {
-        filename: this.data[index].request_data.file.filename
-      }
-      console.log(file.filename)
+      const file = this.data[index].request_data.file
+      console.log(JSON.parse(JSON.stringify(file)))
 
-      // axios.post('/download', file)
-      //   .then((response) => {
-      //     console.log('response in data.vue')
-      //     console.log(response)
-      //   })
+      axios.post('/download', file)
+        .then((response) => {
+          console.log('/download response in data.vue:')
+          console.log(response)
+        })
     }
   }
 }

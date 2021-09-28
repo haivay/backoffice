@@ -2,14 +2,31 @@ import express from 'express';
 import path from 'path'
 import bodyParser from 'body-parser';
 import multer from 'multer';
+import imageSize from 'image-size';
+import fse from 'fs-extra';
+import fs from 'fs';
 import * as ut from './utils.js';
 
 const app = express()
 const port = 3000
 ut.client.connect();
+
+const storageConfig = multer.diskStorage({
+  destination: (req, file, cb) => {
+    let random = Math.floor(1000000000 + Math.random() * (9999999999 + 1 - 1000000000)).toString();
+    let path = `./uploads/${random}`;
+    fse.mkdirSync(path)
+    cb( null, path )
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname.split('.')[0] + '-' + (new Date()).toLocaleDateString('ru-RU') + `.${file.originalname.split('.')[1]}`)
+  }
+})
+
 const upload = multer({
-  dest: './uploads'
+  storage: storageConfig
 });
+app.use(upload.single('file'))
 
 const __dirname = path.resolve();
 
@@ -60,21 +77,80 @@ app.post('/sendData', (req) => {
   ut.sendData(typeFormId, formData);
 });
 
-app.post('/sendFile', upload.single('file'), (req, res) => {
-  res.json({ file: req.file });
+const isImageFilter = function(mimetype) {
+  return (mimetype.split('/')[0] === 'image') ? true : false
+}
+
+const getType = function(mimetype) {
+  let type = mimetype.split('/')[1];
+  if (type === 'jpeg') type = 'jpg'
+  return type
+}
+
+const getDimensions = function(filelink) {
+  let dimensions = imageSize(filelink)
+  return dimensions
+}
+
+app.post('/sendFile', (req, res) => {
+  let metadata = {
+    file_data: {
+      mime: req.file.mimetype,
+      size: req.file.size,
+      is_image: isImageFilter(req.file.mimetype),
+    },
+    file_link: req.file.path,
+    file_name: req.file.filename
+  }
+
+  if (metadata.file_data.is_image) {
+    let dimensions = {
+      type: getType(metadata.file_data.mime),
+      width: getDimensions(metadata.file_link).width,
+      height: getDimensions(metadata.file_link).height
+    }
+    Object.assign(metadata.file_data, dimensions);
+  }
+
+  res.json({'metadata': metadata});
+  req.file = metadata
   const typeFormId = req.body.id
   const formData = {file: req.file, data: req.body.data}
   ut.sendData(typeFormId, formData)
 })
 
-// app.post('/download', (req, res) => {
-//   const filename = req.body.filename;
-//   const dirname = path.resolve();
-//   const fullfilepath = path.join(dirname, 'uploads/' + filename);
-//   console.log(fullfilepath)
-//   res.sendFile(fullfilepath);
-//   // res.download(fullfilepath);
-// });
+app.post('/download', (req, res) => {
+  console.log('не работает')
+  // console.log(req.body);
+
+  // const path = req.body.file_link
+  // console.log(`${__dirname}\\${path}`)
+  // const file = fs.createReadStream(`${__dirname}\\${path}`)
+  // const filename = (new Date()).toLocaleDateString('ru-RU') + req.body.file_name
+  // res.setHeader('Content-Disposition', 'attachment: filename="' + filename + '"')
+  // file.pipe(res)
+
+  // var path = req.body.file_link
+  // // console.log(`${__dirname}\\${path}`)
+  // res.setHeader('Content-Disposition')
+  // res.download(`${__dirname}\\${path}`, (err) => {
+  //   if (err) {
+  //     res.status(500).send({
+  //       message: 'ошибка при скачивании: ' + err
+  //     })
+  //   } else {
+  //     console.log('загрузка прошла успешно')
+  //   }
+  // });  
+
+
+  // const filename = req.body.filename;
+  // const dirname = path.resolve();
+  // const fullfilepath = path.join(dirname, 'uploads/' + filename);
+  // res.sendFile(fullfilepath);
+  // res.download(fullfilepath);
+  // console.log(res)
+});
 
 app.post('/updateForm',(req) =>{
   const id = req.body.id;
