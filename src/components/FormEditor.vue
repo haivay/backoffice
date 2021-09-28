@@ -81,6 +81,27 @@
                                 >
                                 <label class="custom-control-label" for="checkboxl">{{ field.label }}</label>
                               </div>
+                              <div 
+                                class="field-date" 
+                                v-if="field.fieldType === 'date'"
+                              >
+                                <b-form-datepicker 
+                                  class="mb-2"
+                                  :placeholder="field.placeholder"
+                                  :disabled="true"
+                                ></b-form-datepicker>
+                              </div>
+                              <div 
+                                class="field-file" 
+                                v-if="field.fieldType === 'file'"
+                              >
+                                <input 
+                                  :type="field.fieldType"  
+                                  class="form-control-file" 
+                                  id="file1"
+                                  disabled
+                                >
+                              </div>
                             </div>
                             <div v-if="field.fieldType != 'checkbox'" class="form-check">
                               <input 
@@ -425,6 +446,55 @@
                         </p>
                       </div>
                     </div>
+                    <!-- DATE -->
+                    <div
+                      v-if="fieldType.id === 'date'"
+                      class="mt-3 mb-3"
+                    >
+                      <div class="form-group">
+                        <label for="dateLabel">Наименование поля:</label>
+                        <input 
+                          type="text" 
+                          id='dateLabel'
+                          placeholder="label"
+                          class="form-control"
+                          :class="$v.date.label.$error ? 'is-invalid' : ''"
+                          v-model.trim="date.label" 
+                        >
+                        <p v-if="$v.date.label.$dirty && !$v.date.label.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p>
+                      </div>
+                      <div class="form-group">
+                        <label for="datePlaceholder">Плейсхолдер:</label>
+                        <input 
+                          type="text" 
+                          id='textareaPlaceholder'
+                          placeholder="placeholder"
+                          class="form-control"
+                          :class="$v.date.placeholder.$error ? 'is-invalid' : ''"
+                          v-model.trim="date.placeholder"
+                        >
+                        <p v-if="$v.date.placeholder.$dirty && !$v.date.placeholder.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p>
+                      </div>
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
+                          id="dateIsRequire"
+                          v-model="date.isRequire"
+                          :class="date.isRequire === true ? 'checked' : ''"
+                        >
+                        <label 
+                          class="form-check-label" 
+                          for="dateIsRequire"
+                        >
+                          Обязательное
+                        </label>
+                      </div>
+                    </div>
                     <!-- FILE -->
                     <div
                       v-if="fieldType.id === 'file'"
@@ -533,8 +603,6 @@ export default {
   },
   data() {
     return {
-      // title: '',
-      // formId: '5f044367-4b5a-421a-b5a1-d14b624b81e8',
       fieldTypes: [
         {
           id: 'input',
@@ -551,6 +619,10 @@ export default {
         {
           id: 'checkbox',
           label: 'Чекбокс'
+        },
+        {
+          id: 'date',
+          label: 'Дата'
         },
         {
           id: 'file',
@@ -580,7 +652,6 @@ export default {
         ],
         selectNewOption: '',
       },
-// input
       input: {
         fieldType: 'input',
         label: '',
@@ -592,7 +663,6 @@ export default {
         },
         value: ''
       },
-// textarea
       textarea: {
         fieldType: 'textarea',
         label: '',
@@ -600,7 +670,6 @@ export default {
         isRequire: false,
         value: ''
       },
-// select
       select: {
         fieldType: 'select',
         label: '',
@@ -611,20 +680,23 @@ export default {
         options: [],
         value: []
       },
-// checkbox
       checkbox: {
         fieldType: 'checkbox',
         label: '',
         value: false
       },
-// file
+      date: {
+        fieldType: 'date',
+        label: '',
+        placeholder: '',
+        isRequire: false,
+        value: ''
+      },
       file : {
         fieldType: 'file',
         label: '',
         value: ''
       }
-//массив полей формы
-      // formFields: []
     }
   },
   validations: {
@@ -645,6 +717,10 @@ export default {
     },
     checkbox: {
       label: { required }
+    },
+    date: {
+      label: { required },
+      placeholder: { required }
     },
     file: {
       label: { required }

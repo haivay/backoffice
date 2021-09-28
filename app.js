@@ -71,12 +71,6 @@ app.post('/saveForm',(req) =>{
   ut.saveForm(formName, formFields);
 });
 
-app.post('/sendData', (req) => {
-  const typeFormId = req.body.id;
-  const formData = req.body.data;
-  ut.sendData(typeFormId, formData);
-});
-
 const isImageFilter = function(mimetype) {
   return (mimetype.split('/')[0] === 'image') ? true : false
 }
@@ -118,6 +112,12 @@ app.post('/sendFile', (req, res) => {
   const formData = {file: req.file, data: req.body.data}
   ut.sendData(typeFormId, formData)
 })
+
+app.post('/sendData', (req) => {
+  const typeFormId = req.body.id;
+  const formData = { data: req.body.data };
+  ut.sendData(typeFormId, formData);
+});
 
 app.post('/download', (req, res) => {
   console.log('не работает')

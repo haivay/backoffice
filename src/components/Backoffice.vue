@@ -148,7 +148,7 @@
                           v-model="field.value"
                         >
                         <label 
-                          class="custom-control-label" 
+                          class="custom-control-label form-check-label" 
                           :for="field.fieldType + index.toString()"
                         >
                           {{ field.label }}
@@ -156,6 +156,33 @@
                         <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
                           Обязательное поле
                         </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
+                      </div>
+                      <!-- DATE -->
+                      <div 
+                        v-if="field.fieldType === 'date'" 
+                        class="form-group111"
+                      >
+                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                        <b-form-datepicker 
+                          class="mb-2"
+                          :id="field.fieldType + index.toString()" 
+                          :placeholder="field.placeholder"
+                          :required="field.isRequire"
+                          locale="ru-RU"
+                          start-weekday="1"
+                          :hide-header="true"
+                          labelHelp=""
+                          :date-format-options="{ 'year': 'numeric', 'month': 'numeric', 'day': 'numeric' }"
+                          label-current-month="Текущий месяц"
+                          label-prev-month="Предыдущий месяц"
+                          label-next-month="Следующий месяц"
+                          label-prev-year="Предыдущий год"
+                          label-next-year="Следующий год"
+                          v-model="field.value" 
+                        ></b-form-datepicker>
+                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                          Обязательное поле
+                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
                       </div>
                       <!-- FILE -->
                       <div 
@@ -395,7 +422,7 @@ export default {
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
-      file: ''
+      file: '',
     }
   },
   mounted() {
@@ -449,6 +476,7 @@ export default {
       this.selectedFormNonParse = this.forms[index]; //для метода checkSelectedForm
       this.selectedForm = JSON.parse(JSON.stringify(this.forms[index]))
       this.isFormSelected = true;
+      this.file = '';
     },
     unselectForm() {
       this.selectedFormNonParse = {};
@@ -539,19 +567,24 @@ export default {
       let formData = new FormData();
       formData.append('id', this.selectedForm.id)
       formData.append('data', JSON.stringify(data))
-      formData.append('file', this.file);
+      if (this.file != '') {
+        formData.append('file', this.file);
+        axios.post('/sendFile', formData, {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+          }
+        }).then(function(){
+          console.log('SUCCESS!!');
+          this.file = ''
+        }).catch(function(){
+          console.log('FAILURE!!');
+        });
+      } else {
+        axios.post('/sendData', formData) 
+      }
       
-      axios.post( '/sendFile', formData, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-        }
-      }).then(function(){
-        console.log('SUCCESS!!');
-        this.file = ''
-      }).catch(function(){
-        console.log('FAILURE!!');
-      });
+      
 
       // const form = {
       //   id: this.selectedForm.id,
@@ -590,6 +623,16 @@ export default {
   }
   .textareaExample {
     resize: none;
+  }
+  .form-check-label {
+    /* чтобы после даблклика по label, текст не выделялся */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -khtml-user-select: none;    /* Konqueror */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;           /* Non-prefixed version, currently
+                                    not supported by any browser */
   }
   .nopadding {
     padding: 0 !important;
