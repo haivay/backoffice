@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path'
 import bodyParser from 'body-parser';
 import multer from 'multer';
-import imageSize from 'image-size';
 import fse from 'fs-extra';
 import fs from 'fs';
 import * as ut from './utils.js';
@@ -71,27 +70,14 @@ app.post('/saveForm',(req) =>{
   ut.saveForm(formName, formFields);
 });
 
-const isImageFilter = function(mimetype) {
-  return (mimetype.split('/')[0] === 'image') ? true : false
-}
 
-const getType = function(mimetype) {
-  let type = mimetype.split('/')[1];
-  if (type === 'jpeg') type = 'jpg'
-  return type
-}
-
-const getDimensions = function(filelink) {
-  let dimensions = imageSize(filelink)
-  return dimensions
-}
 
 app.post('/sendFile', (req, res) => {
   let metadata = {
     file_data: {
       mime: req.file.mimetype,
       size: req.file.size,
-      is_image: isImageFilter(req.file.mimetype),
+      is_image: ut.isImageFilter(req.file.mimetype),
     },
     file_link: req.file.path,
     file_name: req.file.filename
@@ -99,9 +85,9 @@ app.post('/sendFile', (req, res) => {
 
   if (metadata.file_data.is_image) {
     let dimensions = {
-      type: getType(metadata.file_data.mime),
-      width: getDimensions(metadata.file_link).width,
-      height: getDimensions(metadata.file_link).height
+      type: ut.getType(metadata.file_data.mime),
+      width: ut.getDimensions(metadata.file_link).width,
+      height: ut.getDimensions(metadata.file_link).height
     }
     Object.assign(metadata.file_data, dimensions);
   }

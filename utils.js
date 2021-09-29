@@ -1,4 +1,5 @@
 import pkg from 'pg';
+import imageSize from "image-size";
 const { Client } = pkg;
 
 const bdParams = {
@@ -45,4 +46,19 @@ export async function getData(typeId){
   const query = "SELECT request_data, ts FROM practice.tblformrequest WHERE type_id = $1";
   const queryResult = await client.query(query, [typeId]);
   return queryResult.rows
+}
+
+export const isImageFilter = function(mimetype) {
+  return (mimetype.split('/')[0] === 'image') ? true : false
+}
+
+export const getType = function(mimetype) {
+  let type = mimetype.split('/')[1];
+  if (type === 'jpeg') type = 'jpg'
+  return type
+}
+
+export const getDimensions = function(filelink) {
+  let dimensions = imageSize(filelink)
+  return dimensions
 }
