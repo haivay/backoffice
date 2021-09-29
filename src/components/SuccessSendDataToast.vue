@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-send-data" ref="modalSendData">
+  <div class="success-send-data-toast" @click="closeModal">
     <div 
       class="alert alert-success" 
       role="alert" 
@@ -23,7 +23,7 @@
 
 <script>
 export default {
-  name: 'Modal',
+  name: 'SuccessSendDataToast',
   data() {
     return {
       borderWidth: 100
@@ -42,12 +42,6 @@ export default {
     }
   },
   mounted() {
-    let vm = this;
-    document.addEventListener('click', function(item) {
-      if (item.target === vm.$refs['modalSendData']) {
-        vm.closeModal()
-      }
-    })
     setTimeout(this.closeModal, 5300)
     this.progress()
   }
@@ -62,7 +56,7 @@ export default {
     font-size: 30px;
     margin-bottom: 10px;
   }
-  .modal-send-data {
+  .success-send-data-toast {
     display: block;
     position: fixed;
     top: 50px;

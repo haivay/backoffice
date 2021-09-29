@@ -1,5 +1,5 @@
 <template>
-  <div class="modal modal-delete" ref="modalDelete">
+  <div class="modal modal-delete" @click.self="closeModal">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -41,7 +41,7 @@
 
 <script>
 export default {
-  name: 'Modal',
+  name: 'ModalDelete',
   props: {
     title: {
       type: String,
@@ -49,9 +49,7 @@ export default {
     }
   },
   data() {
-    return {
-      
-    }
+    return {}
   },
   methods: {
     closeModal() {
@@ -61,14 +59,6 @@ export default {
       this.$emit('deleteForm')
       this.closeModal()
     }
-  },
-  mounted() {
-    let vm =this;
-    document.addEventListener('click', function(item) {
-      if (item.target === vm.$refs['modalDelete']) {
-        vm.closeModal()
-      }
-    })
   }
 }
 </script>

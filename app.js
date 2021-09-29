@@ -89,7 +89,7 @@ app.post('/sendFile', (req, res) => {
       width: ut.getDimensions(metadata.file_link).width,
       height: ut.getDimensions(metadata.file_link).height
     }
-    Object.assign(metadata.file_data, dimensions);
+    Object.assign(metadata.file_data, {image_data: dimensions});
   }
 
   res.json({'metadata': metadata});
