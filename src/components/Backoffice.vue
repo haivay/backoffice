@@ -92,11 +92,12 @@
                           :id="field.fieldType + index.toString()"
                           :placeholder="field.placeholder"
                           class="form-control"
+                          :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
                           v-model.trim="field.value"
                         >
-                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                        <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
                           Обязательное поле
-                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
+                        </p> 
                       </div>
                       <!-- TEXTAREA -->
                       <div 
@@ -108,13 +109,14 @@
                           :id="field.fieldType + index.toString()"
                           :placeholder="field.placeholder"
                           class="form-control textareaExample" 
+                          :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
                           rows="5"
                           v-model.trim="field.value"
                         >
                         </textarea>
-                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                        <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
                           Обязательное поле
-                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
+                        </p> 
                       </div>
                       <!-- SELECT -->
                       <div 
@@ -153,9 +155,6 @@
                         >
                           {{ field.label }}
                         </label>
-                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
-                          Обязательное поле
-                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
                       </div>
                       <!-- DATE -->
                       <div 
@@ -201,9 +200,6 @@
                           ref="file"
                           @change="handleFileUpload()"
                         >
-                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
-                          Обязательное поле
-                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''"  v-model.trim="form.inputs[index]" -->
                       </div>
                     </div>
                   </div>
@@ -377,9 +373,9 @@
           </div>
         </div>
         <transition name="slide-fade">
-          <ModalSendData 
-            v-if="isModalSendDataOpen"
-            @close="isModalSendDataOpen = false"
+          <SuccessSendDataToast 
+            v-if="isSuccessSendDataToastOpen"
+            @close="isSuccessSendDataToastOpen = false"
           />
         </transition>
         <transition name="fade">
@@ -397,9 +393,9 @@
 <script>
 import FormEditor from './FormEditor.vue'
 import ModalDelete from './ModalDelete.vue'
-import ModalSendData from './ModalSendData.vue'
+import SuccessSendDataToast from './SuccessSendDataToast.vue'
 import { validationMixin } from 'vuelidate'
-import { required, email } from 'vuelidate/lib/validators'
+import { required } from 'vuelidate/lib/validators'
 import VSelectize from '@isneezy/vue-selectize'
 import axios from 'axios';
 var _cloneDeep = require('lodash/cloneDeep');
@@ -407,7 +403,7 @@ var _cloneDeep = require('lodash/cloneDeep');
 export default {
   mixins: [validationMixin],
   name: 'Backoffice',
-  components: { FormEditor, ModalDelete, ModalSendData, VSelectize },
+  components: { FormEditor, ModalDelete, SuccessSendDataToast, VSelectize },
   data() {
     return {
       title: 'Backoffice',
@@ -418,11 +414,12 @@ export default {
       selectedFormNonParse: {},
       isFormSelected: false,
       isModalDeleteOpen: false,
-      isModalSendDataOpen: false,
+      isSuccessSendDataToastOpen: false,
       isFormCreating: false,
       editingForm: {},
       isAnyFormEditing: false,
       file: '',
+      validationValues: []
     }
   },
   mounted() {
@@ -445,11 +442,12 @@ export default {
     }
   },
   validations: {
-    form: {
-      fullName: { required },
-      formSelected: { required },
-      groupName: { required },
-      email: { required, email }
+    selectedForm: {
+      document_fields: {
+        $each: {
+          value: { required }
+        }
+      }
     }
   },
   methods: {
@@ -477,11 +475,29 @@ export default {
       this.selectedForm = JSON.parse(JSON.stringify(this.forms[index]))
       this.isFormSelected = true;
       this.file = '';
+      // this.validations = {
+      //   test: { required, email } 
+      // }
+      this.setValidation()
     },
     unselectForm() {
       this.selectedFormNonParse = {};
       this.selectedForm = {};
       this.isFormSelected = false;
+    },
+    setValidation() {
+      // let form = {}
+      for (let field of this.selectedForm.document_fields) {
+        if (field.isRequire) {
+          // let fieldName = field.fieldType.toString() + i.toString()
+          // form[fieldName] = { required }
+          // Object.assign(form, )
+          this.validationValues.push({value: field.value });
+        }
+      }
+      // Object.assign(this.validations, form)
+      // this.validations = form;
+      console.log(this.validationValues)
     },
     checkSelectedForm(index) {
       return this.forms.indexOf(this.selectedFormNonParse) == index ? true : false
@@ -540,12 +556,13 @@ export default {
     },
     checkForm() {
       // валидация
-      //
-      // this.$v.form.$touch()
-      // if (this.$v.form.$error) {
+      // this.$v.selectedForm.document_fields.$each.$touch()
+      // if (this.$v.selectedForm.$error) {
       //   console.log('Валидация не прошла!')
-      //   return
+      //   // return
       // }
+
+      // console.log(this.$v.selectedForm.document_fields.$each)
 
       let fields = this.selectedForm.document_fields;
       let data = {}
@@ -583,19 +600,7 @@ export default {
       } else {
         axios.post('/sendData', formData) 
       }
-      
-      
-
-      // const form = {
-      //   id: this.selectedForm.id,
-      //   formName: this.selectedForm.type_name,
-      //   data: JSON.stringify(data)
-      // }
-
-      // axios.post('/sendData', form);
-
-      // this.file = '';
-      this.isModalSendDataOpen = true;
+      this.isSuccessSendDataToastOpen = true;
     }
   }
 }
