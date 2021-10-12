@@ -333,7 +333,7 @@ export default {
   },
   computed: {
     formsFiltred() {
-      return this.forms.filter(form => form.type_name.toLowerCase().includes(this.formSearch))
+      return this.forms.filter(form => form.type_name.toLowerCase().includes(this.formSearch.toLowerCase()))
     }
   },
   watch: {
@@ -440,17 +440,15 @@ export default {
       this.getForms();
       this.unselectForm();
     },
-    resetValues() {
-      for (let form of this.forms) {
-        for (let field of form.document_fields) {
-          if (field.fieldType === 'select') {
-            field.value = []
-          } 
-          if (field.fieldType === 'checkbox') {
-            field.value = false
-          } else {
-            field.value = ''
-          }
+    clearForm() {
+      for (let field of this.selectedForm.document_fields) {
+        if (field.fieldType === 'select') {
+          field.value = []
+        } 
+        if (field.fieldType === 'checkbox') {
+          field.value = false
+        } else {
+          field.value = ''
         }
       }
     },
@@ -461,8 +459,6 @@ export default {
       //   console.log('Валидация не прошла!')
       //   // return
       // }
-
-      // console.log(this.$v.selectedForm.document_fields.$each)
 
       let fields = this.selectedForm.document_fields;
       let data = {};
@@ -507,31 +503,9 @@ export default {
       }).catch(function(){
         console.log('FAILURE!!');
       });
+
+      this.clearForm()
       this.isSuccessSendDataToastOpen = true;
-
-
-
-
-      // let formData = new FormData();
-      // formData.append('id', this.selectedForm.id)
-      // formData.append('data', data)
-      // if (this.file != '') {
-      //   formData.append('file', this.file);
-      //   axios.post('/sendFile', formData, {
-      //     headers: {
-      //       'Accept': 'application/json',
-      //       'Content-Type': 'multipart/form-data',
-      //     }
-      //   }).then(function(){
-      //     console.log('SUCCESS!!');
-      //     this.file = ''
-      //   }).catch(function(){
-      //     console.log('FAILURE!!');
-      //   });
-      // } else {
-      //   axios.post('/sendData', formData) 
-      // }
-      // this.isSuccessSendDataToastOpen = true;
     }
   }
 }

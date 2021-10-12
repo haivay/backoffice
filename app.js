@@ -31,8 +31,6 @@ const __dirname = path.resolve();
 
 // app.use(express.static(path.join(__dirname, './public')));
 
-// Какой-то коммент, и еще.
-
 // app.get('/', (req,res) => {
 //   res.sendFile(path.join(__dirname, './public/index.html'));
 // });
