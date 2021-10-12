@@ -45,6 +45,11 @@
                 </div>
               </div>
             </div>
+            <div v-if="formSearchError" class="formListEmpty">
+              <div class="alert alert-warning" role="alert">
+                Форма не найдена...
+              </div>
+            </div>
           </div>
           <div class="col-8">
             <div 
@@ -304,6 +309,7 @@ export default {
       title: 'Backoffice',
       forms: [],
       formSearch: '',
+      formSearchError: false,
       formName: '',
       formFields: [],
       selectedForm: {},
@@ -339,6 +345,9 @@ export default {
   watch: {
     'form.wayToGetOption'(newOption) {
       this.form.isActive = newOption === 'option1' ? true : false
+    },
+    formsFiltred(newFormsFiltred) {
+      this.formSearchError = newFormsFiltred.length === 0;
     }
   },
   validations: {
