@@ -1,374 +1,269 @@
 <template>
   <div class="root">
-    <div class="container">
       <div class="container-fluid main-content-wrapper">
-          <div class="row">
-            <div class="col-4">
-              <div class="formList">
-                <div 
-                  class="forms"
-                  v-for="(form, index) of forms"
-                  :key="index"
+        <div class="row">
+          <div class="col-4">
+            <div class="row">
+              <div class="col">
+                <input 
+                  class="form-control mb-2" 
+                  type="text" 
+                  placeholder="Поиск по формам"
+                  v-model="formSearch"
                 >
-                  <div class="list-group list-group-flush">
-                    <button 
-                      type="button" 
-                      class="list-group-item list-group-item-border list-group-item-action" 
-                      aria-current="true"
-                      @click="selectForm(index)" 
-                      :class="checkSelectedForm(index) ? 'list-group-item-border-blue' : ''"
-                    >
-                      {{ form.type_name }}
-                    </button>
-                  </div>
-                </div>
               </div>
-              <button 
-                type="button" 
-                class="btn btn-primary mt-3" 
-                aria-current="true"
-                @click="createForm" 
-              >
-                Создать новую форму
-              </button>
-            </div>
-            <div class="col-8">
-              <div 
-                v-if="!isFormSelected && !isAnyFormEditing && !isFormCreating"
-                class="alert alert-primary" 
-                role="alert"
-              >
-                Форма не выбрана
-              </div>
-              <div 
-                v-else-if="isFormSelected && !isAnyFormEditing && !isFormCreating"
-                class="form"
-              >
-                <div class="row justify-content-between h-100">
-                  <div class="col-10">
-                    <h2 class="title mb-3">{{ selectedForm.type_name | formNameLength(selectedForm.type_name) }}</h2>
-                  </div>
-                  <div class="col-md nopadding">
-                    <button 
-                      type="button" 
-                      class="btn btn-edit btn-primary"
-                      @click="editThisForm(selectedForm.id)"
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="right" 
-                      title="Редактировать форму"
-                    >
-                      <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
-                    </button>
-                  </div>
-                  <div class="col-md nopadding">
-                    <button 
-                      type="button" 
-                      class="btn btn-edit btn-danger"
-                      @click="openModalDelete"
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="right" 
-                      title="Удалить форму"
-                    >
-                      <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                    </button>
-                  </div>
-                </div>
-                <form class="doc" @submit.prevent="checkForm" enctype="multipart/form-data">
-                  <div class="fields">
-                    <div 
-                      class="field"
-                      v-for="(field, index) of selectedForm.document_fields"
-                      :key="index"
-                    >
-                      <!-- {{ field.fieldType }} -->
-                      <!-- INPUT -->
-                      <div 
-                        v-if="field.fieldType === 'input'" 
-                        class="form-group"
-                      >
-                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                        <input 
-                          :type="field.dataType" 
-                          :id="field.fieldType + index.toString()"
-                          :placeholder="field.placeholder"
-                          class="form-control"
-                          :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
-                          v-model.trim="field.value"
-                        >
-                        <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
-                          Обязательное поле
-                        </p> 
-                      </div>
-                      <!-- TEXTAREA -->
-                      <div 
-                        v-if="field.fieldType === 'textarea'" 
-                        class="form-group"
-                      >
-                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                        <textarea 
-                          :id="field.fieldType + index.toString()"
-                          :placeholder="field.placeholder"
-                          class="form-control textareaExample" 
-                          :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
-                          rows="5"
-                          v-model.trim="field.value"
-                        >
-                        </textarea>
-                        <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
-                          Обязательное поле
-                        </p> 
-                      </div>
-                      <!-- SELECT -->
-                      <div 
-                        v-if="field.fieldType === 'select'" 
-                        class="form-group"
-                      >
-                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                        <div class="form-selector">
-                          <v-selectize 
-                            :placeholder="field.placeholder"
-                            :options="field.options" 
-                            :create-item="maybeCreate(field)"
-                            :multiple="field.isMultiple"
-                            v-model="field.value[0]" 
-                          />
-                        </div>
-                        <!-- <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
-                          Обязательное поле
-                        </p> -->
-                      </div>
-                      <!-- CHECKBOX -->
-                      <div 
-                        v-if="field.fieldType === 'checkbox'" 
-                        class="custom-control custom-checkbox"
-                      >
-                        <input 
-                          :type="field.fieldType" 
-                          class="custom-control-input" 
-                          :id="field.fieldType + index.toString()"
-                          :class="field.value === true ? 'checked' : ''"
-                          v-model="field.value"
-                        >
-                        <label 
-                          class="custom-control-label form-check-label" 
-                          :for="field.fieldType + index.toString()"
-                        >
-                          {{ field.label }}
-                        </label>
-                      </div>
-                      <!-- DATE -->
-                      <div 
-                        v-if="field.fieldType === 'date'" 
-                        class="form-group111"
-                      >
-                        <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                        <b-form-datepicker 
-                          class="mb-2"
-                          :id="field.fieldType + index.toString()" 
-                          :placeholder="field.placeholder"
-                          :required="field.isRequire"
-                          locale="ru-RU"
-                          start-weekday="1"
-                          :hide-header="true"
-                          labelHelp=""
-                          :date-format-options="{ 'year': 'numeric', 'month': 'numeric', 'day': 'numeric' }"
-                          label-current-month="Текущий месяц"
-                          label-prev-month="Предыдущий месяц"
-                          label-next-month="Следующий месяц"
-                          label-prev-year="Предыдущий год"
-                          label-next-year="Следующий год"
-                          v-model="field.value" 
-                        ></b-form-datepicker>
-                        <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
-                          Обязательное поле
-                        </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
-                      </div>
-                      <!-- FILE -->
-                      <div 
-                        v-if="field.fieldType === 'file'"
-                        class="custom-file"
-                      >
-                        <label 
-                          :for="field.fieldType + index.toString()"
-                        >
-                          {{ field.label }}
-                        </label>
-                        <input 
-                          :type="field.fieldType"  
-                          class="form-control-file" 
-                          :id="field.fieldType + index.toString()"
-                          ref="file"
-                          @change="handleFileUpload()"
-                        >
-                      </div>
-                    </div>
-                  </div>
-                  <button 
-                    type="submit" 
-                    class="btn btn-outline-primary w-100 mt-4 mb-2"
-                    :class="isAnyFormEditing ? 'disabled' : ''"
-                    @keypress.enter="console.log('enter pressed')"
-                  >
-                    Отправить
-                  </button>
-                </form>
-                
+              <div class="col-auto nopadding-left">
                 <button 
                   type="button" 
-                  class="btn btn-outline-secondary w-100 mb-4" 
-                  @click="unselectForm"
+                  class="btn btn-outline-primary mb-3" 
+                  aria-current="true"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="right" 
+                  title="Добавить форму"
+                  @click="createForm"
                 >
-                  Назад
+                  <font-awesome-icon :icon="['fas', 'plus']" class="icon alt"/>
                 </button>
               </div>
+            </div>
+            <div class="formList">
               <div 
-                v-else
-                class="form-editor"
+                class="forms"
+                v-for="(form, index) of formsFiltred"
+                :key="index"
               >
-                <!-- добавить форму -->
-                <FormEditor
-                  v-if="isFormCreating && !isAnyFormEditing"
-                  :title="'Создание формы'"
-                  :formName="formName"
-                  :saveButtonTitle="'Добавить форму'"
-                  :backButtonTitle="'Назад'"
-                  v-model="formName"
-                  @update="getForms"
-                  @closeEditor="stopCreatingForm"
-                  :key="1"
-                />
-                <!-- редактировать форму -->
-                <FormEditor 
-                  v-if="isAnyFormEditing && !isFormCreating"
-                  :title="'Редактирование формы'"
-                  :id="editingForm.id"
-                  :formName="editingForm.type_name"
-                  :formFields="editingForm.document_fields"
-                  :saveButtonTitle="'Сохранить изменения'"
-                  :backButtonTitle="'Прекратить редактирование'"
-                  v-model="editingForm.type_name"
-                  @update="getForms"
-                  @closeEditor="stopEditingForm"
-                  :key="2"
-                />
+                <div class="list-group list-group-flush">
+                  <button 
+                    type="button" 
+                    class="list-group-item list-group-item-border list-group-item-action" 
+                    aria-current="true"
+                    @click="selectForm(index)" 
+                    :class="checkSelectedForm(index) ? 'list-group-item-border-blue' : ''"
+                  >
+                    {{ form.type_name }}
+                  </button>
+                </div>
               </div>
-              <!-- <h2 class='title'>{{ title }}</h2>
-              <form class="doc" @submit.prevent="checkForm">
-                <div class="form-group">
-                  <label for="fullName">Ваше полное имя (ФИО):</label>
-                  <input 
-                    type="text" 
-                    id='fullName'
-                    placeholder="Введите ФИО"
-                    class="form-control"
-                    :class="$v.form.fullName.$error ? 'is-invalid' : ''"
-                    v-model.trim="form.fullName"
+            </div>
+          </div>
+          <div class="col-8">
+            <div 
+              v-if="!isFormSelected && !isAnyFormEditing && !isFormCreating"
+              class="alert alert-primary" 
+              role="alert"
+            >
+              Форма не выбрана
+            </div>
+            <div 
+              v-else-if="isFormSelected && !isAnyFormEditing && !isFormCreating"
+              class="form"
+            >
+              <div class="row justify-content-between h-100">
+                <div class="col">
+                  <h2 class="title mb-3">{{ selectedForm.type_name | formNameLength(selectedForm.type_name) }}</h2>
+                </div>
+                <div class="col-auto nopadding">
+                  <button 
+                    type="button" 
+                    class="btn btn-edit btn-primary"
+                    @click="editThisForm(selectedForm.id)"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="right" 
+                    title="Редактировать форму"
                   >
-                  <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
-                    Обязательное поле
-                  </p>
+                    <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
+                  </button>
                 </div>
-                <div class="form-group">
-                    <label for="form_training">Выберете форму обучения:</label>
-                    <div class="form-selector">
-                      <v-selectize 
-                        :options="form.formsOfTrain" 
-                        v-model="form.formSelected" 
-                        placeholder="Выберете форму обучения (поиск по трем символам)"
-                      />
-                    </div>
-                    <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
-                      Обязательное поле
-                    </p>
-                </div>
-                <div class="form-group">
-                  <label for="groupName">Название группы:</label>
-                  <input 
-                    type="text" 
-                    id='groupName'
-                    placeholder="Введите название группы (пример: ПИб-21)"
-                    class="form-control"
-                    :class="$v.form.groupName.$error ? 'is-invalid' : ''"
-                    v-model.trim="form.groupName"
+                <div class="col-auto">
+                  <button 
+                    type="button" 
+                    class="btn btn-edit btn-danger"
+                    @click="openModalDelete"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="right" 
+                    title="Удалить форму"
                   >
-                  <p v-if="$v.form.groupName.$dirty && !form.groupName.required" class="invalid-feedback">
-                    Обязательное поле
-                  </p>
+                    <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
+                  </button>
                 </div>
-                <div class="form-group">
-                  <label for="dateFrom">С какого числа справка:</label>
-                  <div class="input-group date">
-                    <input type="text" class="form-control">
-                    <div class="input-group-append">
-                      <button class="btn btn-outline-secondary input-group-addon">
-                        <span class="fa fa-calendar">
-
-                        </span>
-                      </button>
+              </div>
+              <form class="doc" @submit.prevent="checkForm" enctype="multipart/form-data">
+                <div class="fields">
+                  <div 
+                    class="field"
+                    v-for="(field, index) of selectedForm.document_fields"
+                    :key="index"
+                  >
+                    <!-- {{ field.fieldType }} -->
+                    <!-- INPUT -->
+                    <div 
+                      v-if="field.fieldType === 'input'" 
+                      class="form-group"
+                    >
+                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                      <input 
+                        :type="field.dataType" 
+                        :id="field.fieldType + index.toString()"
+                        :placeholder="field.placeholder"
+                        class="form-control"
+                        :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
+                        v-model.trim="field.value"
+                      >
+                      <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
+                        Обязательное поле
+                      </p> 
                     </div>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="dateTo">До какого числа справка:</label>
-                  <div class="input-group date">
-                    <input type="text" class="form-control">
-                    <div class="input-group-append">
-                      <button class="btn btn-outline-secondary input-group-addon">
-                        <span class="fa fa-calendar">
-
-                        </span>
-                      </button>
+                    <!-- TEXTAREA -->
+                    <div 
+                      v-if="field.fieldType === 'textarea'" 
+                      class="form-group"
+                    >
+                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                      <textarea 
+                        :id="field.fieldType + index.toString()"
+                        :placeholder="field.placeholder"
+                        class="form-control textareaExample" 
+                        :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
+                        rows="5"
+                        v-model.trim="field.value"
+                      >
+                      </textarea>
+                      <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
+                        Обязательное поле
+                      </p> 
                     </div>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="btn-group">Выберите способ получения:</label>
-                  <div class="btn-group btn-group-toggle w-100" data-toggle="buttons" role="group" aria-label="Basic example">
-                    <label 
-                      class="btn btn-outline-primary"
-                      :class="{active: form.isActive}"
+                    <!-- SELECT -->
+                    <div 
+                      v-if="field.fieldType === 'select'" 
+                      class="form-group"
+                    >
+                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                      <div class="form-selector">
+                        <v-selectize 
+                          :placeholder="field.placeholder"
+                          :options="field.options" 
+                          :create-item="maybeCreate(field)"
+                          :multiple="field.isMultiple"
+                          v-model="field.value[0]" 
+                        />
+                      </div>
+                      <!-- <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
+                        Обязательное поле
+                      </p> -->
+                    </div>
+                    <!-- CHECKBOX -->
+                    <div 
+                      v-if="field.fieldType === 'checkbox'" 
+                      class="custom-control custom-checkbox"
                     >
                       <input 
-                        type="radio" 
-                        name="options" 
-                        id="way_to_get_option1" 
-                        value="option1" 
-                        v-model="form.wayToGetOption"
-                      > Лично в отделе бухгалтерии
-                    </label>
-                    <label 
-                      class="btn btn-outline-primary"
-                      :class="{active: !form.isActive}"
+                        :type="field.fieldType" 
+                        class="custom-control-input" 
+                        :id="field.fieldType + index.toString()"
+                        :class="field.value === true ? 'checked' : ''"
+                        v-model="field.value"
+                      >
+                      <label 
+                        class="custom-control-label form-check-label" 
+                        :for="field.fieldType + index.toString()"
+                      >
+                        {{ field.label }}
+                      </label>
+                    </div>
+                    <!-- DATE -->
+                    <div 
+                      v-if="field.fieldType === 'date'" 
+                      class="form-group111"
                     >
+                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                      <b-form-datepicker 
+                        class="mb-2"
+                        :id="field.fieldType + index.toString()" 
+                        :placeholder="field.placeholder"
+                        :required="field.isRequire"
+                        locale="ru-RU"
+                        start-weekday="1"
+                        :hide-header="true"
+                        labelHelp=""
+                        :date-format-options="{ 'year': 'numeric', 'month': 'numeric', 'day': 'numeric' }"
+                        label-current-month="Текущий месяц"
+                        label-prev-month="Предыдущий месяц"
+                        label-next-month="Следующий месяц"
+                        label-prev-year="Предыдущий год"
+                        label-next-year="Следующий год"
+                        v-model="field.value" 
+                      ></b-form-datepicker>
+                      <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                        Обязательное поле
+                      </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
+                    </div>
+                    <!-- FILE -->
+                    <div 
+                      v-if="field.fieldType === 'file'"
+                      class="custom-file"
+                    >
+                      <label 
+                        :for="field.fieldType + index.toString()"
+                      >
+                        {{ field.label }}
+                      </label>
                       <input 
-                        type="radio" 
-                        name="options" 
-                        id="way_to_get_option2" 
-                        value="option2" 
-                        v-model="form.wayToGetOption" 
-                      > В виде скан-копии по электронной почте
-                    </label>
+                        :type="field.fieldType"  
+                        class="form-control-file" 
+                        :id="field.fieldType + index.toString()"
+                        ref="file"
+                        @change="handleFileUpload()"
+                      >
+                    </div>
                   </div>
                 </div>
-                <div 
-                  class="form-group"
-                  v-if="!form.isActive"
+                <button 
+                  type="submit" 
+                  class="btn btn-outline-primary w-100 mt-4 mb-2"
+                  :class="isAnyFormEditing ? 'disabled' : ''"
+                  @keypress.enter="console.log('enter pressed')"
                 >
-                  <label for="email">Введите электронную почту:</label>
-                  <input 
-                    type="email" 
-                    id='email'
-                    placeholder="Введите email"
-                    class="form-control"
-                    :class="$v.form.email.$error ? 'is-invalid' : ''"
-                    v-model.trim="form.email"
-                  >
-                  <p v-if="$v.form.email.$dirty && !form.email.email" class="invalid-feedback">
-                    Некорректный email
-                  </p>
-                </div>
-                <button type="submit" class="btn btn-outline-primary w-100">Отправить</button>
-              </form> -->
+                  Отправить
+                </button>
+              </form>
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary w-100 mb-4" 
+                @click="unselectForm"
+              >
+                Назад
+              </button>
+            </div>
+            <div 
+              v-else
+              class="form-editor"
+            >
+              <!-- добавить форму -->
+              <FormEditor
+                v-if="isFormCreating && !isAnyFormEditing"
+                :title="'Создание формы'"
+                :formName="formName"
+                :saveButtonTitle="'Добавить форму'"
+                :backButtonTitle="'Назад'"
+                v-model="formName"
+                @update="getForms"
+                @closeEditor="stopCreatingForm"
+                :key="1"
+              />
+              <!-- редактировать форму -->
+              <FormEditor 
+                v-if="isAnyFormEditing && !isFormCreating"
+                :title="'Редактирование формы'"
+                :id="editingForm.id"
+                :formName="editingForm.type_name"
+                :formFields="editingForm.document_fields"
+                :saveButtonTitle="'Сохранить изменения'"
+                :backButtonTitle="'Прекратить редактирование'"
+                v-model="editingForm.type_name"
+                @update="getForms"
+                @closeEditor="stopEditingForm"
+                :key="2"
+              />
             </div>
           </div>
         </div>
@@ -408,6 +303,7 @@ export default {
     return {
       title: 'Backoffice',
       forms: [],
+      formSearch: '',
       formName: '',
       formFields: [],
       selectedForm: {},
@@ -435,7 +331,11 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+    formsFiltred() {
+      return this.forms.filter(form => form.type_name.toLowerCase().includes(this.formSearch))
+    }
+  },
   watch: {
     'form.wayToGetOption'(newOption) {
       this.form.isActive = newOption === 'option1' ? true : false
@@ -565,7 +465,8 @@ export default {
       // console.log(this.$v.selectedForm.document_fields.$each)
 
       let fields = this.selectedForm.document_fields;
-      let data = {}
+      let data = {};
+      let i = 0;
 
       for (let field of fields) {
         if (field.fieldType === 'select') {
@@ -575,32 +476,62 @@ export default {
             if (typeof option === 'object') selected.push(option.label)
             if (typeof option === 'string') selected.push(option)
           }
-          data[field.label] = selected
+          data['field' + i] = {
+            'fieldType': field.fieldType,
+            'value': selected
+          }
         } else {
-          data[field.label] = field.value
+          data['field' + i] = {
+            'fieldType': field.fieldType,
+            'value': field.value
+          };
         }
+        i++
       }
+      console.log(data)
 
       let formData = new FormData();
       formData.append('id', this.selectedForm.id)
       formData.append('data', JSON.stringify(data))
       if (this.file != '') {
         formData.append('file', this.file);
-        axios.post('/sendFile', formData, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data',
-          }
-        }).then(function(){
-          console.log('SUCCESS!!');
-          this.file = ''
-        }).catch(function(){
-          console.log('FAILURE!!');
-        });
-      } else {
-        axios.post('/sendData', formData) 
       }
+      axios.post('/sendData', formData, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        }
+      }).then(function(){
+        console.log('SUCCESS!!');
+        this.file = ''
+      }).catch(function(){
+        console.log('FAILURE!!');
+      });
       this.isSuccessSendDataToastOpen = true;
+
+
+
+
+      // let formData = new FormData();
+      // formData.append('id', this.selectedForm.id)
+      // formData.append('data', data)
+      // if (this.file != '') {
+      //   formData.append('file', this.file);
+      //   axios.post('/sendFile', formData, {
+      //     headers: {
+      //       'Accept': 'application/json',
+      //       'Content-Type': 'multipart/form-data',
+      //     }
+      //   }).then(function(){
+      //     console.log('SUCCESS!!');
+      //     this.file = ''
+      //   }).catch(function(){
+      //     console.log('FAILURE!!');
+      //   });
+      // } else {
+      //   axios.post('/sendData', formData) 
+      // }
+      // this.isSuccessSendDataToastOpen = true;
     }
   }
 }
@@ -642,6 +573,10 @@ export default {
   .nopadding {
     padding: 0 !important;
     margin: 0 !important;
+  }
+  .nopadding-left {
+    padding-left: 0;
+    margin-left: 0;
   }
   .fileLabel {
     display: block;

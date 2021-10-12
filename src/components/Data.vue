@@ -31,7 +31,7 @@
                 v-for="(value, name, index) in this.header"
                 :key="index"
               >
-                {{ name }}
+                {{ value.label }}
               </td>
             </tr>
           </thead>
@@ -43,12 +43,12 @@
               <th scope="row">{{ indexRow + 1 }}</th>
               <td>{{ getDateFromISO(row.ts) }}</td>
               <td
-                v-for="(value, name, indexCell) in JSON.parse(row.request_data.data)"
+                v-for="(value, name, indexCell) in row.request_data.data"
                 :key="indexCell"
               >
-                {{ getValue(value) }}
+                {{ getValue(value.value) }}
                 <button 
-                  v-if="isFile && value === ''"
+                  v-if="isFile && value.value === ''"
                   type="button" 
                   class="btn btn-primary"
                   @click="downloadFile(indexRow)"
@@ -67,6 +67,7 @@
 <script>
 import VSelectize from '@isneezy/vue-selectize'  
 import axios from 'axios';
+// import { response } from 'express';
 
 export default {
   name: 'Data',
@@ -86,7 +87,9 @@ export default {
     "selectedForm"() {
       if (this.selectedForm != {}) {
         this.isFormSelected = true
-        this.getData()
+        this.header = this.selectedForm.document_fields;
+        console.log(this.header)
+        this.getData();
       }
       if (this.selectedForm === null) {
         this.isFormSelected = false
@@ -116,12 +119,12 @@ export default {
       .then((response) => {
         console.log(response.data)
         this.data = response.data
-        this.header = JSON.parse(response.data[0].request_data.data)
-        if ('file' in response.data[0].request_data) {
-          this.isFile = true
-        } else {
-          this.isFile = false
-        }
+        // this.header = JSON.parse(response.data[0].request_data.data)
+        // if ('file' in response.data[0].request_data) {
+        //   this.isFile = true
+        // } else {
+        //   this.isFile = false
+        // }
       });
     },
     getDateFromISO(dateIso) {

@@ -70,39 +70,65 @@ app.post('/saveForm',(req) =>{
   ut.saveForm(formName, formFields);
 });
 
+// app.post('/sendFile', (req, res) => {
+//   let metadata = {
+//     file_data: {
+//       mime: req.file.mimetype,
+//       size: req.file.size,
+//       is_image: ut.isImageFilter(req.file.mimetype),
+//     },
+//     file_link: req.file.path,
+//     file_name: req.file.filename
+//   }
 
+//   if (metadata.file_data.is_image) {
+//     let dimensions = {
+//       type: ut.getType(metadata.file_data.mime),
+//       width: ut.getDimensions(metadata.file_link).width,
+//       height: ut.getDimensions(metadata.file_link).height
+//     }
+//     Object.assign(metadata.file_data, {image_data: dimensions});
+//   }
 
-app.post('/sendFile', (req, res) => {
-  let metadata = {
-    file_data: {
-      mime: req.file.mimetype,
-      size: req.file.size,
-      is_image: ut.isImageFilter(req.file.mimetype),
-    },
-    file_link: req.file.path,
-    file_name: req.file.filename
-  }
-
-  if (metadata.file_data.is_image) {
-    let dimensions = {
-      type: ut.getType(metadata.file_data.mime),
-      width: ut.getDimensions(metadata.file_link).width,
-      height: ut.getDimensions(metadata.file_link).height
-    }
-    Object.assign(metadata.file_data, {image_data: dimensions});
-  }
-
-  res.json({'metadata': metadata});
-  req.file = metadata
-  const typeFormId = req.body.id
-  const formData = {file: req.file, data: req.body.data}
-  ut.sendData(typeFormId, formData)
-})
+//   res.json({'metadata': metadata});
+//   req.file = metadata
+//   const typeFormId = req.body.id
+//   const formData = {file: req.file, data: req.body.data}
+//   ut.sendData(typeFormId, formData)
+// })
 
 app.post('/sendData', (req) => {
-  const typeFormId = req.body.id;
-  const formData = { data: req.body.data };
-  ut.sendData(typeFormId, formData);
+  if (req.file != undefined) {
+    let metadata = {
+      file_data: {
+        mime: req.file.mimetype,
+        size: req.file.size,
+        is_image: ut.isImageFilter(req.file.mimetype),
+      },
+      file_link: req.file.path,
+      file_name: req.file.filename
+    }
+  
+    if (metadata.file_data.is_image) {
+      let dimensions = {
+        type: ut.getType(metadata.file_data.mime),
+        width: ut.getDimensions(metadata.file_link).width,
+        height: ut.getDimensions(metadata.file_link).height
+      }
+      Object.assign(metadata.file_data, {image_data: dimensions});
+    }
+  
+    // res.json({'metadata': metadata});
+    req.file = metadata
+
+    const typeFormId = req.body.id;
+    const formData = {data: JSON.parse(req.body.data), file: req.file};
+    ut.sendData(typeFormId, formData);
+  } else {
+    const typeFormId = req.body.id;
+    const formData = {data: JSON.parse(req.body.data)};
+    ut.sendData(typeFormId, formData);
+  }
 });
 
 app.post('/download', (req, res) => {
