@@ -19,128 +19,150 @@
           <div class="form-fields mt-3">
             <div class="shadow-sm p-3 bg-body rounded">
               <form class="doc">
-                <!-- <p class="lead" v-if="formFields.length">Текущие поля:</p> -->
                 <div 
-                  class="field-item shadow-sm p-3 mb-2 bg-body rounded"
-                  v-for="(field, index) in formFields"
-                  :key="index"
+                  class="field-items"
+                  v-if="renderFieldItems"
+                  @dragenter.prevent
+                  @dragover.prevent
                 >
-                  <div class="row justify-content-between align-items-center h-100">
-                    <div class="col-9 col-sm-9 col-lg-10">
-                      <div>
-                        <div class="form-group">
-                          <!-- <label for="input1">{{ field.label }} | Тип: {{ field.dataType.label }}</label> -->
-                          <label v-if="field.fieldType != 'checkbox'" for="input1">{{ field.label }}</label>
-                          <div 
-                            class="field-input" 
-                            v-if="field.fieldType === 'input'"
-                          >
-                            <input 
-                              :type="field.dataType" 
-                              id='inputl'
-                              :placeholder="field.placeholder"
-                              class="form-control"
-                              disabled
+                  <div 
+                    class="field-item shadow-sm p-3 mb-2 bg-body rounded"
+                    v-for="(field, index) in formFields"
+                    :key="index"
+                    :class="checkDropOver(index) ? 'borderForDragOver' : ''"
+                    draggable="true"
+                    @dragstart="startDragOnFormFields($event, index)"
+                    @dragover="dragOver(index)"
+                    @dragend="dragOverId = -1"
+                    @drop="onDropFormFields($event, index, formFields)"
+                  >
+                    <div class="row justify-content-between align-items-center h-100">
+                      <div class="col-auto nopadding reorder">
+                        <button 
+                          type="button" 
+                          class="btn btn-grab"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="right" 
+                          title="Нажать и держать для перетаскивания"
+                        >
+                          <font-awesome-icon :icon="['fas', 'grip-lines']" class="icon alt"/>
+                        </button>
+                      </div>
+                      <div class="col">
+                        <div>
+                          <div class="form-group">
+                            <label v-if="field.fieldType != 'checkbox'" for="input1">{{ field.label }}</label>
+                            <div 
+                              class="field-input" 
+                              v-if="field.fieldType === 'input'"
                             >
-                          </div>
-                          <div 
-                            class="field-textarea" 
-                            v-if="field.fieldType === 'textarea'"
-                          >
-                            <!-- <label for="exampleFormControlTextarea1">Example textarea</label> -->
-                            <textarea 
-                              class="form-control textareaExample" 
-                              id="Textarea1" 
-                              size="sm"
-                              :placeholder="field.placeholder"
-                              disabled
+                              <input 
+                                :type="field.dataType" 
+                                id='inputl'
+                                :placeholder="field.placeholder"
+                                class="form-control"
+                                disabled
+                              >
+                            </div>
+                            <div 
+                              class="field-textarea" 
+                              v-if="field.fieldType === 'textarea'"
                             >
-                            </textarea>
+                              <!-- <label for="exampleFormControlTextarea1">Example textarea</label> -->
+                              <textarea 
+                                class="form-control textareaExample" 
+                                id="Textarea1" 
+                                size="sm"
+                                :placeholder="field.placeholder"
+                                disabled
+                              >
+                              </textarea>
+                            </div>
+                            <div 
+                              class="field-select form-check-label" 
+                              v-if="field.fieldType === 'select'"
+                            >
+                              <v-selectize 
+                                :options="field.options" 
+                                :placeholder="field.placeholder"
+                                :disabled="true"
+                              />
+                            </div>
+                            <div 
+                              class="field-checkbox custom-control custom-checkbox mt-3" 
+                              v-if="field.fieldType === 'checkbox'"
+                            >
+                              <input 
+                                type="checkbox" 
+                                class="custom-control-input" 
+                                id="checkboxl"
+                                disabled
+                              >
+                              <label class="custom-control-label" for="checkboxl">{{ field.label }}</label>
+                            </div>
+                            <div 
+                              class="field-date" 
+                              v-if="field.fieldType === 'date'"
+                            >
+                              <b-form-datepicker 
+                                class="mb-2"
+                                :placeholder="field.placeholder"
+                                :disabled="true"
+                              ></b-form-datepicker>
+                            </div>
+                            <div 
+                              class="field-file" 
+                              v-if="field.fieldType === 'file'"
+                            >
+                              <input 
+                                :type="field.fieldType"  
+                                class="form-control-file" 
+                                id="file1"
+                                disabled
+                              >
+                            </div>
                           </div>
-                          <div 
-                            class="field-select form-check-label" 
-                            v-if="field.fieldType === 'select'"
-                          >
-                            <v-selectize 
-                              :options="field.options" 
-                              :placeholder="field.placeholder"
-                              :disabled="true"
-                            />
-                          </div>
-                          <div 
-                            class="field-checkbox custom-control custom-checkbox mt-3" 
-                            v-if="field.fieldType === 'checkbox'"
-                          >
+                          <div v-if="field.fieldType != 'checkbox'" class="form-check">
                             <input 
                               type="checkbox" 
-                              class="custom-control-input" 
-                              id="checkboxl"
+                              class="form-check-input" 
+                              id="isRequire"
+                              :checked="field.isRequire"
                               disabled
                             >
-                            <label class="custom-control-label" for="checkboxl">{{ field.label }}</label>
-                          </div>
-                          <div 
-                            class="field-date" 
-                            v-if="field.fieldType === 'date'"
-                          >
-                            <b-form-datepicker 
-                              class="mb-2"
-                              :placeholder="field.placeholder"
-                              :disabled="true"
-                            ></b-form-datepicker>
-                          </div>
-                          <div 
-                            class="field-file" 
-                            v-if="field.fieldType === 'file'"
-                          >
-                            <input 
-                              :type="field.fieldType"  
-                              class="form-control-file" 
-                              id="file1"
-                              disabled
+                            <label 
+                              class="form-check-label" 
+                              for="isRequire"
                             >
+                              {{ field.isRequire ? 'Обязательное' : 'Необязательное' }}
+                            </label>
                           </div>
-                        </div>
-                        <div v-if="field.fieldType != 'checkbox'" class="form-check">
-                          <input 
-                            type="checkbox" 
-                            class="form-check-input" 
-                            id="isRequire"
-                            :checked="field.isRequire"
-                            disabled
-                          >
-                          <label 
-                            class="form-check-label" 
-                            for="isRequire"
-                          >
-                            {{ field.isRequire ? 'Обязательное' : 'Необязательное' }}
-                          </label>
                         </div>
                       </div>
-                    </div>
-                    <div class="col-1 col-md nopadding">
-                      <button 
-                        type="button" 
-                        class="btn btn-edit btn-primary"
-                        @click="editThisField(index)"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="right" 
-                        title="Редактировать поле"
-                      >
-                        <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
-                      </button>
-                    </div>
-                    <div class="col-1 col-md">
-                      <button 
-                        type="button" 
-                        class="btn btn-delete btn-danger"
-                        @click="deleteThisField(index)"
-                        data-bs-toggle="tooltip" 
-                        data-bs-placement="right" 
-                        title="Удалить поле"
-                      >
-                        <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                      </button>
+                      <div class="col-auto nopadding">
+                        <button 
+                          type="button" 
+                          class="btn btn-edit btn-primary"
+                          @click="editThisField(index)"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="right" 
+                          title="Редактировать поле"
+                        >
+                          <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
+                        </button>
+                      </div>
+                      <div class="col-auto">
+                        <button 
+                          type="button" 
+                          class="btn btn-delete btn-danger"
+                          @click="deleteThisField(index)"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="right" 
+                          title="Удалить поле"
+                        >
+                          <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -312,10 +334,10 @@
                       v-for="(option, index) in select.options"
                       :key="index"
                       draggable="true"
-                      @dragstart="startDrag($event, option)"
+                      @dragstart="startDragOnSelectOptions($event, option)"
                       @dragover="dragOver(index)"
                       @dragend="dragOverId = -1"
-                      @drop="onDrop($event, index)"
+                      @drop="onDrop($event, index, select.options)"
                     >
                       <div class="container">
                         <div 
@@ -631,6 +653,7 @@ export default {
       isAnyFieldEditing: false,
       indexOfEditingField: -1,
       renderOptionItems: true,
+      renderFieldItems: true,
       dragOverId: -1,
       customSettings: {
         inputDataTypes: [
@@ -650,6 +673,7 @@ export default {
         selectNewOption: '',
       },
       input: {
+        id: '',
         fieldType: 'input',
         label: null,
         placeholder: null,
@@ -661,6 +685,7 @@ export default {
         value: ''
       },
       textarea: {
+        id: '',
         fieldType: 'textarea',
         label: '',
         placeholder: '',
@@ -668,6 +693,7 @@ export default {
         value: ''
       },
       select: {
+        id: '',
         fieldType: 'select',
         label: '',
         placeholder: '',
@@ -678,11 +704,13 @@ export default {
         value: []
       },
       checkbox: {
+        id: '',
         fieldType: 'checkbox',
         label: '',
         value: false
       },
       date: {
+        id: '',
         fieldType: 'date',
         label: '',
         placeholder: '',
@@ -690,6 +718,7 @@ export default {
         value: ''
       },
       file : {
+        id: '',
         fieldType: 'file',
         label: '',
         value: ''
@@ -777,6 +806,7 @@ export default {
       this.checkNewField(fieldType);
       if (!this.v$[fieldType].$error) {
         newObj = _cloneDeep(this[fieldType]);
+        newObj.id = 'field' + this.formFields.length;
         this.resetField(fieldType);
       }
       else return
@@ -790,7 +820,6 @@ export default {
       }
       this.fieldType = [];
       this.isFieldTypeSelected = false;
-      
     },
     checkNewField(fieldType) {
       this.v$[fieldType].$touch();
@@ -839,10 +868,15 @@ export default {
         this.customSettings.selectNewOption = '';
       }
     },
-    startDrag(event, item) {
+    startDragOnSelectOptions(event, item) {
       event.dataTransfer.dropEffect = 'move'
       event.dataTransfer.effectAllowed = 'move'
       event.dataTransfer.setData('itemID', item.id)
+    },
+    startDragOnFormFields(event, id) {
+      event.dataTransfer.dropEffect = 'move'
+      event.dataTransfer.effectAllowed = 'move'
+      event.dataTransfer.setData('itemID', id)
     },
     dragOver(index) {
       this.dragOverId = index;
@@ -850,24 +884,40 @@ export default {
     checkDropOver(index) {
       return (this.dragOverId === index) ? true : false
     },
-    onDrop(event, index) {
+    onDrop(event, index, options) {
       const itemID = event.dataTransfer.getData('itemID')
       //меняем индексы элементов
-      var tempID = this.select.options[index].id
-      this.select.options[index].id = this.select.options[itemID].id
-      this.select.options[itemID].id = tempID
+      var tempID = options[index].id
+      options[index].id = options[itemID].id
+      options[itemID].id = tempID
       // меняем элементы местами
-      var temp = this.select.options[index];
-      this.select.options[index] = this.select.options[itemID];
-      this.select.options[itemID] = temp;
+      var temp = options[index];
+      options[index] = options[itemID];
+      options[itemID] = temp;
       // перерендериваем список
       this.forceRerenderOptionItems()
+      this.dragOverId = -1;
+    },
+    onDropFormFields(event, index, options) {
+      const itemID = event.dataTransfer.getData('itemID')
+      // меняем элементы местами
+      var temp = options[index];
+      options[index] = options[itemID];
+      options[itemID] = temp;
+      // перерендериваем список
+      this.forceRerenderFieldItems()
       this.dragOverId = -1;
     },
     forceRerenderOptionItems() {
       this.renderOptionItems = false;
       this.$nextTick(() => {
         this.renderOptionItems = true;
+      })
+    },
+    forceRerenderFieldItems() {
+      this.renderFieldItems = false;
+      this.$nextTick(() => {
+        this.renderFieldItems = true;
       })
     },
     deleteThisOption(index) {

@@ -43,18 +43,10 @@
               <th scope="row">{{ indexRow + 1 }}</th>
               <td>{{ getDateFromISO(row.ts) }}</td>
               <td
-                v-for="(value, name, indexCell) in row.request_data.data"
-                :key="indexCell"
+                v-for="n in getMaxCellsCount()"
+                :key="n"
               >
-                {{ getValue(value.value) }}
-                <button 
-                  v-if="isFile && value.value === ''"
-                  type="button" 
-                  class="btn btn-primary"
-                  @click="downloadFile(indexRow)"
-                >
-                  Скачать
-                </button>
+                {{ getValue(row, n-1) }}
               </td>
             </tr>
           </tbody>
@@ -67,7 +59,6 @@
 <script>
 import VSelectize from '@isneezy/vue-selectize'  
 import axios from 'axios';
-// import { response } from 'express';
 
 export default {
   name: 'Data',
@@ -79,7 +70,8 @@ export default {
       selectedForm: null,
       isFormSelected: false,
       data: [],
-      header: {},
+      header: [],
+      maxCellsCount: 0,
       isFile: false
     }
   },
@@ -88,7 +80,6 @@ export default {
       if (this.selectedForm != {}) {
         this.isFormSelected = true
         this.header = this.selectedForm.document_fields;
-        console.log(this.header)
         this.getData();
       }
       if (this.selectedForm === null) {
@@ -117,15 +108,14 @@ export default {
 
       axios.post('/getData', form)
       .then((response) => {
-        console.log(response.data)
         this.data = response.data
-        // this.header = JSON.parse(response.data[0].request_data.data)
-        // if ('file' in response.data[0].request_data) {
-        //   this.isFile = true
-        // } else {
-        //   this.isFile = false
-        // }
+        
+        // this.reorganizeData();
       });
+    },
+    getMaxCellsCount() {
+      this.maxCellsCount = this.header.length;
+      return this.maxCellsCount;
     },
     getDateFromISO(dateIso) {
       let someDate = new Date(dateIso);
@@ -133,13 +123,22 @@ export default {
       let date = someDate.toLocaleDateString('ru-RU', options)
       return date
     },
-    getValue(value) {
-      if (Array.isArray(value)) {
-        return value.toString()
-      } else if (value == {}) {
-        return ''
+    getValue(row, n) {
+      let resultValue = null;
+      for (let data of row.request_data.data) {
+        if (data.id === this.header[n].id) {
+          resultValue = this.getStringValue(data)
+        }
+      }
+      return resultValue === null ? '-' : resultValue 
+    },
+    getStringValue(value) {
+      if (Array.isArray(value.value)) {
+        return value.value.toString()
+      } else if (value.value == {}) {
+        return 'is file'
       } else {
-        return value.toString()
+        return value.value.toString()
       }
     },
     downloadFile(index) {
@@ -147,10 +146,10 @@ export default {
       console.log(JSON.parse(JSON.stringify(file)))
 
       axios.post('/download', file)
-        .then((response) => {
-          console.log('/download response in data.vue:')
-          console.log(response)
-        })
+      .then((response) => {
+        console.log('/download response in data.vue:')
+        console.log(response)
+      })
     }
   }
 }

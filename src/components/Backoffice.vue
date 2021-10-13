@@ -470,8 +470,7 @@ export default {
       // }
 
       let fields = this.selectedForm.document_fields;
-      let data = {};
-      let i = 0;
+      let data = [];
 
       for (let field of fields) {
         if (field.fieldType === 'select') {
@@ -481,17 +480,22 @@ export default {
             if (typeof option === 'object') selected.push(option.label)
             if (typeof option === 'string') selected.push(option)
           }
-          data['field' + i] = {
-            'fieldType': field.fieldType,
-            'value': selected
-          }
+          data.push (
+            {
+              'id': field.id,
+              'fieldType': field.fieldType,
+              'value': selected
+            }
+          )
         } else {
-          data['field' + i] = {
-            'fieldType': field.fieldType,
-            'value': field.value
-          };
+          data.push (
+            {
+              'id': field.id,
+              'fieldType': field.fieldType,
+              'value': field.value
+            }  
+          );
         }
-        i++
       }
       console.log(data)
 
