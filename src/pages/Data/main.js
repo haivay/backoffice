@@ -16,6 +16,7 @@ library.add(faTrashAlt, faEdit, faGripLines)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.config.productionTip = false
+Vue.config.devtools = true
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)

@@ -64,11 +64,39 @@ app.post('/getData', async(req, res) => {
   res.status(200).send(await ut.getData(typeId));
 });
 
+app.post('/getForm', async(req, res) => {
+  formId = req.body.formId;
+  res.status(200).send(await ut.getForm(formId));
+})
+
+app.post('/getStaff', async(req, res) => {
+  res.status(200).send(await ut.getStaff());
+})
+
+app.post('/getStaffById', async(req, res) => {
+  staffId = req.body.staffId
+  res.status(200).send(await ut.getStaffById(staffId));
+})
+
 app.post('/saveForm',(req) =>{
   const formName = req.body.formName;
   const formFields = JSON.stringify(req.body.formFields);
-  ut.saveForm(formName, formFields);
+  const staffId = req.body.staffId;
+  ut.saveForm(formName, formFields, staffId);
 });
+
+app.post('/updateForm',(req) =>{
+  const id = req.body.id;
+  const formName = req.body.formName;
+  const formFields = JSON.stringify(req.body.formFields);
+  const staffId = req.body.staffId;
+  ut.updateForm(id, formName, formFields, staffId);
+})
+
+app.post('/deleteForm',(req) =>{
+  const id = req.body.id;
+  ut.deleteForm(id);
+})
 
 // app.post('/sendFile', (req, res) => {
 //   let metadata = {
@@ -127,7 +155,8 @@ app.post('/sendData', (req) => {
   } else {
     const typeFormId = req.body.id;
     const formData = {data: JSON.parse(req.body.data)};
-    ut.sendData(typeFormId, formData);
+    const personId = req.body.personId;
+    ut.sendData(typeFormId, formData, personId);
   }
 });
 
@@ -163,18 +192,6 @@ app.post('/download', (req, res) => {
   // res.download(fullfilepath);
   // console.log(res)
 });
-
-app.post('/updateForm',(req) =>{
-  const id = req.body.id;
-  const formName = req.body.formName;
-  const formFields = JSON.stringify(req.body.formFields);
-  ut.updateForm(id, formName, formFields);
-})
-
-app.post('/deleteForm',(req) =>{
-  const id = req.body.id;
-  ut.deleteForm(id);
-})
 
 app.post('/deleteData',(req) =>{
   const id = req.body.id;

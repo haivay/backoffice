@@ -67,6 +67,18 @@
                 <div class="col">
                   <h2 class="title mb-3">{{ selectedForm.type_name | formNameLength(selectedForm.type_name) }}</h2>
                 </div>
+                <div class="col-auto">
+                  <button 
+                    type="button" 
+                    class="btn btn-clone btn-info"
+                    @click="cloneThisForm(selectedForm.id)"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="right" 
+                    title="Клонировать форму"
+                  >
+                    <font-awesome-icon :icon="['far', 'clone']" class="icon alt"/>
+                  </button>
+                </div>
                 <div class="col-auto nopadding">
                   <button 
                     type="button" 
@@ -262,6 +274,7 @@
                 :id="editingForm.id"
                 :formName="editingForm.type_name"
                 :formFields="editingForm.document_fields"
+                :formStaff="editingForm.staff_id"
                 :saveButtonTitle="'Сохранить изменения'"
                 :backButtonTitle="'Прекратить редактирование'"
                 v-model="editingForm.type_name"
@@ -393,6 +406,16 @@ export default {
       this.selectedFormNonParse = {};
       this.selectedForm = {};
       this.isFormSelected = false;
+    },
+    cloneThisForm() {
+      const coppiedForm = _cloneDeep(this.selectedForm)
+      const form = {
+        formName: coppiedForm.type_name,
+        formFields: coppiedForm.document_fields,
+        staffId: coppiedForm.staff_id
+      }
+      axios.post('/saveForm', form);
+      this.getForms();
     },
     setValidation() {
       // let form = {}

@@ -17,9 +17,14 @@ export async function getForms() {
   return query_result.rows
 }
 
-export function saveForm(formName, formFields) {
-  const query = "INSERT INTO backoffice.tblformtypes(type_name, document_fields) VALUES ($1, $2)";
-  client.query(query, [formName, formFields]);
+export function saveForm(formName, formFields, staffId) {
+  const query = "INSERT INTO backoffice.tblformtypes(type_name, document_fields, staff_id) VALUES ($1, $2, $3)";
+  client.query(query, [formName, formFields, staffId]);
+}
+
+export function updateForm(id, formName, formFields, staffId) {
+  const query = "UPDATE backoffice.tblformtypes SET type_name = $2, document_fields = $3, staff_id = $4 WHERE id = $1;";
+  client.query(query, [id, formName, formFields, staffId]);
 }
 
 export function deleteForm(id) {
@@ -32,19 +37,32 @@ export function deleteData(id) {
   client.query(query, [id]);
 }
 
-export function updateForm(id, formName, formFields) {
-  const query = "UPDATE backoffice.tblformtypes SET type_name = $2, document_fields = $3 WHERE id = $1;";
-  client.query(query, [id, formName, formFields]);
-}
-
-export function sendData(formId, formData){
-  const query = "INSERT INTO backoffice.tblformrequest(type_id, request_data, ts) VALUES($1, $2, $3)";
-  client.query(query, [formId, formData, 'now']);
+export function sendData(formId, formData, personId = null) {
+  const query = "INSERT INTO backoffice.tblformrequest(type_id, request_data, ts, person_id) VALUES($1, $2, $3, $4)";
+  client.query(query, [formId, formData, 'now', personId]);
 }
 
 export async function getData(typeId){
   const query = "SELECT request_data, ts FROM backoffice.tblformrequest WHERE type_id = $1";
   const queryResult = await client.query(query, [typeId]);
+  return queryResult.rows
+}
+
+export async function getForm(formId) {
+  const query = "SELECT * FROM backoffice.tblformtypes WHERE id = $1";
+  const queryResult = await client.query(query, [formId]);
+  return queryResult.rows
+}
+
+export async function getStaff() {
+  const query = "SELECT * FROM staff.tblperson";
+  const queryResult = await client.query(query);
+  return queryResult.rows
+}
+
+export async function getStaffById(staffId) {
+  const query = "SELECT * FROM staff.tblperson WHERE id = $1";
+  const queryResult = await client.query(query, [staffId]);
   return queryResult.rows
 }
 
