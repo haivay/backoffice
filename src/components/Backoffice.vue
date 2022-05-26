@@ -2,7 +2,7 @@
   <div class="root">
       <div class="container-fluid main-content-wrapper">
         <div class="row">
-          <div class="col-4">
+          <div class="col-sm-12 col-lg-4">
             <div class="row">
               <div class="col">
                 <input 
@@ -51,7 +51,7 @@
               </div>
             </div>
           </div>
-          <div class="col-8">
+          <div class="col-sm-12 col-lg-8">
             <div 
               v-if="!isFormSelected && !isAnyFormEditing && !isFormCreating"
               class="alert alert-primary" 
@@ -70,7 +70,7 @@
                 <div class="col-auto">
                   <button 
                     type="button" 
-                    class="btn btn-clone btn-info"
+                    class="btn btn-clone btn-outline-info"
                     @click="cloneThisForm(selectedForm.id)"
                     data-bs-toggle="tooltip" 
                     data-bs-placement="right" 
@@ -82,7 +82,7 @@
                 <div class="col-auto nopadding">
                   <button 
                     type="button" 
-                    class="btn btn-edit btn-primary"
+                    class="btn btn-edit btn-outline-primary"
                     @click="editThisForm(selectedForm.id)"
                     data-bs-toggle="tooltip" 
                     data-bs-placement="right" 
@@ -94,7 +94,7 @@
                 <div class="col-auto">
                   <button 
                     type="button" 
-                    class="btn btn-edit btn-danger"
+                    class="btn btn-edit btn-outline-danger"
                     @click="openModalDelete"
                     data-bs-toggle="tooltip" 
                     data-bs-placement="right" 

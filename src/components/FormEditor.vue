@@ -16,9 +16,9 @@
           <p v-if="v$.formName.$dirty && v$.formName.required.$invalid" class="invalid-feedback">
             Заполните название формы
           </p>
-          <div class="form-fields mt-3">
-            <div class="shadow-sm p-3 bg-body rounded">
-              <form class="doc">
+          <div class="form-fields mt-3 shadow-sm p-3 bg-body rounded">
+            <div class="row">
+              <div class="col-sm-12 col-lg-8">
                 <div 
                   class="field-items"
                   v-if="renderFieldItems"
@@ -142,19 +142,19 @@
                       <div class="col-auto nopadding">
                         <button 
                           type="button" 
-                          class="btn btn-edit btn-primary"
+                          class="btn btn-outline-primary"
                           @click="editThisField(index)"
                           data-bs-toggle="tooltip" 
                           data-bs-placement="right" 
                           title="Редактировать поле"
                         >
-                          <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
+                          <font-awesome-icon :icon="['far', 'edit']" class="icon alt" />
                         </button>
                       </div>
                       <div class="col-auto">
                         <button 
                           type="button" 
-                          class="btn btn-delete btn-danger"
+                          class="btn btn-outline-danger"
                           @click="deleteThisField(index)"
                           data-bs-toggle="tooltip" 
                           data-bs-placement="right" 
@@ -362,7 +362,7 @@
                           <div class="col-1 nopadding">
                             <button 
                               type="button" 
-                              class="btn btn-danger"
+                              class="btn btn-outline-danger"
                               @click="deleteThisOption(index)"
                               data-bs-toggle="tooltip" 
                               data-bs-placement="right" 
@@ -536,7 +536,6 @@
                     </p>
                   </div>
                 </div>
-                <hr>
                 <!-- FOOTER -->
                 <div v-if="isFieldTypeSelected">
                   <hr>
@@ -555,80 +554,68 @@
                     Назад
                   </button>
                 </div>
-                <!-- Добавление ответственных лиц -->
-                <button 
-                  v-if="!showStaffSelect && !isFieldTypeSelected"
-                  type="button" 
-                  class="btn btn-primary"
-                  @click="getStaff()"
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="right" 
-                  title="Добавить отв. лицо"
-                >
-                  {{ getStaffButtonName }}
-                </button>
+              </div>
+              <div class="col-sm-12 col-lg-4">
                 <div class="form-selector"
-                  v-if="showStaffSelect && !isFieldTypeSelected"
+                  v-if="showStaffSelect"
                 >
-                  <p class="lead">Ответственные за форму сотрудники:</p>
+                  <!-- <p class="lead">Ответственные за форму сотрудники:</p> -->
                   <div class="row pr-3">
                     <div class="col">
                       <v-selectize
                         :options="staff"
                         :multiple="true"
                         v-model="selectedStaff"
-                        placeholder="Выберете сотрудника"
+                        placeholder="Выберите сотрудника"
                       />
                     </div>
                     <div class="col-">
                       <button 
-                        v-if="selectedStaff.length > 0 && isEditSelectedStaff === false"
+                        v-if="selectedStaff.length > 0"
                         type="button" 
-                        class="btn btn-primary"
+                        class="btn btn-outline-primary"
                         @click="isEditSelectedStaff = true"
                       >
-                        Изменить
+                        <!-- Изменить -->
+                        <font-awesome-icon :icon="['fas', 'users-cog']" class="icon alt" />
                       </button>
                     </div>
                   </div>
                 </div>
                 <div 
-                  class="edit-selected-staff"
+                  class="staff-items"
                   v-if="selectedStaff.length > 0 && isEditSelectedStaff"
                 >
-                  <div class="staff-items">
-                    <div
-                      class="staff-item"
-                      v-for="(staff, index) in selectedStaff"
-                      :key="index"
+                  <div
+                    class="staff-item"
+                    v-for="(staff, index) in selectedStaff"
+                    :key="index"
+                  >
+                    <div 
+                      class="row align-items-center shadow-sm p-2 mx-auto mb-1 bg-body rounded"
                     >
-                      <div class="container">
-                        <div 
-                          class="row align-items-center h-100 shadow-sm p-2 ml-3 mr-3 mb-1 bg-body rounded"
+                      <div class="col nopadding">
+                          {{ staff.label }}
+                      </div>
+                      <div class="col- nopadding">
+                        <button 
+                          type="button" 
+                          class="btn btn-outline-danger"
+                          @click="deleteThisStaff(index)"
+                          data-bs-toggle="tooltip" 
+                          data-bs-placement="right" 
+                          title="Удалить"
                         >
-                          <div class="col nopadding">
-                              {{ staff.label }}
-                          </div>
-                          <div class="col-1 nopadding">
-                            <button 
-                              type="button" 
-                              class="btn btn-danger"
-                              @click="deleteThisStaff(index)"
-                              data-bs-toggle="tooltip" 
-                              data-bs-placement="right" 
-                              title="Удалить"
-                            >
-                              <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                            </button>
-                          </div>
-                        </div>
+                          <font-awesome-icon :icon="['fas', 'user-minus']" class="icon alt" size="xs" transform="right-1 up-1" />
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </form>
+              </div>
             </div>
-            <button 
+          </div>
+          <button 
               type="button" 
               class="btn btn-outline-primary w-100 mt-4"
               v-if="newFormIsFull"
@@ -643,7 +630,6 @@
             >
               {{ backButtonTitle }}
             </button>
-          </div>
         </div>
       </div>
     </div>
@@ -808,6 +794,9 @@ export default {
       }
     }
   },
+  created() {
+    this.getStaff()
+  },
   validations() {
     return {
       formName: { required },
@@ -840,9 +829,6 @@ export default {
   computed: {
     newFormIsFull() {
       return (!this.isFieldTypeSelected && this.formFields.length > 0) ? true : false
-    },
-    getStaffButtonName() {
-      return (this.formStaff.length > 0) ? 'Изменить ответственных лиц' : 'Добавить ответственных'
     }
   },
   watch: {
