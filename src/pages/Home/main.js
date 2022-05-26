@@ -5,6 +5,7 @@ import VSelectize from '@isneezy/vue-selectize'
 import Vue from 'vue'
 import VueCompositionAPI from '@vue/composition-api'
 import App from './App.vue'
+import VueUUID from "vue-uuid";
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 //fontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -20,6 +21,8 @@ Vue.use(VueCompositionAPI)
 
 Vue.config.productionTip = false
 Vue.config.devtools = true
+
+Vue.use(VueUUID);
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)

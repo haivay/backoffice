@@ -637,11 +637,12 @@
 </template>
 
 <script>
-import useVuelidate from '@vuelidate/core'
-import { required } from '@vuelidate/validators'
+import useVuelidate from '@vuelidate/core';
+import { required } from '@vuelidate/validators';
 import axios from 'axios';
+import { uuid } from 'vue-uuid'; 
 var _cloneDeep = require('lodash/cloneDeep');
-var _fromPairs = require('lodash/fromPairs')
+var _fromPairs = require('lodash/fromPairs');
 export default {
   setup () {
     return { v$: useVuelidate() }
@@ -791,7 +792,8 @@ export default {
         fieldType: 'file',
         label: '',
         value: ''
-      }
+      },
+      uuid: uuid.v1(),
     }
   },
   created() {
@@ -849,6 +851,27 @@ export default {
     }
   },
   methods: {
+    addNewField(indexOfEditingField) {
+      let newObj = {};
+      let fieldType = this.fieldType.id;
+      this.checkNewField(fieldType);
+      if (!this.v$[fieldType].$error) {
+        newObj = _cloneDeep(this[fieldType]);
+        newObj.id = this.$uuid.v4();
+        this.resetField(fieldType);
+      }
+      else return
+      if (!this.isAnyFieldEditing) {
+        this.formFields.push(newObj);
+        console.log('Field was added.');
+      } else {
+        this.formFields[indexOfEditingField] = newObj;
+        this.isAnyFieldEditing = false;
+        console.log('Field was edited.');
+      }
+      this.fieldType = [];
+      this.isFieldTypeSelected = false;
+    },
     editThisField(index) {
       this.isAnyFieldEditing = true;
       this.indexOfEditingField = index;
@@ -876,27 +899,6 @@ export default {
     },
     deleteThisField(index) {
       this.formFields.splice(index, 1);
-    },
-    addNewField(indexOfEditingField) {
-      let newObj = {};
-      let fieldType = this.fieldType.id;
-      this.checkNewField(fieldType);
-      if (!this.v$[fieldType].$error) {
-        newObj = _cloneDeep(this[fieldType]);
-        newObj.id = 'field' + this.formFields.length;
-        this.resetField(fieldType);
-      }
-      else return
-      if (!this.isAnyFieldEditing) {
-        this.formFields.push(newObj);
-        console.log('Field was added.');
-      } else {
-        this.formFields[indexOfEditingField] = newObj;
-        this.isAnyFieldEditing = false;
-        console.log('Field was edited.');
-      }
-      this.fieldType = [];
-      this.isFieldTypeSelected = false;
     },
     async getStaff() {
       const res = await axios.post('/getStaff');
@@ -1032,7 +1034,6 @@ export default {
       this.selectedStaff.map(el => {
         staffId.push(el.id)
       })
-      console.log(this.selectedStaff);
       const form = {
         id: this.id,
         formName: this.formName,

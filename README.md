@@ -4,13 +4,13 @@
 ```
 npm install
 ```
-Сначала собрать проект в папке dist
+В первой консоли
 ```
-npm run build
+npm run serve
 ```
-После чего запустить сервер
+Во второй консоли
 ```
-node app.js
+node app
 ```
 -------------------------------------------------------
 ### Compiles and hot-reloads for development

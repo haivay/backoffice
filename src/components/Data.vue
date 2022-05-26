@@ -9,7 +9,7 @@
             <v-selectize
               :options="formsByStaffId" 
               v-model="selectedForm"
-              placeholder="Выберете форму"
+              placeholder="Выберите форму"
               label="type_name"
               :keys="['id', 'type_name']"
             />
@@ -122,8 +122,6 @@ export default {
       axios.post('/getData', form)
       .then((response) => {
         this.data = response.data
-        
-        // this.reorganizeData();
       });
     },
     getMaxCellsCount() {
