@@ -7,7 +7,7 @@
           <label for="form-selector_label">Форма:</label>
           <div class="form-selector">
             <v-selectize
-              :options="forms" 
+              :options="formsByStaffId" 
               v-model="selectedForm"
               placeholder="Выберете форму"
               label="type_name"
@@ -33,6 +33,7 @@
               >
                 {{ value.label }}
               </td>
+              <td></td>
             </tr>
           </thead>
           <tbody>
@@ -47,6 +48,15 @@
                 :key="n"
               >
                 {{ getValue(row, n-1) }}
+              </td>
+              <td class="w100">
+                <button 
+                  @click="showModalRequestData(indexRow)"
+                  type="button" 
+                  class="btn btn-light btn-sm"
+                >
+                  Открыть
+                </button>
               </td>
             </tr>
           </tbody>
@@ -67,12 +77,14 @@ export default {
     return {
       title: 'Данные из форм',
       forms: [],
+      formsByStaffId: [],
       selectedForm: null,
       isFormSelected: false,
       data: [],
       header: [],
       maxCellsCount: 0,
-      isFile: false
+      isFile: false,
+      currentStaffId: 'eda81559-403b-46c8-9afd-35e93fbef1cc', // моковый id сотрудника
     }
   },
   watch: {
@@ -98,6 +110,7 @@ export default {
       axios.post('/getForms')
       .then((response) => {
         this.forms = JSON.parse(JSON.stringify(response.data));
+        this.formsByStaffId = this.forms.filter(form => form.staff_id.includes(this.currentStaffId))
         this.forceUpdate();
       });
     },
@@ -141,6 +154,9 @@ export default {
         return value.value.toString()
       }
     },
+    showModalRequestData(indexRow) {
+      console.log(indexRow)
+    },
     downloadFile(index) {
       const file = this.data[index].request_data.file
       console.log(JSON.parse(JSON.stringify(file)))
@@ -162,5 +178,8 @@ export default {
   .thead-dark {
     color: #495057;
     background-color: #e9ecef;
+  }
+  .w100 {
+    width: 100px;
   }
 </style>

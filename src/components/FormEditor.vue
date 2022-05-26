@@ -180,7 +180,8 @@
                     />
                   </div>
                 </div>
-                <hr>
+                <hr v-if="isFieldTypeSelected">
+                <!-- поля -->
                 <!-- INPUT -->
                 <div
                   v-if="fieldType.id === 'input'"
@@ -535,6 +536,7 @@
                     </p>
                   </div>
                 </div>
+                <hr>
                 <!-- FOOTER -->
                 <div v-if="isFieldTypeSelected">
                   <hr>
@@ -552,6 +554,77 @@
                   >
                     Назад
                   </button>
+                </div>
+                <!-- Добавление ответственных лиц -->
+                <button 
+                  v-if="!showStaffSelect && !isFieldTypeSelected"
+                  type="button" 
+                  class="btn btn-primary"
+                  @click="getStaff()"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="right" 
+                  title="Добавить отв. лицо"
+                >
+                  {{ getStaffButtonName }}
+                </button>
+                <div class="form-selector"
+                  v-if="showStaffSelect && !isFieldTypeSelected"
+                >
+                  <p class="lead">Ответственные за форму сотрудники:</p>
+                  <div class="row pr-3">
+                    <div class="col">
+                      <v-selectize
+                        :options="staff"
+                        :multiple="true"
+                        v-model="selectedStaff"
+                        placeholder="Выберете сотрудника"
+                      />
+                    </div>
+                    <div class="col-">
+                      <button 
+                        v-if="selectedStaff.length > 0 && isEditSelectedStaff === false"
+                        type="button" 
+                        class="btn btn-primary"
+                        @click="isEditSelectedStaff = true"
+                      >
+                        Изменить
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div 
+                  class="edit-selected-staff"
+                  v-if="selectedStaff.length > 0 && isEditSelectedStaff"
+                >
+                  <div class="staff-items">
+                    <div
+                      class="staff-item"
+                      v-for="(staff, index) in selectedStaff"
+                      :key="index"
+                    >
+                      <div class="container">
+                        <div 
+                          class="row align-items-center h-100 shadow-sm p-2 ml-3 mr-3 mb-1 bg-body rounded"
+                        >
+                          <div class="col nopadding">
+                              {{ staff.label }}
+                          </div>
+                          <div class="col-1 nopadding">
+                            <button 
+                              type="button" 
+                              class="btn btn-danger"
+                              @click="deleteThisStaff(index)"
+                              data-bs-toggle="tooltip" 
+                              data-bs-placement="right" 
+                              title="Удалить"
+                            >
+                              <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </form>
             </div>
@@ -611,6 +684,12 @@ export default {
         return []
       }
     },
+    formStaff: {
+      type: Array,
+      default: function () {
+        return []
+      }
+    },
     saveButtonTitle: {
       type: String,
       default: 'Сохранить изменения'
@@ -655,6 +734,10 @@ export default {
       renderOptionItems: true,
       renderFieldItems: true,
       dragOverId: -1,
+      showStaffSelect: false,
+      staff: [],
+      selectedStaff: [],
+      isEditSelectedStaff: false,
       customSettings: {
         inputDataTypes: [
           {
@@ -757,6 +840,9 @@ export default {
   computed: {
     newFormIsFull() {
       return (!this.isFieldTypeSelected && this.formFields.length > 0) ? true : false
+    },
+    getStaffButtonName() {
+      return (this.formStaff.length > 0) ? 'Изменить ответственных лиц' : 'Добавить ответственных'
     }
   },
   watch: {
@@ -768,6 +854,11 @@ export default {
       if (this.fieldType != '') {
         // this.resetValidation(this.fieldType.id);
         this.isFieldTypeSelected = true
+      }
+    },
+    "selectedStaff"() {
+      if (this.selectedStaff.length === 0) {
+        this.isEditSelectedStaff = false;
       }
     }
   },
@@ -820,6 +911,31 @@ export default {
       }
       this.fieldType = [];
       this.isFieldTypeSelected = false;
+    },
+    async getStaff() {
+      const res = await axios.post('/getStaff');
+      res.data.map((el) => {
+        let person = {
+          id: el.id,
+          label: `${el.person_lastname} ${el.person_name} ${el.person_fathername}`
+        }
+        this.staff.push(person)
+      });
+      if (this.formStaff) {
+        for (let i = 0; i < this.formStaff.length; i++) {
+          let id = this.formStaff[i];
+          let label = this.staff.find(s => s.id == id).label
+          let formatStaff = {
+            id,
+            label
+          }
+          this.selectedStaff.push(formatStaff)
+        }
+      }
+      this.showStaffSelect = true;
+    },
+    deleteThisStaff(index) {
+      this.selectedStaff.splice(index, 1);
     },
     checkNewField(fieldType) {
       this.v$[fieldType].$touch();
@@ -926,11 +1042,16 @@ export default {
     addNewForm() {
       this.checkNewForm();
       if (this.v$.formName.$error) return
-      console.log('Form sent.')
+      let staffId = []
+      this.selectedStaff.map(el => {
+        staffId.push(el.id)
+      })
+      console.log(this.selectedStaff);
       const form = {
         id: this.id,
         formName: this.formName,
-        formFields: this.formFields
+        formFields: this.formFields,
+        staffId: staffId
       }
       if (this.id === '') {
         axios.post('/saveForm', form);
