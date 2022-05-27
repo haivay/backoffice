@@ -51,7 +51,7 @@ export async function getData(typeId){
 export async function getForm(formId) {
   const query = "SELECT * FROM backoffice.tblformtypes WHERE id = $1";
   const queryResult = await client.query(query, [formId]);
-  return queryResult.rows
+  return queryResult.rows[0]
 }
 
 export async function getStaff() {

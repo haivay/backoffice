@@ -8,21 +8,18 @@ module.exports = {
     },
     'data': {
       entry: './src/pages/Data/main.js',
-      template: 'public/data.html',
+      template: 'public/index.html',
       title: 'Data',
       chunks: [ 'chunk-vendors', 'chunk-common', 'data' ]
+    },
+    'form': {
+      entry: './src/pages/Form/main.js',
+      template: 'public/index.html',
+      title: 'Form',
+      chunks: [ 'chunk-vendors', 'chunk-common', 'form' ]
     }
   },
   devServer: {
-    proxy: {
-      '/': {
-        target: 'http://localhost:3000',
-        changeOrigin: true
-      },
-      '/data': {
-        target: 'http://localhost:3000/data',
-        changeOrigin: true
-      },
-    }
+    proxy: 'http://localhost:3000'
   }
 }

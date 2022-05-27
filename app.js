@@ -29,18 +29,6 @@ app.use(upload.single('file'))
 
 const __dirname = path.resolve();
 
-// app.use(express.static(path.join(__dirname, './public')));
-
-// app.get('/', (req,res) => {
-//   res.sendFile(path.join(__dirname, './public/index.html'));
-// });
-
-app.use('/', express.static(path.join(__dirname, '/dist')));
-
-app.get('/data', (req,res) => {
-  res.sendFile(path.join(__dirname, './dist/data.html'));
-});
-
 app.use(bodyParser.json({
   limit: '500mb',
   parameterLimit:50000
@@ -55,17 +43,13 @@ app.post('/getForms', async (req, res) => {
     res.status(200).send(await ut.getForms());
 });
 
-// app.post('/data/getForms', async (req, res) => {
-//   res.status(200).send(await ut.getForms());
-// });
-
 app.post('/getData', async(req, res) => {
   const typeId = req.body.id;
   res.status(200).send(await ut.getData(typeId));
 });
 
 app.post('/getForm', async(req, res) => {
-  formId = req.body.formId;
+  const formId = req.body.formId;
   res.status(200).send(await ut.getForm(formId));
 })
 

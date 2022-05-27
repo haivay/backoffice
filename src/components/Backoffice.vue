@@ -67,6 +67,18 @@
                 <div class="col">
                   <h2 class="title mb-3">{{ selectedForm.type_name | formNameLength(selectedForm.type_name) }}</h2>
                 </div>
+                <div class="col-auto nopadding">
+                  <button 
+                    type="button" 
+                    class="btn btn-open btn-outline-success"
+                    @click="openThisForm(selectedForm.id)"
+                    data-bs-toggle="tooltip" 
+                    data-bs-placement="right" 
+                    title="Открыть форму"
+                  >
+                    <font-awesome-icon :icon="['fas', 'external-link-alt']" class="icon alt"/>
+                  </button>
+                </div>
                 <div class="col-auto">
                   <button 
                     type="button" 
@@ -406,6 +418,10 @@ export default {
       this.selectedFormNonParse = {};
       this.selectedForm = {};
       this.isFormSelected = false;
+    },
+    openThisForm(id) {
+      console.log(id);
+      window.location.assign(`/form?type_id=${id}`);
     },
     cloneThisForm() {
       const coppiedForm = _cloneDeep(this.selectedForm)
