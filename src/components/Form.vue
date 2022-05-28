@@ -220,6 +220,10 @@ export default {
     handleFileUpload() {
       this.file = this.$refs.file[0].files[0];
     },
+    maybeCreate(field) {
+      if (field.isAddable) return this.createContact
+      return false
+    },
     checkForm() {
       // валидация
       // this.$v.form.document_fields.$each.$touch()
