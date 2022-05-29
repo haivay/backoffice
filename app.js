@@ -182,6 +182,26 @@ app.post('/deleteData',(req) =>{
   ut.deleteData(id);
 })
 
+app.post('/getStatus', async (req, res) => {
+  res.status(200).send(await ut.getStatuses());
+});
+
+app.post('/getCategories', async (req, res) => {
+  res.status(200).send(await ut.getCategories());
+});
+
+app.post('/getPriorities', async (req, res) => {
+  res.status(200).send(await ut.getPriorities());
+});
+
+app.post('/saveAnswer',(req) =>{
+  const status_id = req.body.status_id;
+  const category_id = req.body.category_id;
+  const priority_id = req.body.priority_id;
+  const answer = req.body.answer;
+  ut.saveAnswer(status_id, category_id, priority_id, answer);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })

@@ -80,3 +80,26 @@ export const getDimensions = function(filelink) {
   let dimensions = imageSize(filelink)
   return dimensions
 }
+
+export const getStatuses = function() {
+  const query = "SELECT * FROM backoffice.statuses";
+  const queryResult = await client.query(query);
+  return queryResult.rows;
+}
+
+export const getCategories = function() {
+  const query = "SELECT * FROM backoffice.categories";
+  const queryResult = await client.query(query);
+  return queryResult.rows;
+}
+
+export const getPriorities = function() {
+  const query = "SELECT * FROM backoffice.priorities";
+  const queryResult = await client.query(query);
+  return queryResult.rows;
+}
+
+export function saveAnswer(status_id, category_id, priority_id, answer) {
+  const query = "INSERT INTO backoffice.tblformanswer(status_id, category_id, priority_id, answer) VALUES ($1, $2, $3, $4, $5)";
+  client.query(query, [status_id, category_id, priority_id, "now", answer]);
+}
