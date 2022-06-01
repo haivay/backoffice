@@ -160,12 +160,12 @@ import axios from 'axios';
 
 export default {
   mixins: [validationMixin],
-  name: 'Form',
+  name: 'FormMode',
   components: { SuccessSendDataToast, VSelectize },
   data() {
     return {
-      title: 'Form',
-      formId: '', // 7ec2c1f2-2504-4a40-9082-cf91bd4795a8
+      title: 'FormMode',
+      formId: '',
       form: {},
       isSuccessSendDataToastOpen: false,
       file: '',
@@ -173,7 +173,6 @@ export default {
     }
   },
   mounted() {
-    // this.getForms();
     this.getForm();
   },
   validations: {
@@ -284,7 +283,7 @@ export default {
       this.isSuccessSendDataToastOpen = true;
     },
     clearForm() {
-      for (let field of this.selectedForm.document_fields) {
+      for (let field of this.form.document_fields) {
         if (field.fieldType === 'select') {
           field.value = []
         } 

@@ -31,7 +31,7 @@ Vue.use(IconsPlugin)
 // Vue-selectize
 Vue.component('v-selectize', VSelectize)
 
-Vue.component('form', require('../../components/Form.vue').default);
+Vue.component('form-mode', require('../../components/FormMode.vue').default);
 
 
 new Vue({

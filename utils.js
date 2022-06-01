@@ -43,7 +43,7 @@ export function sendData(formId, formData, personId = null) {
 }
 
 export async function getData(typeId){
-  const query = "SELECT request_data, ts FROM backoffice.tblformrequest WHERE type_id = $1";
+  const query = "SELECT request_data, ts, id, request_number FROM backoffice.tblformrequest WHERE type_id = $1";
   const queryResult = await client.query(query, [typeId]);
   return queryResult.rows
 }
@@ -81,27 +81,27 @@ export const getDimensions = function(filelink) {
   return dimensions
 }
 
-export const getStatuses = function() {
+export const getStatuses = async function() {
   const query = "SELECT * FROM backoffice.statuses";
   const queryResult = await client.query(query);
   return queryResult.rows;
 }
 
-export const getCategories = function() {
+export const getCategories = async function() {
   const query = "SELECT * FROM backoffice.categories";
   const queryResult = await client.query(query);
   return queryResult.rows;
 }
 
-export const getPriorities = function() {
+export const getPriorities = async function() {
   const query = "SELECT * FROM backoffice.priorities";
   const queryResult = await client.query(query);
   return queryResult.rows;
 }
 
-export function saveAnswer(status_id, category_id, priority_id, answer) {
-  const query = "INSERT INTO backoffice.tblformanswer(status_id, category_id, priority_id, answer) VALUES ($1, $2, $3, $4, $5)";
-  client.query(query, [status_id, category_id, priority_id, "now", answer]);
+export function saveAnswer(status_id, category_id, priority_id, answer, request_id) {
+  const query = "INSERT INTO backoffice.tblformanswer(status_id, category_id, priority_id, change_time, answer, request_id) VALUES ($1, $2, $3, $4, $5, $6)";
+  client.query(query, [status_id, category_id, priority_id, "now", answer, request_id]);
 }
 
 // export function getRequestIdByRequestNumber(requestNumber) {
@@ -110,6 +110,6 @@ export function saveAnswer(status_id, category_id, priority_id, answer) {
 // }
 
 export function getAnswerByRequestNumber(requestNumber) {
-  const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformasnwer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";
+  const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformanswer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";
   client.query(query, [requestNumber]);
 }

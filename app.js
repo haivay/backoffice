@@ -182,7 +182,7 @@ app.post('/deleteData',(req) =>{
   ut.deleteData(id);
 })
 
-app.post('/getStatus', async (req, res) => {
+app.post('/getStatuses', async (req, res) => {
   res.status(200).send(await ut.getStatuses());
 });
 
@@ -199,7 +199,8 @@ app.post('/saveAnswer',(req) =>{
   const category_id = req.body.category_id;
   const priority_id = req.body.priority_id;
   const answer = req.body.answer;
-  ut.saveAnswer(status_id, category_id, priority_id, answer);
+  const request_id = req.body.request_id;
+  ut.saveAnswer(status_id, category_id, priority_id, answer, request_id);
 });
 
 
@@ -208,9 +209,10 @@ app.post('/saveAnswer',(req) =>{
 //   res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
 // });
 
-app.post('/getAnswerByRequestNumber',(req, res) =>{
+app.post('/getAnswerByRequestNumber', async (req, res) =>{
   const requestNumber = req.body.requestNumber;
-  res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
+  console.log(typeof requestNumber)
+  res.status(200).send(await ut.getAnswerByRequestNumber(requestNumber));
 });
 
 app.listen(port, () => {
