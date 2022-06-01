@@ -133,7 +133,6 @@ export default {
 
       axios.post('/getData', form)
       .then((response) => {
-        console.log(response.data)
         this.data = response.data
       });
     },

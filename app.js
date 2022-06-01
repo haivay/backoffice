@@ -211,7 +211,6 @@ app.post('/saveAnswer',(req) =>{
 
 app.post('/getAnswerByRequestNumber', async (req, res) =>{
   const requestNumber = req.body.requestNumber;
-  console.log(typeof requestNumber)
   res.status(200).send(await ut.getAnswerByRequestNumber(requestNumber));
 });
 
