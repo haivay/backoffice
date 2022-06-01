@@ -104,12 +104,12 @@ export function saveAnswer(status_id, category_id, priority_id, answer) {
   client.query(query, [status_id, category_id, priority_id, "now", answer]);
 }
 
-export function getRequestIdByRequestNumber(requestNumber) {
-  const query = "SELECT id from backoffice.tblformrequest WHERE request_number = $1";
-  client.query(query, [requestNumber]);
-}
+// export function getRequestIdByRequestNumber(requestNumber) {
+//   const query = "SELECT id from backoffice.tblformrequest WHERE request_number = $1";
+//   client.query(query, [requestNumber]);
+// }
 
-export function getAnswerByRequestNumber(request_id) {
-  const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformasnwer WHERE request_id = $1 ORDER BY change_time DESC";
-  client.query(query, [request_id]);
+export function getAnswerByRequestNumber(requestNumber) {
+  const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformasnwer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";
+  client.query(query, [requestNumber]);
 }

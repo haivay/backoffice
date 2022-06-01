@@ -203,14 +203,14 @@ app.post('/saveAnswer',(req) =>{
 });
 
 
-app.post('/getRequestIdByRequestNumber',(req, res) =>{
-  const requestNumber = req.body.requestNumber;
-  res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
-});
+// app.post('/getRequestIdByRequestNumber',(req, res) =>{
+//   const requestNumber = req.body.requestNumber;
+//   res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
+// });
 
 app.post('/getAnswerByRequestNumber',(req, res) =>{
-  const requestId = req.body.requestId;
-  res.status(200).send(await ut.getRequestIdByRequestNumber(requestId));
+  const requestNumber = req.body.requestNumber;
+  res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
 });
 
 app.listen(port, () => {
