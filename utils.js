@@ -110,6 +110,6 @@ export function getRequestIdByRequestNumber(requestNumber) {
 }
 
 export function getAnswerByRequestNumber(request_id) {
-  const query = "SELECT status_id, category_id, priority_id, change_time, answer from tblformasnwer WHERE request_id = $1 ORDER BY change_time DESC";
+  const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformasnwer WHERE request_id = $1 ORDER BY change_time DESC";
   client.query(query, [request_id]);
 }
