@@ -202,6 +202,17 @@ app.post('/saveAnswer',(req) =>{
   ut.saveAnswer(status_id, category_id, priority_id, answer);
 });
 
+
+app.post('/getRequestIdByRequestNumber',(req, res) =>{
+  const requestNumber = req.body.requestNumber;
+  res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
+});
+
+app.post('/getAnswerByRequestNumber',(req, res) =>{
+  const requestId = req.body.requestId;
+  res.status(200).send(await ut.getRequestIdByRequestNumber(requestId));
+});
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
