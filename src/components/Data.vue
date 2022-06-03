@@ -66,6 +66,9 @@
           :requestNumber="modalRequestNumber"
           :requestData="modalData"
           :requestId="modalRequestId"
+          :statuses="modalStatuses"
+          :categories="modalCategories"
+          :priorities="modalPriorities"
           @close="isModalAnswerOpen = false"
         />
       </transition>
@@ -96,7 +99,10 @@ export default {
       isModalAnswerOpen: false,
       modalTitle: '',
       modalData: [],
-      modalRequestId: ''
+      modalRequestId: '',
+      modalStatuses: [],
+      modalCategories: [],
+      modalPriorities: [],
     }
   },
   watch: {
@@ -111,8 +117,11 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     this.getForms();
+    this.getStatuses()
+    this.getCategories()
+    this.getPriorities()
   },
   methods: {
     forceUpdate() {
@@ -191,6 +200,21 @@ export default {
       })
 
       this.isModalAnswerOpen = true
+    },
+    getStatuses() {
+      axios
+        .post('/getStatuses')
+        .then(response => this.modalStatuses = response.data)
+    },
+    getCategories() {
+      axios
+        .post('/getCategories')
+        .then(response => this.modalCategories = response.data)
+    },
+    getPriorities() {
+      axios
+        .post('/getPriorities')
+        .then(response => this.modalPriorities = response.data)
     },
     downloadFile(index) {
       const file = this.data[index].request_data.file

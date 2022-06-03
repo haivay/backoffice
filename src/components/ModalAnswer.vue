@@ -118,25 +118,34 @@ export default {
     },
     requestId: {
       type: String,
-    }
+    },
+    statuses: {
+      type: Array
+    },
+    categories: {
+      type: Array
+    },
+    priorities: {
+      type: Array
+    },
   },
   data() {
     return {
       answers: [],
       lastAnswer: null,
       status: '',
-      statuses: [],
+      // statuses: [],
       category: '',
-      categories: [],
+      // categories: [],
       priority: '',
-      priorities: [],
+      // priorities: [],
       textAnswer: ''
     }
   },
   mounted() {
-    this.getStatuses()
-    this.getCategories()
-    this.getPriorities()
+    // this.getStatuses()
+    // this.getCategories()
+    // this.getPriorities()
     this.getLastAnswer()
   },
   watch: {
@@ -178,21 +187,21 @@ export default {
         })
       }
     },
-    getStatuses() {
-      axios
-        .post('/getStatuses')
-        .then(response => this.statuses = response.data)
-    },
-    getCategories() {
-      axios
-        .post('/getCategories')
-        .then(response => this.categories = response.data)
-    },
-    getPriorities() {
-      axios
-        .post('/getPriorities')
-        .then(response => this.priorities = response.data)
-    },
+    // getStatuses() {
+    //   axios
+    //     .post('/getStatuses')
+    //     .then(response => this.statuses = response.data)
+    // },
+    // getCategories() {
+    //   axios
+    //     .post('/getCategories')
+    //     .then(response => this.categories = response.data)
+    // },
+    // getPriorities() {
+    //   axios
+    //     .post('/getPriorities')
+    //     .then(response => this.priorities = response.data)
+    // },
     sendAnswer() {
       console.log(`Статус: ${this.status.id} \nКатегория: ${this.category.id} \nПриоритет: ${this.priority.id} \nОтвет: ${this.textAnswer} \nrequest_id: ${this.requestId}`)
 
