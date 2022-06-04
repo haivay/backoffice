@@ -1,11 +1,11 @@
 <template>
-  <div class="success-send-data-toast" @click="closeModal">
+  <div class="success-copy-data-toast" @click="closeModal">
     <div 
       class="alert alert-success" 
       role="alert" 
       @click="closeModal"
     >
-      Данные успешно отправлены!
+      Номер скопирован в буфер обмена!
     </div>
     <div class="progress">
       <div 
@@ -23,7 +23,7 @@
 
 <script>
 export default {
-  name: 'SuccessSendDataToast',
+  name: 'SuccessCopyDataToast',
   data() {
     return {
       borderWidth: 100
@@ -56,11 +56,11 @@ export default {
     font-size: 30px;
     margin-bottom: 10px;
   }
-  .success-send-data-toast {
+  .success-copy-data-toast {
     display: block;
     position: fixed;
-    top: 50px;
-    right: 420px;
+    top: 20px;
+    right: 220px;
     z-index: 10;
     cursor: pointer;
   }

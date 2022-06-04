@@ -216,7 +216,7 @@ app.post('/getAnswerByRequestNumber', async (req, res) =>{
 });
 
 app.post('/getRequestNumber', async (req, res) =>{
-  const personId = req.person.id;
+  const personId = req.body.personId;
   res.status(200).send(await ut.getRequestNumber(personId));
 })
 

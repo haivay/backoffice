@@ -297,12 +297,12 @@
             </div>
           </div>
         </div>
-        <transition name="slide-fade">
+        <!-- <transition name="slide-fade">
           <SuccessSendDataToast 
             v-if="isSuccessSendDataToastOpen"
             @close="isSuccessSendDataToastOpen = false"
           />
-        </transition>
+        </transition> -->
         <transition name="fade">
           <ModalDelete 
             v-if="isModalDeleteOpen"
@@ -318,7 +318,7 @@
 <script>
 import FormEditor from './FormEditor.vue'
 import ModalDelete from './ModalDelete.vue'
-import SuccessSendDataToast from './SuccessSendDataToast.vue'
+// import SuccessSendDataToast from './SuccessCopyDataToast.vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import VSelectize from '@isneezy/vue-selectize'
@@ -328,7 +328,7 @@ var _cloneDeep = require('lodash/cloneDeep');
 export default {
   mixins: [validationMixin],
   name: 'Backoffice',
-  components: { FormEditor, ModalDelete, SuccessSendDataToast, VSelectize },
+  components: { FormEditor, ModalDelete, VSelectize },
   data() {
     return {
       title: 'Backoffice',

@@ -142,17 +142,20 @@
         </form>
       </div>
       <transition name="slide-fade">
-        <SuccessSendDataToast 
-          v-if="isSuccessSendDataToastOpen"
-          @close="isSuccessSendDataToastOpen = false"
+        <ModalSuccessSendData 
+          v-if="isModalSuccessSendDataOpen"
+          @close="isModalSuccessSendDataOpen = false"
+          :requestNumber="requestNumber"
         />
       </transition>
+      
     </div>
   </div>
 </template>
 
 <script>
-import SuccessSendDataToast from './SuccessSendDataToast.vue'
+
+import ModalSuccessSendData from './ModalSuccessSendData.vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import VSelectize from '@isneezy/vue-selectize'
@@ -161,15 +164,16 @@ import axios from 'axios';
 export default {
   mixins: [validationMixin],
   name: 'FormMode',
-  components: { SuccessSendDataToast, VSelectize },
+  components: { ModalSuccessSendData, VSelectize },
   data() {
     return {
       title: 'FormMode',
       formId: '',
       form: {},
-      isSuccessSendDataToastOpen: false,
       file: '',
-      validationValues: []
+      validationValues: [],
+      requestNumber: '',
+      isModalSuccessSendDataOpen: false
     }
   },
   mounted() {
@@ -193,7 +197,6 @@ export default {
       }
       axios.post('/getForm', form)
         .then((response) => {
-          console.log(response.data)
           this.form = JSON.parse(JSON.stringify(response.data));
         });
 
@@ -259,11 +262,11 @@ export default {
           );
         }
       }
-      console.log(data)
 
       let formData = new FormData();
       formData.append('id', this.form.id)
       formData.append('data', JSON.stringify(data))
+      formData.append('personId', 'eda81559-403b-46c8-9afd-35e93fbef1cc')
       if (this.file != '') {
         formData.append('file', this.file);
       }
@@ -280,7 +283,19 @@ export default {
       });
 
       this.clearForm()
-      this.isSuccessSendDataToastOpen = true;
+
+      this.openModalSuccessSendData()
+    },
+    openModalSuccessSendData() {
+      const data = {
+        personId: 'eda81559-403b-46c8-9afd-35e93fbef1cc'
+      }
+
+      axios
+        .post('/getRequestNumber', data)
+        .then(response => this.requestNumber = response.data.request_number)
+      
+      this.isModalSuccessSendDataOpen = true;
     },
     clearForm() {
       for (let field of this.form.document_fields) {

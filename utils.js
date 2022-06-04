@@ -43,7 +43,7 @@ export function sendData(formId, formData, personId = null) {
 }
 
 export async function getData(typeId){
-  const query = "SELECT request_data, ts, id, request_number FROM backoffice.tblformrequest WHERE type_id = $1";
+  const query = "SELECT request_data, ts, id, request_number, person_id FROM backoffice.tblformrequest WHERE type_id = $1";
   const queryResult = await client.query(query, [typeId]);
   return queryResult.rows
 }
@@ -116,6 +116,6 @@ export function getAnswerByRequestNumber(requestNumber) {
 
 export async function getRequestNumber(personId){
   const query = "SELECT request_number FROM backoffice.tblformrequest WHERE person_id = $1 ORDER BY ts DESC LIMIT 1";
-  queryResult = await client.query(query, [personId]);
-  return queryResult.rows;
+  const queryResult = await client.query(query, [personId]);
+  return queryResult.rows[0];
 }
