@@ -211,9 +211,14 @@ app.post('/saveAnswer',(req) =>{
 
 app.post('/getAnswerByRequestNumber', async (req, res) =>{
   const requestNumber = req.body.requestNumber;
-  console.log(typeof requestNumber)
+  //console.log(typeof requestNumber)
   res.status(200).send(await ut.getAnswerByRequestNumber(requestNumber));
 });
+
+app.post('/getRequestNumber', async (req, res) =>{
+  const personId = req.person.id;
+  res.status(200).send(await ut.getRequestNumber(personId));
+})
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)

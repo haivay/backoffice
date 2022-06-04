@@ -113,3 +113,9 @@ export function getAnswerByRequestNumber(requestNumber) {
   const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformanswer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";
   client.query(query, [requestNumber]);
 }
+
+export async function getRequestNumber(personId){
+  const query = "SELECT request_number FROM backoffice.tblformrequest WHERE person_id = $1 ORDER BY ts DESC LIMIT 1";
+  queryResult = await client.query(query, [personId]);
+  return queryResult.rows;
+}
