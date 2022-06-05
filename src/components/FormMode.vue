@@ -141,7 +141,7 @@
           </button>
         </form>
       </div>
-      <transition name="slide-fade">
+      <transition name="fade">
         <ModalSuccessSendData 
           v-if="isModalSuccessSendDataOpen"
           @close="isModalSuccessSendDataOpen = false"

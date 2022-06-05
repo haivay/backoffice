@@ -17,6 +17,12 @@ module.exports = {
       template: 'public/index.html',
       title: 'Form',
       chunks: [ 'chunk-vendors', 'chunk-common', 'form' ]
+    },
+    'status': {
+      entry: './src/pages/Status/main.js',
+      template: 'public/index.html',
+      title: 'Status',
+      chunks: [ 'chunk-vendors', 'chunk-common', 'status' ]
     }
   },
   devServer: {

@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <Backoffice />
+    <Status />
   </div>
 </template>
 
 <script>
-import Backoffice from '../../components/Backoffice.vue'
+import Status from '../../components/Status.vue'
 
 export default {
   name: 'App',
   components: {
-    Backoffice,
+    Status
   }
 }
 </script>
