@@ -109,7 +109,14 @@ app.post('/deleteForm',(req) =>{
 //   ut.sendData(typeFormId, formData)
 // })
 
-app.post('/sendData', (req) => {
+app.post('/sendData',async (req, res) =>{
+  const typeFormId = req.body.id;
+  const formData = {data: JSON.parse(req.body.data), file: req.file};
+  const personId = req.body.personId;
+  res.status(200).send(await ut.sendData(typeFormId, formData, personId));
+});
+
+app.post('/null', (req) => {
   if (req.file != undefined) {
     let metadata = {
       file_data: {
