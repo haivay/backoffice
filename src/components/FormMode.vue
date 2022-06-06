@@ -277,26 +277,14 @@ export default {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
         }
-      }).then(() => {
-        console.log('SUCCESS!!');
+      }).then((response) => {
+        this.requestNumber = response.data.request_number
         this.file = ''
       }).catch((err) => {
         console.error(err)
       });
 
       this.clearForm()
-
-      this.openModalSuccessSendData()
-    },
-    openModalSuccessSendData() {
-      const data = {
-        personId: 'eda81559-403b-46c8-9afd-35e93fbef1cc'
-      }
-
-      axios
-        .post('/getRequestNumber', data)
-        .then(response => this.requestNumber = response.data.request_number)
-      
       this.isModalSuccessSendDataOpen = true;
     },
     clearForm() {

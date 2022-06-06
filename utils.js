@@ -37,14 +37,13 @@ export function deleteData(id) {
   client.query(query, [id]);
 }
 
-export function sendData(formId, formData, personId = null) {
+export async function sendData(formId, formData, personId = null) {
   const query = "INSERT INTO backoffice.tblformrequest(type_id, request_data, ts, person_id) VALUES($1, $2, $3, $4) RETURNING request_number";
   const queryResult = await client.query(query, [formId, formData, 'now', personId]);
-  return queryResult;
-
+  return queryResult.rows[0]
 }
 
-export async function getData(typeId){
+export async function getData(typeId) {
   const query = "SELECT request_data, ts, id, request_number, person_id FROM backoffice.tblformrequest WHERE type_id = $1";
   const queryResult = await client.query(query, [typeId]);
   return queryResult.rows
@@ -117,8 +116,8 @@ export async function getAnswerByRequestNumber(requestNumber) {
   return queryResult.rows
 }
 
-export async function getRequestNumber(personId){
-  const query = "SELECT request_number FROM backoffice.tblformrequest WHERE person_id = $1 ORDER BY ts DESC LIMIT 1";
-  const queryResult = await client.query(query, [personId]);
-  return queryResult.rows[0];
-}
+// export async function getRequestNumber(personId){
+//   const query = "SELECT request_number FROM backoffice.tblformrequest WHERE person_id = $1 ORDER BY ts DESC LIMIT 1";
+//   const queryResult = await client.query(query, [personId]);
+//   return queryResult.rows[0];
+// }
