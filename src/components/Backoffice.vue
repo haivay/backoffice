@@ -318,7 +318,6 @@
 <script>
 import FormEditor from './FormEditor.vue'
 import ModalDelete from './ModalDelete.vue'
-// import SuccessSendDataToast from './SuccessCopyDataToast.vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import VSelectize from '@isneezy/vue-selectize'
@@ -485,8 +484,10 @@ export default {
       }
       axios.post('/deleteData', form)
       axios.post('/deleteForm', form)
-      this.getForms();
-      this.unselectForm();
+        .then(this.getForms())
+        .then(this.unselectForm())
+      // this.getForms();
+      // this.unselectForm();
     },
     clearForm() {
       for (let field of this.selectedForm.document_fields) {

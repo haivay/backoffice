@@ -270,16 +270,18 @@ export default {
       if (this.file != '') {
         formData.append('file', this.file);
       }
-      axios.post('/sendData', formData, {
+
+      axios
+        .post('/sendData', formData, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
         }
-      }).then(function(){
+      }).then(() => {
         console.log('SUCCESS!!');
         this.file = ''
-      }).catch(function(){
-        console.log('FAILURE!!');
+      }).catch((err) => {
+        console.error(err)
       });
 
       this.clearForm()

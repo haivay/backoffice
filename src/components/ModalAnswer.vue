@@ -117,25 +117,37 @@ export default {
     },
     requestId: {
       type: String,
-    }
+    },
+    statuses: {
+      type: Array
+    },
+    categories: {
+      type: Array
+    },
+    priorities: {
+      type: Array
+    },
   },
   data() {
     return {
-      lastAnswer: {},
+      answers: [],
+      lastAnswer: null,
       status: '',
-      statuses: [],
       category: '',
-      categories: [],
       priority: '',
-      priorities: [],
       textAnswer: ''
+    }
+  },
+  watch: {
+    lastAnswer() {
+      if (this.lastAnswer) {
+        this.setLastAnswer()
+      }
     }
   },
   mounted() {
     this.getLastAnswer();
-    this.getStatuses()
-    this.getCategories()
-    this.getPriorities()
+    this.$forceUpdate()
   },
   methods: {
     closeModal() {
@@ -145,29 +157,31 @@ export default {
       const form = {
         requestNumber: this.requestNumber
       }
-      console.log(form)
+
       axios
         .post('/getAnswerByRequestNumber', form)
         .then(response => {
-          // this.lastAnswer = response.data;
-          console.log(response.data)
+          this.answers = response.data
+          this.lastAnswer = response.data[0]
         });
-      // console.log(this.lastAnswer)
     },
-    getStatuses() {
-      axios
-        .post('/getStatuses')
-        .then(response => this.statuses = response.data)
-    },
-    getCategories() {
-      axios
-        .post('/getCategories')
-        .then(response => this.categories = response.data)
-    },
-    getPriorities() {
-      axios
-        .post('/getPriorities')
-        .then(response => this.priorities = response.data)
+    setLastAnswer() {
+      if (this.lastAnswer.status_id != '') {
+        this.status = this.statuses.find(s => {
+          return s.id == this.lastAnswer.status_id ? s : ''
+        })
+      }
+      if (this.lastAnswer.category_id != '') {
+        this.category = this.categories.find(c => {
+          return c.id == this.lastAnswer.category_id ? c : ''
+        })
+      }
+      if (this.lastAnswer.priority_id != '') {
+        this.priority = this.priorities.find(p => {
+          return p.id == this.lastAnswer.priority_id ? p : ''
+        })
+      }
+      this.$forceUpdate()
     },
     sendAnswer() {
       console.log(`Статус: ${this.status.id} \nКатегория: ${this.category.id} \nПриоритет: ${this.priority.id} \nОтвет: ${this.textAnswer} \nrequest_id: ${this.requestId}`)
@@ -181,6 +195,7 @@ export default {
       }
 
       axios.post('/saveAnswer', answer)
+      this.closeModal()
     }
   }
 }

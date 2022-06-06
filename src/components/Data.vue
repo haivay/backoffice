@@ -22,7 +22,7 @@
         Форма не выбрана...
       </div>
       <table v-if="isFormSelected" class="table">
-        <thead class="thead-dark">
+        <thead class="thead-dark ">
           <tr>
             <td>№</td>
             <td>Время заявки</td>
@@ -40,7 +40,7 @@
             v-for="(row, indexRow) in data"
             :key="indexRow"
           >
-            <th scope="row">{{ indexRow + 1 }}</th>
+            <th scope="row" class="border-right text-center">{{ row.request_number || '-' }}</th>
             <td>{{ getDateFromISO(row.ts) }}</td>
             <td
               v-for="n in getMaxCellsCount()"
@@ -66,6 +66,9 @@
           :requestNumber="modalRequestNumber"
           :requestData="modalData"
           :requestId="modalRequestId"
+          :statuses="modalStatuses"
+          :categories="modalCategories"
+          :priorities="modalPriorities"
           @close="isModalAnswerOpen = false"
         />
       </transition>
@@ -96,7 +99,10 @@ export default {
       isModalAnswerOpen: false,
       modalTitle: '',
       modalData: [],
-      modalRequestId: ''
+      modalRequestId: '',
+      modalStatuses: [],
+      modalCategories: [],
+      modalPriorities: [],
     }
   },
   watch: {
@@ -111,8 +117,11 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     this.getForms();
+    this.getStatuses()
+    this.getCategories()
+    this.getPriorities()
   },
   methods: {
     forceUpdate() {
@@ -126,6 +135,21 @@ export default {
         this.forceUpdate();
       });
     },
+     getStatuses() {
+      axios
+        .post('/getStatuses')
+        .then(response => this.modalStatuses = response.data)
+    },
+    getCategories() {
+      axios
+        .post('/getCategories')
+        .then(response => this.modalCategories = response.data)
+    },
+    getPriorities() {
+      axios
+        .post('/getPriorities')
+        .then(response => this.modalPriorities = response.data)
+    },
     getData() {
       const form = {
         id: this.selectedForm.id
@@ -133,7 +157,6 @@ export default {
 
       axios.post('/getData', form)
       .then((response) => {
-        console.log(response.data)
         this.data = response.data
       });
     },
@@ -161,6 +184,8 @@ export default {
         return Array.isArray(value) 
         ? value.join(', ') 
         : value.value.toString()
+      } else if (value.fieldType === 'date') {
+        return value.value.split('-').reverse().join('.')
       } else if (value.value == {}) {
         return 'is file'
       } else {
@@ -180,8 +205,9 @@ export default {
         for (const h of this.header) {
           if (h.id === d.id) {
             label = h.label
-            value = Array.isArray(d.value) ? d.value.join(', ') : d.value
-            
+            // value = Array.isArray(d.value) ? d.value.join(', ') : d.value
+            value = this.convertValue(d)
+
             let dataWithLabel = {
               value,
               label
@@ -192,6 +218,15 @@ export default {
       })
 
       this.isModalAnswerOpen = true
+    },
+    convertValue(data) {
+      if (Array.isArray(data.value)) {
+        return data.value.join(', ')
+      }
+      if (data.fieldType === 'date') {
+        return data.value.split('-').reverse().join('.')
+      }
+      return data.value
     },
     downloadFile(index) {
       const file = this.data[index].request_data.file

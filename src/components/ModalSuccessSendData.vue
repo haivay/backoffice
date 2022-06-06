@@ -4,7 +4,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
-            Заявка отправлена!
+            Заявка успешно отправлена!
           </h5>
           <button 
             type="button"
@@ -15,11 +15,17 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
-          <p>
-            Заявка <a role="button" @click="copyRequestNumber" class="btn btn-link nopadding"> №{{ requestNumber }}</a> успешно отправлена!
-          </p>
-          <p><a role="button" @click="goToDataPage" class="btn btn-link nopadding"> Посмотреть ответ по заявке</a></p>
+        <div class="modal-body text-center">
+          <a 
+            role="button" 
+            @click="copyRequestNumber" 
+            class="btn btn-light w-100 mb-3 d-flex align-items-center justify-content-between"
+          > 
+            <font-awesome-icon :icon="['far', 'clone']" class="icon alt invisible"/>
+            <p class="h2 mb-0">№{{ requestNumber }}</p>
+            <font-awesome-icon :icon="['far', 'clone']" class="icon alt"/>
+          </a>
+          <a role="button" @click="goToDataPage" class="btn btn-link nopadding"> Посмотреть ответ по заявке</a>
         </div>
         <div class="modal-footer">
           <button 
@@ -32,10 +38,12 @@
         </div>
       </div>
     </div>
-    <SuccessCopyDataToast 
-      v-if="isSuccessCopyDataToastOpen"
-      @close="isSuccessCopyDataToastOpen = false"
-    />
+    <transition name="slide-fade">
+      <SuccessCopyDataToast 
+        v-if="isSuccessCopyDataToastOpen"
+        @close="isSuccessCopyDataToastOpen = false"
+      />
+    </transition>
   </div>
 </template>
 
@@ -72,7 +80,7 @@ export default {
         });
     },
     goToDataPage() {
-      console.log('Открыть страницу для просмотра ответа на заявку по номеру')
+      window.location.assign(`/status`);
     }
   }
 }
@@ -93,4 +101,14 @@ export default {
   .nopadding {
     padding: 0;
   }
+  .slide-fade-enter-active {
+    transition: all .3s ease;
+  }
+  .slide-fade-leave-active {
+    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+  }
+  .slide-fade-enter, .slide-fade-leave-to {
+    transform: translateX(50px);
+    opacity: 0;
+  } 
 </style>
