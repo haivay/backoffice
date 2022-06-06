@@ -38,8 +38,10 @@ export function deleteData(id) {
 }
 
 export function sendData(formId, formData, personId = null) {
-  const query = "INSERT INTO backoffice.tblformrequest(type_id, request_data, ts, person_id) VALUES($1, $2, $3, $4)";
-  client.query(query, [formId, formData, 'now', personId]);
+  const query = "INSERT INTO backoffice.tblformrequest(type_id, request_data, ts, person_id) VALUES($1, $2, $3, $4) RETURNING request_number";
+  const queryResult = await client.query(query, [formId, formData, 'now', personId]);
+  return queryResult;
+
 }
 
 export async function getData(typeId){
