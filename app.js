@@ -111,7 +111,7 @@ app.post('/deleteForm',(req) =>{
 
 app.post('/sendData',async (req, res) =>{
   const typeFormId = req.body.id;
-  const formData = {data: JSON.parse(req.body.data), file: req.file};
+  const formData = JSON.parse(req.body.data);
   const personId = req.body.personId;
   res.status(200).send(await ut.sendData(typeFormId, formData, personId));
 });
