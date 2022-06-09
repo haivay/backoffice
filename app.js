@@ -1,33 +1,20 @@
 import express from 'express';
-import path from 'path'
 import bodyParser from 'body-parser';
-import multer from 'multer';
-import fse from 'fs-extra';
-import fs from 'fs';
-import * as ut from './utils.js';
+import pkg from 'pg';
+const { Client } = pkg;
+
+const bdParams = {
+  user: 'backoffice',
+  host: 'main.psaa.ru',
+  database: 'db_backoffice',
+  password: 'W30082021',
+  port: '5432',
+};
+const client = new Client(bdParams);
 
 const app = express()
 const port = 3000
-ut.client.connect();
-
-const storageConfig = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let random = Math.floor(1000000000 + Math.random() * (9999999999 + 1 - 1000000000)).toString();
-    let path = `./uploads/${random}`;
-    fse.mkdirSync(path)
-    cb( null, path )
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname.split('.')[0] + '-' + (new Date()).toLocaleDateString('ru-RU') + `.${file.originalname.split('.')[1]}`)
-  }
-})
-
-const upload = multer({
-  storage: storageConfig
-});
-app.use(upload.single('file'))
-
-const __dirname = path.resolve();
+client.connect();
 
 app.use(bodyParser.json({
   limit: '500mb',
@@ -39,193 +26,170 @@ app.use(bodyParser.urlencoded({
   extended: true
 }))
 
-app.post('/getForms', async (req, res) => {
-    res.status(200).send(await ut.getForms());
-});
-
-app.post('/getData', async(req, res) => {
-  const typeId = req.body.id;
-  res.status(200).send(await ut.getData(typeId));
-});
-
-app.post('/getForm', async(req, res) => {
-  const formId = req.body.formId;
-  res.status(200).send(await ut.getForm(formId));
-})
-
-app.post('/getStaff', async(req, res) => {
-  res.status(200).send(await ut.getStaff());
-})
-
-app.post('/getStaffById', async(req, res) => {
-  staffId = req.body.staffId
-  res.status(200).send(await ut.getStaffById(staffId));
-})
-
-app.post('/saveForm',(req) =>{
-  const formName = req.body.formName;
-  const formFields = JSON.stringify(req.body.formFields);
-  const staffId = req.body.staffId;
-  ut.saveForm(formName, formFields, staffId);
-});
-
-app.post('/updateForm',(req) =>{
-  const id = req.body.id;
-  const formName = req.body.formName;
-  const formFields = JSON.stringify(req.body.formFields);
-  const staffId = req.body.staffId;
-  ut.updateForm(id, formName, formFields, staffId);
-})
-
-app.post('/deleteForm',(req) =>{
-  const id = req.body.id;
-  ut.deleteForm(id);
-})
-
-// app.post('/sendFile', (req, res) => {
-//   let metadata = {
-//     file_data: {
-//       mime: req.file.mimetype,
-//       size: req.file.size,
-//       is_image: ut.isImageFilter(req.file.mimetype),
-//     },
-//     file_link: req.file.path,
-//     file_name: req.file.filename
-//   }
-
-//   if (metadata.file_data.is_image) {
-//     let dimensions = {
-//       type: ut.getType(metadata.file_data.mime),
-//       width: ut.getDimensions(metadata.file_link).width,
-//       height: ut.getDimensions(metadata.file_link).height
-//     }
-//     Object.assign(metadata.file_data, {image_data: dimensions});
-//   }
-
-//   res.json({'metadata': metadata});
-//   req.file = metadata
-//   const typeFormId = req.body.id
-//   const formData = {file: req.file, data: req.body.data}
-//   ut.sendData(typeFormId, formData)
-// })
-
-app.post('/sendData',async (req, res) =>{
-  const typeFormId = req.body.id;
-  const formData = JSON.parse(req.body.data);
-  const personId = req.body.personId;
-  res.status(200).send(await ut.sendData(typeFormId, formData, personId));
-});
-
-app.post('/null', (req) => {
-  if (req.file != undefined) {
-    let metadata = {
-      file_data: {
-        mime: req.file.mimetype,
-        size: req.file.size,
-        is_image: ut.isImageFilter(req.file.mimetype),
-      },
-      file_link: req.file.path,
-      file_name: req.file.filename
-    }
-  
-    if (metadata.file_data.is_image) {
-      let dimensions = {
-        type: ut.getType(metadata.file_data.mime),
-        width: ut.getDimensions(metadata.file_link).width,
-        height: ut.getDimensions(metadata.file_link).height
-      }
-      Object.assign(metadata.file_data, {image_data: dimensions});
-    }
-  
-    // res.json({'metadata': metadata});
-    req.file = metadata
-
-    const typeFormId = req.body.id;
-    const formData = {data: JSON.parse(req.body.data), file: req.file};
-    ut.sendData(typeFormId, formData);
-  } else {
-    const typeFormId = req.body.id;
-    const formData = {data: JSON.parse(req.body.data)};
-    const personId = req.body.personId;
-    ut.sendData(typeFormId, formData, personId);
+app.get('/getForms', async (req, res) => {
+  const query = "SELECT * FROM backoffice.tblformtypes";
+  try{
+    const queryResult = await client.query(query, []);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
   }
 });
 
-app.post('/download', (req, res) => {
-  console.log('не работает')
-  // console.log(req.body);
-
-  // const path = req.body.file_link
-  // console.log(`${__dirname}\\${path}`)
-  // const file = fs.createReadStream(`${__dirname}\\${path}`)
-  // const filename = (new Date()).toLocaleDateString('ru-RU') + req.body.file_name
-  // res.setHeader('Content-Disposition', 'attachment: filename="' + filename + '"')
-  // file.pipe(res)
-
-  // var path = req.body.file_link
-  // // console.log(`${__dirname}\\${path}`)
-  // res.setHeader('Content-Disposition')
-  // res.download(`${__dirname}\\${path}`, (err) => {
-  //   if (err) {
-  //     res.status(500).send({
-  //       message: 'ошибка при скачивании: ' + err
-  //     })
-  //   } else {
-  //     console.log('загрузка прошла успешно')
-  //   }
-  // });  
-
-
-  // const filename = req.body.filename;
-  // const dirname = path.resolve();
-  // const fullfilepath = path.join(dirname, 'uploads/' + filename);
-  // res.sendFile(fullfilepath);
-  // res.download(fullfilepath);
-  // console.log(res)
+app.get('/getForm', async (req, res) => {
+  const query = "SELECT * FROM backoffice.tblformtypes WHERE id = $1";
+  const formId = req.body.formId;
+  try{
+    const queryResult = await client.query(query, [formId]);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
 });
 
-app.post('/deleteData',(req) =>{
+app.post('/saveForm', async (req, res) =>{
+  const query = "INSERT INTO backoffice.tblformtypes(type_name, document_fields, staff_id) VALUES ($1, $2, $3)";
+  const formName = req.body.formName;
+  const formFields = JSON.stringify(req.body.formFields);
+  const staffId = req.body.staffId;
+  try{
+    await client.query(query, [formName, formFields, staffId]);
+    res.status(200).send("Ok");
+  }catch(err){
+    res.status(500).send(err);
+  }
+});
+
+app.post('/updateForm', async (req, res) =>{
+  const query = "UPDATE backoffice.tblformtypes SET type_name = $2, document_fields = $3, staff_id = $4 WHERE id = $1;";
   const id = req.body.id;
-  ut.deleteData(id);
-})
-
-app.post('/getStatuses', async (req, res) => {
-  res.status(200).send(await ut.getStatuses());
+  const formName = req.body.formName;
+  const formFields = JSON.stringify(req.body.formFields);
+  const staffId = req.body.staffId;
+  try{
+    await client.query(query, [id, formName, formFields, staffId]);
+    res.status(200).send("Ok");
+  }catch(err){
+    res.status(500).send(err);
+  }
 });
 
-app.post('/getCategories', async (req, res) => {
-  res.status(200).send(await ut.getCategories());
+app.post('/deleteForm', async (req, res) =>{
+  const query = "DELETE FROM backoffice.tblformtypes WHERE id = $1;";
+  const id = req.body.id;
+  try{
+    await client.query(query, [id]);
+    res.status(200).send("Ok");
+  }catch(err){
+    res.status(500).send(err);
+  }
 });
 
-app.post('/getPriorities', async (req, res) => {
-  res.status(200).send(await ut.getPriorities());
+app.get('/getRequests', async (req, res) => {
+  const query = "SELECT request_data, ts, id, request_number, person_id FROM backoffice.tblformrequest WHERE type_id = $1";
+  const typeId = req.body.id;
+  try{
+    const queryResult = await client.query(query, [typeId]);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
 });
 
-app.post('/saveAnswer',(req) =>{
+app.post('/saveRequest',async (req, res) =>{
+  const query = "INSERT INTO backoffice.tblformrequest(type_id, request_data, ts, person_id) VALUES($1, $2, now(), $3) RETURNING request_number";
+  const typeFormId = req.body.id;
+  const formData = JSON.parse(req.body.data);
+  const personId = req.body.personId;
+  try{
+    await client.query(query, [typeFormId, formData, personId]);
+    res.status(200).send("Ok");
+  }catch(err){
+    res.status(500).send(err);
+  }
+});
+
+app.post('/deleteRequest',async (req, res) =>{
+  const query = "DELETE FROM backoffice.tblformrequest WHERE type_id = $1;";
+  const id = req.body.id;
+  try{
+    await client.query(query, [id]);
+    res.status(200).send("Ok");
+  }catch(err){
+    res.status(500).send(err);
+  }
+});
+
+app.get('/getStaff', async (req, res) => {
+  const query = "SELECT * FROM staff.tblperson";
+  try{
+    const queryResult = await client.query(query, []);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
+});
+
+// app.post('/getStaffById', async (req, res) => {
+//   staffId = req.body.staffId
+//   res.status(200).send(await ut.getStaffById(staffId));
+// })
+
+app.get('/getStatuses', async (req, res) => {
+  const query = "SELECT * FROM backoffice.statuses";
+  try{
+    const queryResult = await client.query(query, []);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
+});
+
+app.get('/getCategories', async (req, res) => {
+  const query = "SELECT * FROM backoffice.categories";
+  try{
+    const queryResult = await client.query(query, []);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
+});
+
+app.get('/getPriorities', async (req, res) => {
+  const query = "SELECT * FROM backoffice.priorities";
+  try{
+    const queryResult = await client.query(query, []);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
+});
+
+app.post('/saveAnswer', async (req, res) =>{
+  const query = "INSERT INTO backoffice.tblformanswer(status_id, category_id, priority_id, change_time, answer, request_id) VALUES ($1, $2, $3, now, $5)";
   const status_id = req.body.status_id;
   const category_id = req.body.category_id;
   const priority_id = req.body.priority_id;
   const answer = req.body.answer;
   const request_id = req.body.request_id;
-  ut.saveAnswer(status_id, category_id, priority_id, answer, request_id);
+  try{
+    const queryResult = await client.query(query, [status_id, category_id, priority_id, answer, request_id]);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
 });
 
-
-// app.post('/getRequestIdByRequestNumber',(req, res) =>{
-//   const requestNumber = req.body.requestNumber;
-//   res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
-// });
-
-app.post('/getAnswerByRequestNumber', async (req, res) =>{
+app.get('/getAnswerByRequestNumber', async (req, res) =>{
+  const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformanswer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";
   const requestNumber = req.body.requestNumber;
-  res.status(200).send(await ut.getAnswerByRequestNumber(requestNumber));
+  try{
+    const queryResult = await client.query(query, [requestNumber]);
+    res.status(200).send(queryResult.rows);
+  }catch(err){
+    res.status(500).send(err);
+  }
 });
-
-app.post('/getRequestNumber', async (req, res) =>{
-  const personId = req.body.personId;
-  res.status(200).send(await ut.getRequestNumber(personId));
-})
-
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
