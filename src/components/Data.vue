@@ -26,80 +26,123 @@
           <span class="sr-only">Загрузка...</span>
         </div>
       </div>
-      <!-- <div v-if="isFormSelected && !loading" class="settings py-3">
-        <div class="text-center mb-2">Фильтрация</div>
-        <div class="row">
-          <div class="col">
-            <div class="form-selector">
-              <v-selectize
-                :options="header" 
-                v-model="filterBy"
-                placeholder="Выберите поле"
-                label="label"
-                :keys="['id', 'label']"
-              />
-            </div>
-          </div>
-          <div class="col">
-            <input type="text" class="form-control" v-model="filterRule">
-          </div>
-        </div>
-      </div> -->
-      {{ sortBy }}
       <table v-if="isFormSelected && !loading" class="table table-hover">
         <thead class="thead-dark">
           <tr>
             <td 
-              class="sort-link th-label" 
-              @click="sortBy = { id: 'request_number', label: 'Номер заявки' }"
+              class="th-label"
+              style="width: 100px"
             >
-              №
-              <span v-if="sortBy.id === 'request_number' && sortOrder.id === 'asc'">
-                <font-awesome-icon :icon="['fas', 'sort-down']" class="icon alt"/>
-              </span>
-              <span v-if="sortBy.id === 'request_number' && sortOrder.id === 'desc'">
-                <font-awesome-icon :icon="['fas', 'sort-up']" class="icon alt"/>
-              </span>
+              <div class="sort-link" @click="toggleSortField('request_number')">
+                №
+                <span v-if="sortField === 'request_number'">
+                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                </span>
+              </div>
+              <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters['request_number']" @keyup="applyFieldFilter">
             </td>
             <td 
-              class="sort-link th-label" 
-              @click="sortBy = { id: 'status_id', label: 'Статус' }"
+              class="th-label"
+              style="width: 150px"
             >
-              Статус
-              <span v-if="sortBy.id === 'status_id' && sortOrder.id === 'asc'">
-                <font-awesome-icon :icon="['fas', 'sort-down']" class="icon alt"/>
-              </span>
-              <span v-if="sortBy.id === 'status_id' && sortOrder.id === 'desc'">
-                <font-awesome-icon :icon="['fas', 'sort-up']" class="icon alt"/>
-              </span>
+              <div class="sort-link" @click="toggleSortField('status_id')">
+                Статус
+                <span v-if="sortField === 'status_id'">
+                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                </span>
+              </div>
+              <v-selectize
+                v-if="isFilterOn"
+                :options="modalStatuses" 
+                v-model="statusFilter"
+                placeholder="Выберите статус"
+                :theme="'w-100'"
+                style="width: 200px;"
+                label="status"
+                :keys="['id', 'status']"
+              />
+              <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
             </td>
             <td 
-              class="sort-link th-label" 
-              @click="sortBy = { id: 'ts', label: 'Время заявки' }"
+              class="th-label"
+              style="width: 150px"
             >
-              Время заявки
-              <span v-if="sortBy.id === 'ts' && sortOrder.id === 'asc'">
-                <font-awesome-icon :icon="['fas', 'sort-down']" class="icon alt"/>
-              </span>
-              <span v-if="sortBy.id === 'ts' && sortOrder.id === 'desc'">
-                <font-awesome-icon :icon="['fas', 'sort-up']" class="icon alt"/>
-              </span>
+              <div class="sort-link" @click="toggleSortField('category_id')">
+                Категория
+                <span v-if="sortField === 'category_id'">
+                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                </span>
+              </div>
+              <v-selectize
+                v-if="isFilterOn"
+                :options="modalCategories" 
+                v-model="categoryFilter"
+                placeholder="Выберите категорию"
+                :theme="'w-100'"
+                style="width: 200px;"
+                label="category"
+                :keys="['id', 'category']"
+              />
+              <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
+            </td>
+            <td 
+              class="th-label"
+              style="width: 150px"
+            >
+              <div class="sort-link" @click="toggleSortField('priority_id')">
+                Приоритет
+                <span v-if="sortField === 'priority_id'">
+                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                </span>
+              </div>
+              <v-selectize
+                v-if="isFilterOn"
+                :options="modalPriorities" 
+                v-model="priorityFilter"
+                placeholder="Выберите приоритет"
+                :theme="'w-100'"
+                style="width: 200px;"
+                label="priority"
+                :keys="['id', 'priority']"
+              />
+              <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
+            </td>
+            <td 
+              class="th-label"
+              style="width: 130px"
+            >
+              <div class="sort-link" @click="toggleSortField('ts')">
+                Дата подачи
+                <span v-if="sortField === 'ts'">
+                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                </span>
+              </div>
+              <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters['ts']" @keyup="applyFieldFilter">
             </td>
             <td 
               v-for="(value, name, index) in this.header"
               :key="index"
-              class="sort-link th-label"
-              @click="sortBy = { id: value.id, label: value.label }"
+              class="th-label"
+              style="width: 100px"
             >
-              {{ value.label }}
-              <span v-if="sortBy.id === value.id && sortOrder.id === 'asc'">
-                <font-awesome-icon :icon="['fas', 'sort-down']" class="icon alt"/>
-              </span>
-              <span v-if="sortBy.id === value.id && sortOrder.id === 'desc'">
-                <font-awesome-icon :icon="['fas', 'sort-up']" class="icon alt"/>
-              </span>
+              <div class="sort-link" @click="toggleSortField(value.id)">
+                {{ value.label }}
+                <span v-if="sortField === value.id">
+                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                </span>
+              </div>
+              <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters[value.id]" @keyup="applyFieldFilter">
             </td>
-            <td></td>
+            <td>
+              <button 
+                @click="isFilterOn = !isFilterOn"
+                type="button" 
+                class="btn btn-light btn-sm"
+              >
+                <font-awesome-icon :icon="['fas', 'filter']" class="icon alt"/>
+                Фильтрация
+              </button>
+            </td>
           </tr>
         </thead>
         <tbody>
@@ -110,6 +153,8 @@
           >
             <th scope="row" class="border-right text-center">{{ row.request_number || '-' }}</th>
             <td>{{ getStatusById(row.status_id) }}</td>
+            <td>{{ getCategoryById(row.category_id) }}</td>
+            <td>{{ getPriorityById(row.priority_id) }}</td>
             <td>{{ getDateFromISO(row.ts) }}</td>
             <td
               v-for="n in getMaxCellsCount()"
@@ -163,7 +208,6 @@
 import ModalAnswer from './ModalAnswer.vue'
 import VSelectize from '@isneezy/vue-selectize'  
 import axios from 'axios';
-import _orderBy from 'lodash/orderBy'
 
 export default {
   name: 'Data',
@@ -171,20 +215,16 @@ export default {
   data() {
     return {
       loading: true,
+      isFilterOn: false,
       filterBy: '',
       filterRule: '',
-      sortBy: '',
+      fieldFilters: {},
+      statusFilter: {},
+      categoryFilter: {},
+      priorityFilter: {},
+      sortField: '',
       sortOrder: '',
-      sortOrders: [
-        {
-          id: 'asc',
-          label: 'По возрастанию'
-        },
-        {
-          id: 'desc',
-          label: 'По убыванию'
-        }
-      ],
+      sortOrders: ['ASC', 'DESC'],
       title: 'Данные из форм',
       forms: [],
       formsByStaffId: [],
@@ -219,19 +259,33 @@ export default {
         return
       }
     },
-    sortBy(newSortParameter, oldSortParameter) {
-      if (newSortParameter.id != oldSortParameter.id) {
-        this.sortOrder = this.sortOrders[0]
+    statusFilter() {
+      console.log(this.statusFilter)
+      if (this.statusFilter) {
+        this.fieldFilters['status_id'] = this.statusFilter.id
       } else {
-        if (this.sortOrder.id == this.sortOrders[0].id) {
-          this.sortOrder = this.sortOrders [1]
-        } else {
-          this.sortOrder = this.sortOrders [0]
-        }
+        this.fieldFilters['status_id'] = null
       }
-
-      this.sortData()
-    }
+      console.log(this.fieldFilters)
+    },
+    categoryFilter() {
+      console.log(this.categoryFilter)
+      if (this.categoryFilter) {
+        this.fieldFilters['category_id'] = this.categoryFilter.id
+      } else {
+        this.fieldFilters['category_id'] = null
+      }
+      console.log(this.fieldFilters)
+    },
+    priorityFilter() {
+      console.log(this.priorityFilter)
+      if (this.priorityFilter) {
+        this.fieldFilters['priority_id'] = this.priorityFilter.id
+      } else {
+        this.fieldFilters['priority_id'] = null
+      }
+      console.log(this.fieldFilters)
+    },
   },
   mounted() {
     this.getForms();
@@ -241,6 +295,18 @@ export default {
     this.sortOrder = this.sortOrders[0]
   },
   methods: {
+    toggleSortField(newSortField) {
+      if (newSortField != this.sortField) {
+        this.sortField = newSortField
+        this.sortOrder = 'ASC'
+      } else {
+        this.sortOrder = this.sortOrders.filter(s => s != this.sortOrder)[0]
+      }
+      console.log(this.sortOrder)
+    },
+    applyFieldFilter() {
+      console.log('go')
+    },
     forceUpdate() {
       this.$forceUpdate()
     },
@@ -269,26 +335,33 @@ export default {
         .then(response => this.modalPriorities = response.data)
     },
     async getData() {
+      this.loading = true
       await axios
         .post('/getRequests', { id: this.selectedForm.id })
         .then((response) => { 
           this.data = response.data
-          this.addStatuses() 
+          this.loading = false
+          this.addAnswerToData() 
         })
     },
     getMaxCellsCount() {
       this.maxCellsCount = this.header.length;
       return this.maxCellsCount;
     },
-    async addStatuses() {
+    async addAnswerToData() {
       this.data.forEach( async (item, i) => {
         const result = await axios.post('/getAnswerByRequestNumber', { requestNumber: item.request_number })
-        const status = result.data
+        const answer = result.data
+        console.log(answer)
 
-        if (status.length === 0) {
+        if (answer.length === 0) {
           this.$set(this.data[i], 'status_id', 'new')
+          this.$set(this.data[i], 'category_id', '-')
+          this.$set(this.data[i], 'priority_id', '-')
         } else {
-          this.$set(this.data[i], 'status_id', status[0].status_id)
+          this.$set(this.data[i], 'status_id', answer[0].status_id)
+          this.$set(this.data[i], 'category_id', answer[0].category_id)
+          this.$set(this.data[i], 'priority_id', answer[0].priority_id)
         }
 
         if (i === this.data.length - 1) {
@@ -308,8 +381,17 @@ export default {
     },
     getStatusById(id) {
       if (id) {
-        let status = this.modalStatuses.filter(s => s.id === id)[0].status
-        return status
+        return id === 'new' ? 'Новая' : this.modalStatuses.filter(s => s.id === id)[0].status
+      }
+    },
+    getCategoryById(id) {
+      if (id) {
+        return id === '-' ? id : this.modalCategories.filter(c => c.id === id)[0].category
+      }
+    },
+    getPriorityById(id) {
+      if (id) {
+        return id === '-' ? id : this.modalPriorities.filter(p => p.id === id)[0].priority
       }
     },
     getDateFromISO(dateIso) {
@@ -324,27 +406,8 @@ export default {
     },
     sortData() {
       this.loading = true
-      let field = this.sortBy.id
-      
-      if (field === 'request_number' || field === 'status_id' || field === 'ts') {
-        this.data = _orderBy(this.data, field, this.sortOrder.id)
-      } else {
-        let fieldIndex = this.header.findIndex((h) => h.id === field)
-        let have = false
 
-        for (let i = 0; i < this.data.length; i++)  {
-          if (this.data[i].request_data.data[fieldIndex]?.dataType === 'number') {
-            have = true
-            break
-          }
-        }
-        
-        if (have) {
-          this.data = _orderBy(this.data, item => +item.request_data.data[fieldIndex].value, this.sortOrder.id)
-        } else {
-          this.data = _orderBy(this.data, item => item.request_data.data[fieldIndex].value, this.sortOrder.id)
-        }
-      }
+      // сортировка
 
       this.loading = false
     },
