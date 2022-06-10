@@ -196,6 +196,7 @@ export default {
 
       axios.post('/saveAnswer', answer)
       this.closeModal()
+      this.$emit('refreshData')
     }
   }
 }

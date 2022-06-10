@@ -116,7 +116,8 @@
                   </button>
                 </div>
               </div>
-              <form class="doc" @submit.prevent="checkForm" enctype="multipart/form-data">
+              <!-- <form class="doc" @submit.prevent="checkForm" enctype="multipart/form-data"> -->
+              <form class="doc" enctype="multipart/form-data">
                 <div class="fields">
                   <div 
                     class="field"
@@ -246,14 +247,14 @@
                     </div>
                   </div>
                 </div>
-                <button 
+                <!-- <button 
                   type="submit" 
                   class="btn btn-outline-primary w-100 mt-4 mb-2"
                   :class="isAnyFormEditing ? 'disabled' : ''"
                   @keypress.enter="console.log('enter pressed')"
                 >
                   Отправить
-                </button>
+                </button> -->
               </form>
               <button 
                 type="button" 
@@ -482,7 +483,7 @@ export default {
       const form = {
         id: this.selectedForm.id,
       }
-      axios.post('/deleteData', form)
+      axios.post('/deleteRequest', form)
       axios.post('/deleteForm', form)
         .then(this.getForms())
         .then(this.unselectForm())
@@ -510,7 +511,7 @@ export default {
       // }
 
       let fields = this.selectedForm.document_fields;
-      let data = [];
+      let data = {};
 
       for (let field of fields) {
         if (field.fieldType === 'select') {
@@ -537,7 +538,6 @@ export default {
           );
         }
       }
-      console.log(data)
 
       let formData = new FormData();
       formData.append('id', this.selectedForm.id)
@@ -545,7 +545,7 @@ export default {
       if (this.file != '') {
         formData.append('file', this.file);
       }
-      axios.post('/sendData', formData, {
+      axios.post('/saveRequest', formData, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',

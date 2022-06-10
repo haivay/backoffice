@@ -85,6 +85,7 @@ export default {
   computed: {
     checkStatus() {
       return {
+        '': this.status === undefined,
         'alert-info': this.status.id === 'accepted',
         'alert-success': this.status.id === 'processed',
         'alert-danger': this.status.id === 'rejected',
@@ -105,13 +106,14 @@ export default {
         return
       }
 
+      this.status = ''
       const form = {
         requestNumber: this.requestNumber
       }
 
       axios
         .post('/getAnswerByRequestNumber', form)
-        .then(response => this.answer = response.data)
+        .then(response => this.answer = response.data[0])
     },
     setStatus() {
       this.status = this.statuses.filter(s => s.id === this.answer.status_id)[0]

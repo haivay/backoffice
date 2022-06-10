@@ -21,10 +21,10 @@
                   :id="field.fieldType + index.toString()"
                   :placeholder="field.placeholder"
                   class="form-control"
-                  :class="$v.form.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
+                  :class="errors[index] ? 'is-invalid' : ''"
                   v-model.trim="field.value"
                 >
-                <p v-if="$v.form.document_fields.$each[index].value.$dirty && !$v.form.document_fields.$each[index].value.required" class="invalid-feedback">
+                <p v-if="errors[index]" class="invalid-feedback">
                   Обязательное поле
                 </p> 
               </div>
@@ -38,12 +38,12 @@
                   :id="field.fieldType + index.toString()"
                   :placeholder="field.placeholder"
                   class="form-control textareaExample" 
-                  :class="$v.form.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
+                  :class="errors[index] ? 'is-invalid' : ''"
                   rows="5"
                   v-model.trim="field.value"
                 >
                 </textarea>
-                <p v-if="$v.form.document_fields.$each[index].value.$dirty && !$v.form.document_fields.$each[index].value.required" class="invalid-feedback">
+                <p v-if="errors[index]" class="invalid-feedback">
                   Обязательное поле
                 </p> 
               </div>
@@ -53,23 +53,28 @@
                 class="form-group"
               >
                 <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                <div class="form-selector">
+                <div id="form-selector2">
                   <v-selectize 
                     :placeholder="field.placeholder"
                     :options="field.options" 
                     :create-item="maybeCreate(field)"
                     :multiple="field.isMultiple"
+                    :class="errors[index] ? 'is-invalid' : ''"
+                    :invalid="errors[index]"
                     v-model="field.value[0]" 
-                  />
+                  /> 
+                  <p v-if="errors[index]" class="invalid-feedback">
+                    Обязательное поле
+                  </p>
                 </div>
-                <!-- <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
+                <p v-if="errors[index]" class="invalid-feedback">
                   Обязательное поле
-                </p> -->
+                </p>
               </div>
               <!-- CHECKBOX -->
               <div 
                 v-if="field.fieldType === 'checkbox'" 
-                class="custom-control custom-checkbox"
+                class="custom-control custom-checkbox my-3"
               >
                 <input 
                   :type="field.fieldType" 
@@ -93,6 +98,7 @@
                 <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
                 <b-form-datepicker 
                   class="mb-2"
+                  :class="errors[index] ? 'is-invalid' : ''"
                   :id="field.fieldType + index.toString()" 
                   :placeholder="field.placeholder"
                   :required="field.isRequire"
@@ -108,9 +114,9 @@
                   label-next-year="Следующий год"
                   v-model="field.value" 
                 ></b-form-datepicker>
-                <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                <p v-if="errors[index]" class="invalid-feedback">
                   Обязательное поле
-                </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
+                </p>
               </div>
               <!-- FILE -->
               <div 
@@ -148,7 +154,6 @@
           :requestNumber="requestNumber"
         />
       </transition>
-      
     </div>
   </div>
 </template>
@@ -156,22 +161,20 @@
 <script>
 
 import ModalSuccessSendData from './ModalSuccessSendData.vue'
-import { validationMixin } from 'vuelidate'
-import { required } from 'vuelidate/lib/validators'
 import VSelectize from '@isneezy/vue-selectize'
 import axios from 'axios';
 
 export default {
-  mixins: [validationMixin],
   name: 'FormMode',
   components: { ModalSuccessSendData, VSelectize },
   data() {
     return {
-      title: 'FormMode',
       formId: '',
       form: {},
       file: '',
-      validationValues: [],
+      dirty: false,
+      error: false,
+      errors: {},
       requestNumber: '',
       isModalSuccessSendDataOpen: false
     }
@@ -179,13 +182,14 @@ export default {
   mounted() {
     this.getForm();
   },
-  validations: {
-    form: {
-      document_fields: {
-        $each: {
-          value: { required }
+  watch: {
+    'form.document_fields': {
+      handler: function() {
+        if (this.dirty) {
+          this.validateForm()
         }
-      }
+      },
+      deep: true
     }
   },
   methods: {
@@ -200,24 +204,7 @@ export default {
           this.form = JSON.parse(JSON.stringify(response.data));
         });
 
-      this.forceUpdate()
-    },
-    forceUpdate() {
       this.$forceUpdate()
-    },
-    setValidation() {
-      // let form = {}
-      for (let field of this.form.document_fields) {
-        if (field.isRequire) {
-          // let fieldName = field.fieldType.toString() + i.toString()
-          // form[fieldName] = { required }
-          // Object.assign(form, )
-          this.validationValues.push({value: field.value });
-        }
-      }
-      // Object.assign(this.validations, form)
-      // this.validations = form;
-      console.log(this.validationValues)
     },
     handleFileUpload() {
       this.file = this.$refs.file[0].files[0];
@@ -226,18 +213,36 @@ export default {
       if (field.isAddable) return this.createContact
       return false
     },
+    validateForm() {
+      this.dirty = true
+      let errors = {}
+
+      for (let i = 0; i < this.form.document_fields.length; i++) {
+        let fieldType = this.form.document_fields[i].fieldType
+
+        if (this.form.document_fields[i].isRequire && !this.form.document_fields[i].value.length) {
+          errors[i] = true
+        } else if (fieldType === 'select' && this.form.document_fields[i].isRequire && !this.form.document_fields[i].value[0].length) {
+          errors[i] = true
+        } else {
+          errors[i] = false
+        }
+      }
+
+      this.errors = errors
+    },
     checkForm() {
       // валидация
-      // this.$v.form.document_fields.$each.$touch()
-      // if (this.$v.form.$error) {
-      //   console.log('Валидация не прошла!')
-      //   // return
-      // }
+      this.validateForm()
+      if (Object.values(this.errors).includes(true)) {
+        return
+      }
 
       let fields = this.form.document_fields;
-      let data = [];
+      let data = {};
 
       for (let field of fields) {
+        let value = ''
         if (field.fieldType === 'select') {
           let flatted = field.value.flat();
           let selected = [];
@@ -245,22 +250,15 @@ export default {
             if (typeof option === 'object') selected.push(option.label)
             if (typeof option === 'string') selected.push(option)
           }
-          data.push (
-            {
-              'id': field.id,
-              'fieldType': field.fieldType,
-              'value': selected
-            }
-          )
+          selected = selected.join(', ')
+          value = selected
+        } else if (field.fieldType === 'date') {
+          value = field.value.split('-').reverse().join('.')
         } else {
-          data.push (
-            {
-              'id': field.id,
-              'fieldType': field.fieldType,
-              'value': field.value
-            }  
-          );
+          value = field.value
         }
+
+        data[field.id] = value
       }
 
       let formData = new FormData();
@@ -271,8 +269,7 @@ export default {
         formData.append('file', this.file);
       }
 
-      axios
-        .post('/sendData', formData, {
+      axios.post('/saveRequest', formData, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
@@ -284,10 +281,13 @@ export default {
         console.error(err)
       });
 
-      this.clearForm()
+      // this.clearForm()
       this.isModalSuccessSendDataOpen = true;
     },
     clearForm() {
+      this.dirty = false
+      this.error = false
+      this.errors = {}
       for (let field of this.form.document_fields) {
         if (field.fieldType === 'select') {
           field.value = []
