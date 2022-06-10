@@ -10,25 +10,6 @@ const app = express()
 const port = 3000
 ut.client.connect();
 
-const storageConfig = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let random = Math.floor(1000000000 + Math.random() * (9999999999 + 1 - 1000000000)).toString();
-    let path = `./uploads/${random}`;
-    fse.mkdirSync(path)
-    cb( null, path )
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname.split('.')[0] + '-' + (new Date()).toLocaleDateString('ru-RU') + `.${file.originalname.split('.')[1]}`)
-  }
-})
-
-const upload = multer({
-  storage: storageConfig
-});
-app.use(upload.single('file'))
-
-const __dirname = path.resolve();
-
 app.use(bodyParser.json({
   limit: '500mb',
   parameterLimit:50000
@@ -40,33 +21,31 @@ app.use(bodyParser.urlencoded({
 }))
 
 app.post('/getForms', async (req, res) => {
+  try {
     res.status(200).send(await ut.getForms());
-});
-
-app.post('/getRequests', async(req, res) => {
-  const typeId = req.body.id;
-  res.status(200).send(await ut.getRequests(typeId));
+  } catch (error) {
+    console.log(error);
+  }   
 });
 
 app.post('/getForm', async(req, res) => {
   const formId = req.body.formId;
-  res.status(200).send(await ut.getForm(formId));
-})
-
-app.post('/getStaff', async(req, res) => {
-  res.status(200).send(await ut.getStaff());
-})
-
-app.post('/getStaffById', async(req, res) => {
-  staffId = req.body.staffId
-  res.status(200).send(await ut.getStaffById(staffId));
-})
+  try {
+    res.status(200).send(await ut.getForm(formId));
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 app.post('/saveForm',(req) =>{
   const formName = req.body.formName;
   const formFields = JSON.stringify(req.body.formFields);
   const staffId = req.body.staffId;
-  ut.saveForm(formName, formFields, staffId);
+  try {
+    ut.saveForm(formName, formFields, staffId);
+  } catch (error) {
+    console.log(error);
+  } 
 });
 
 app.post('/updateForm',(req) =>{
@@ -81,6 +60,28 @@ app.post('/deleteForm',(req) =>{
   const id = req.body.id;
   ut.deleteForm(id);
 })
+
+app.post('/getRequests', async(req, res) => {
+  const typeId = req.body.id;
+  try {
+    res.status(200).send(await ut.getRequests(typeId));
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+
+
+app.post('/getStaff', async(req, res) => {
+  res.status(200).send(await ut.getStaff());
+})
+
+app.post('/getStaffById', async(req, res) => {
+  staffId = req.body.staffId
+  res.status(200).send(await ut.getStaffById(staffId));
+})
+
+
 
 app.post('/saveRequest',async (req, res) =>{
   const typeFormId = req.body.id;
