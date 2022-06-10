@@ -225,6 +225,7 @@ export default {
       sortField: '',
       sortOrder: '',
       sortOrders: ['ASC', 'DESC'],
+      timer: null,
       title: 'Данные из форм',
       forms: [],
       formsByStaffId: [],
@@ -260,31 +261,28 @@ export default {
       }
     },
     statusFilter() {
-      console.log(this.statusFilter)
       if (this.statusFilter) {
         this.fieldFilters['status_id'] = this.statusFilter.id
       } else {
         this.fieldFilters['status_id'] = null
       }
-      console.log(this.fieldFilters)
+      this.getData()
     },
     categoryFilter() {
-      console.log(this.categoryFilter)
       if (this.categoryFilter) {
         this.fieldFilters['category_id'] = this.categoryFilter.id
       } else {
         this.fieldFilters['category_id'] = null
       }
-      console.log(this.fieldFilters)
+      this.getData()
     },
     priorityFilter() {
-      console.log(this.priorityFilter)
       if (this.priorityFilter) {
         this.fieldFilters['priority_id'] = this.priorityFilter.id
       } else {
         this.fieldFilters['priority_id'] = null
       }
-      console.log(this.fieldFilters)
+      this.getData()
     },
   },
   mounted() {
@@ -302,10 +300,16 @@ export default {
       } else {
         this.sortOrder = this.sortOrders.filter(s => s != this.sortOrder)[0]
       }
-      console.log(this.sortOrder)
+      this.getData()
     },
     applyFieldFilter() {
-      console.log('go')
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
+      this.timer = setTimeout(() => {
+        this.getData()
+      }, 800);
     },
     forceUpdate() {
       this.$forceUpdate()
@@ -336,8 +340,26 @@ export default {
     },
     async getData() {
       this.loading = true
+
+      let sortField = this.sortField ? this.sortField : null
+      let sortOrder = this.sortField ? this.sortOrder : null
+      let filters = null
+
+      if (Object.keys(this.fieldFilters).length != 0) {
+        filters = this.fieldFilters
+      }
+
+      let queryData = {
+        id: this.selectedForm.id,
+        filters: filters,
+        sortField: sortField,
+        sortOrder: sortOrder,
+      }
+
+      console.log(queryData)
+
       await axios
-        .post('/getRequests', { id: this.selectedForm.id })
+        .post('/getRequests', queryData)
         .then((response) => { 
           this.data = response.data
           this.loading = false
@@ -352,7 +374,7 @@ export default {
       this.data.forEach( async (item, i) => {
         const result = await axios.post('/getAnswerByRequestNumber', { requestNumber: item.request_number })
         const answer = result.data
-        console.log(answer)
+        // console.log(answer)
 
         if (answer.length === 0) {
           this.$set(this.data[i], 'status_id', 'new')
@@ -404,10 +426,9 @@ export default {
       let resultValue = row.request_data[this.header[n].id]
       return (resultValue === undefined || resultValue === null)  ? '-' : resultValue 
     },
-    sortData() {
+    updateData() {
       this.loading = true
 
-      // сортировка
 
       this.loading = false
     },

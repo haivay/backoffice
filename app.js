@@ -62,6 +62,7 @@ app.post('/deleteForm',(req) =>{
 })
 
 app.post('/getRequests', async(req, res) => {
+  console.log(req.body)
   const typeId = req.body.id;
   try {
     res.status(200).send(await ut.getRequests(typeId));
