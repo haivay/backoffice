@@ -38,8 +38,12 @@ export async function deleteForm(id) {
   await client.query(query, [id]);
 };
 
-export async function getRequests(typeId) {
-  const query = "SELECT request_data, ts, id, request_number, person_id FROM backoffice.tblformrequest WHERE type_id = $1";
+export async function getRequests(typeId, filterStatement) {
+  const baseQuery = "SELECT id, request_data, ts, request_number, person_id, status_id FROM backoffice.tblformrequest WHERE type_id = $1 JOIN backofiice.tblformanswer ON backoffice.tblformrequest.id = backofiice.tblformanswer.request_id";
+  let query = `SELECT * FROM (${baseQuery}) dq`;
+  if (filterStatement != '') {
+    query = `${query} WHERE ${filterStatement}`;
+  }
   const queryResult = await client.query(query, [typeId]);
   return queryResult.rows
 };

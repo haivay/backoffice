@@ -67,8 +67,17 @@ app.post('/deleteForm', async (req, res) =>{
 
 app.post('/getRequests', async (req, res) => {
   const typeId = req.body.id;
+  const filterParts = [];
+  if(req.body.filters != null){
+    const filters = req.body.filters;
+  for (const field in filters) {
+    filterParts.push(`${field}::text ILIKE '%${filters[field]}%'`);
+  }
+  }
+  const filterStatement = filterParts.join(' AND ');
+  console.log(filterParts);
   try {
-    res.status(200).send(await ut.getRequests(typeId));
+    res.status(200).send(await ut.getRequests(typeId, filterStatement));
   } catch (error) {
     console.log(error);
   };
