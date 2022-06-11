@@ -1,9 +1,5 @@
 import express from 'express';
-import path from 'path'
 import bodyParser from 'body-parser';
-import multer from 'multer';
-import fse from 'fs-extra';
-import fs from 'fs';
 import * as ut from './utils.js';
 
 const app = express()
@@ -28,147 +24,148 @@ app.post('/getForms', async (req, res) => {
   }   
 });
 
-app.post('/getForm', async(req, res) => {
+app.post('/getForm', async (req, res) => {
   const formId = req.body.formId;
   try {
     res.status(200).send(await ut.getForm(formId));
   } catch (error) {
     console.log(error);
-  }
+  };
 });
 
-app.post('/saveForm',(req) =>{
+app.post('/saveForm', async (req, res) =>{
   const formName = req.body.formName;
   const formFields = JSON.stringify(req.body.formFields);
   const staffId = req.body.staffId;
   try {
-    ut.saveForm(formName, formFields, staffId);
+    await ut.saveForm(formName, formFields, staffId);
   } catch (error) {
     console.log(error);
-  } 
+  };
 });
 
-app.post('/updateForm',(req) =>{
+app.post('/updateForm', async (req, res) =>{
   const id = req.body.id;
   const formName = req.body.formName;
   const formFields = JSON.stringify(req.body.formFields);
   const staffId = req.body.staffId;
-  ut.updateForm(id, formName, formFields, staffId);
+  try {
+    await ut.updateForm(id, formName, formFields, staffId);
+  } catch (error) {
+    console.log(error);
+  };
 })
 
-app.post('/deleteForm',(req) =>{
+app.post('/deleteForm', async (req, res) =>{
   const id = req.body.id;
-  ut.deleteForm(id);
+  try {
+    await ut.deleteForm(id);
+  } catch (error) {
+    console.log(error);
+  };
 })
 
-app.post('/getRequests', async(req, res) => {
-  console.log(req.body)
+app.post('/getRequests', async (req, res) => {
   const typeId = req.body.id;
+  const filterParts = [];
+  if(req.body.filters != null){
+    const filters = req.body.filters;
+  for (const field in filters) {
+    filterParts.push(`${field}::text ILIKE '%${filters[field]}%'`);
+  }
+  }
+  const filterStatement = filterParts.join(' AND ');
+  console.log(filterParts);
   try {
-    res.status(200).send(await ut.getRequests(typeId));
+    res.status(200).send(await ut.getRequests(typeId, filterStatement));
   } catch (error) {
     console.log(error);
-  }
+  };
 });
 
-
-
-app.post('/getStaff', async(req, res) => {
-  res.status(200).send(await ut.getStaff());
-})
-
-app.post('/getStaffById', async(req, res) => {
-  staffId = req.body.staffId
-  res.status(200).send(await ut.getStaffById(staffId));
-})
-
-
-
-app.post('/saveRequest',async (req, res) =>{
+app.post('/saveRequest', async (req, res) =>{
   const typeFormId = req.body.id;
   const formData = JSON.parse(req.body.data);
   const personId = req.body.personId;
-  res.status(200).send(await ut.saveRequest(typeFormId, formData, personId));
+  try {
+    res.status(200).send(await ut.saveRequest(typeFormId, formData, personId));
+  } catch (error) {
+    console.log(error);
+  };
 });
 
-app.post('/null', (req) => {
-  if (req.file != undefined) {
-    let metadata = {
-      file_data: {
-        mime: req.file.mimetype,
-        size: req.file.size,
-        is_image: ut.isImageFilter(req.file.mimetype),
-      },
-      file_link: req.file.path,
-      file_name: req.file.filename
-    }
-  
-    if (metadata.file_data.is_image) {
-      let dimensions = {
-        type: ut.getType(metadata.file_data.mime),
-        width: ut.getDimensions(metadata.file_link).width,
-        height: ut.getDimensions(metadata.file_link).height
-      }
-      Object.assign(metadata.file_data, {image_data: dimensions});
-    }
-  
-    // res.json({'metadata': metadata});
-    req.file = metadata
-
-    const typeFormId = req.body.id;
-    const formData = {data: JSON.parse(req.body.data), file: req.file};
-    ut.saveRequest(typeFormId, formData);
-  } else {
-    const typeFormId = req.body.id;
-    const formData = {data: JSON.parse(req.body.data)};
-    const personId = req.body.personId;
-    ut.saveRequest(typeFormId, formData, personId);
-  }
-});
-
-app.post('/deleteRequest',(req) =>{
+app.post('/deleteRequest', async (req, res) =>{
   const id = req.body.id;
-  ut.deleteRequest(id);
-})
+  try {
+    await ut.deleteRequest(id);
+  } catch (error) {
+   console.log(error); 
+  };
+});
+
+app.post('/getStaff', async (req, res) => {
+  try {
+    res.status(200).send(await ut.getStaff());
+  } catch (error) {
+    console.log(error);
+  };
+});
+
+app.post('/getStaffById', async (req, res) => {
+  staffId = req.body.staffId;
+  try {
+    res.status(200).send(await ut.getStaffById(staffId));
+  } catch (error) {
+    console.log(error);
+  };
+});
 
 app.post('/getStatuses', async (req, res) => {
-  res.status(200).send(await ut.getStatuses());
+  try {
+    res.status(200).send(await ut.getStatuses());
+  } catch (error) {
+    console.log(err);
+  };
 });
 
 app.post('/getCategories', async (req, res) => {
-  res.status(200).send(await ut.getCategories());
+  try {
+    res.status(200).send(await ut.getCategories());
+  } catch (error) {
+    console.log(err);
+  };
 });
 
 app.post('/getPriorities', async (req, res) => {
-  res.status(200).send(await ut.getPriorities());
+  try {
+    res.status(200).send(await ut.getPriorities());
+  } catch (error) {
+    console.log(err);
+  };
 });
 
-app.post('/saveAnswer',(req) =>{
+app.post('/saveAnswer', async (req, res) =>{
   const status_id = req.body.status_id;
   const category_id = req.body.category_id;
   const priority_id = req.body.priority_id;
   const answer = req.body.answer;
   const request_id = req.body.request_id;
-  ut.saveAnswer(status_id, category_id, priority_id, answer, request_id);
+  try {
+    await ut.saveAnswer(status_id, category_id, priority_id, answer, request_id);
+  } catch (error) {
+    console.log(error);
+  };
 });
-
-
-// app.post('/getRequestIdByRequestNumber',(req, res) =>{
-//   const requestNumber = req.body.requestNumber;
-//   res.status(200).send(await ut.getRequestIdByRequestNumber(requestNumber));
-// });
 
 app.post('/getAnswerByRequestNumber', async (req, res) =>{
   const requestNumber = req.body.requestNumber;
-  res.status(200).send(await ut.getAnswerByRequestNumber(requestNumber));
+  try {
+    res.status(200).send(await ut.getAnswerByRequestNumber(requestNumber));
+  } catch (error) {
+    console.log(error);
+  };
 });
-
-app.post('/getRequestNumber', async (req, res) =>{
-  const personId = req.body.personId;
-  res.status(200).send(await ut.getRequestNumber(personId));
-})
-
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
-})
+});
