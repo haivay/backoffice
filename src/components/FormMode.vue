@@ -17,7 +17,7 @@
               >
                 <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
                 <input 
-                  :type="field.dataType" 
+                  :type="field.dataType.id" 
                   :id="field.fieldType + index.toString()"
                   :placeholder="field.placeholder"
                   class="form-control"
@@ -53,19 +53,19 @@
                 class="form-group"
               >
                 <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                <div id="form-selector2">
+                <div :id="field.fieldType + index.toString()" :class="errors[index] ? 'is-invalid-select is-invalid' : ''">
                   <v-selectize 
                     :placeholder="field.placeholder"
                     :options="field.options" 
+                    :class="errors[index] ? 'is-invalid' : ''"
                     :create-item="maybeCreate(field)"
                     :multiple="field.isMultiple"
-                    :class="errors[index] ? 'is-invalid' : ''"
                     :invalid="errors[index]"
                     v-model="field.value[0]" 
                   /> 
-                  <p v-if="errors[index]" class="invalid-feedback">
+                  <!-- <p v-if="errors[index]" class="invalid-feedback">
                     Обязательное поле
-                  </p>
+                  </p> -->
                 </div>
                 <p v-if="errors[index]" class="invalid-feedback">
                   Обязательное поле
@@ -354,4 +354,8 @@ export default {
     transform: translateX(50px);
     opacity: 0;
   } 
+  .is-invalid-select {
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+  }
 </style>
