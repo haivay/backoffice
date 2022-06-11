@@ -262,9 +262,9 @@ export default {
     },
     statusFilter() {
       if (this.statusFilter) {
-        this.fieldFilters['a.status_id'] = this.statusFilter.id
+        this.fieldFilters['status_id'] = this.statusFilter.id
       } else {
-        this.fieldFilters['a.status_id'] = null
+        this.fieldFilters['status_id'] = null
       }
       this.getData()
     },

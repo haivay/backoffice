@@ -39,9 +39,10 @@ export async function deleteForm(id) {
 };
 
 export async function getRequests(typeId, filterStatement) {
-  const baseQuery = "SELECT id, request_data, ts, request_number, person_id, status_id FROM backoffice.tblformrequest WHERE type_id = $1 JOIN backofiice.tblformanswer ON backoffice.tblformrequest.id = backofiice.tblformanswer.request_id";
+  const baseQuery = "SELECT r.id, r.request_data, r.ts, r.request_number, r.person_id, a.status_id FROM backoffice.tblformrequest as r JOIN backoffice.tblformanswer as a ON r.id = a.request_id WHERE r.type_id = $1";
   let query = `SELECT * FROM (${baseQuery}) dq`;
   if (filterStatement != '') {
+    filterStatement = 'dq.' + filterStatement;
     query = `${query} WHERE ${filterStatement}`;
   }
   const queryResult = await client.query(query, [typeId]);
