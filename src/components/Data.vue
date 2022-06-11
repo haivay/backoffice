@@ -262,25 +262,25 @@ export default {
     },
     statusFilter() {
       if (this.statusFilter) {
-        this.fieldFilters['status_id'] = this.statusFilter.id
+        this.fieldFilters['a.status_id'] = this.statusFilter.id
       } else {
-        this.fieldFilters['status_id'] = null
+        this.fieldFilters['a.status_id'] = null
       }
       this.getData()
     },
     categoryFilter() {
       if (this.categoryFilter) {
-        this.fieldFilters['category_id'] = this.categoryFilter.id
+        this.fieldFilters['a.category_id'] = this.categoryFilter.id
       } else {
-        this.fieldFilters['category_id'] = null
+        this.fieldFilters['a.category_id'] = null
       }
       this.getData()
     },
     priorityFilter() {
       if (this.priorityFilter) {
-        this.fieldFilters['priority_id'] = this.priorityFilter.id
+        this.fieldFilters['a.priority_id'] = this.priorityFilter.id
       } else {
-        this.fieldFilters['priority_id'] = null
+        this.fieldFilters['a.priority_id'] = null
       }
       this.getData()
     },
