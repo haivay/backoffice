@@ -363,34 +363,36 @@ export default {
         .then((response) => { 
           this.data = response.data
           this.loading = false
-          this.addAnswerToData() 
+          // this.addAnswerToData() 
         })
     },
     getMaxCellsCount() {
       this.maxCellsCount = this.header.length;
       return this.maxCellsCount;
     },
-    async addAnswerToData() {
-      this.data.forEach( async (item, i) => {
-        const result = await axios.post('/getAnswerByRequestNumber', { requestNumber: item.request_number })
-        const answer = result.data
-        // console.log(answer)
+    // async addAnswerToData() {
+    //   this.data.forEach( async (item, i) => {
+    //     const result = await axios.post('/getAnswerByRequestNumber', { requestNumber: item.request_number })
+    //     const answer = result.data
+    //     console.log(answer)
 
-        if (answer.length === 0) {
-          this.$set(this.data[i], 'status_id', 'new')
-          this.$set(this.data[i], 'category_id', '-')
-          this.$set(this.data[i], 'priority_id', '-')
-        } else {
-          this.$set(this.data[i], 'status_id', answer[0].status_id)
-          this.$set(this.data[i], 'category_id', answer[0].category_id)
-          this.$set(this.data[i], 'priority_id', answer[0].priority_id)
-        }
+    //     if (answer.length === 0) {
+    //       this.$set(this.data[i], 'status_id', 'new')
+    //       this.$set(this.data[i], 'category_id', '-')
+    //       this.$set(this.data[i], 'priority_id', '-')
+    //       this.$set(this.data[i], 'change_time', '-')
+    //     } else {
+    //       this.$set(this.data[i], 'status_id', answer[0].status_id)
+    //       this.$set(this.data[i], 'category_id', answer[0].category_id)
+    //       this.$set(this.data[i], 'priority_id', answer[0].priority_id)
+    //       this.$set(this.data[i], 'change_time', answer[0].change_time)
+    //     }
 
-        if (i === this.data.length - 1) {
-          this.loading = false
-        }
-      })
-    },
+    //     if (i === this.data.length - 1) {
+    //       this.loading = false
+    //     }
+    //   })
+    // },
     getColorForTableRow(row) {
       return {
         'table-info': row.status_id === 'accepted',

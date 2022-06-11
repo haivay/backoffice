@@ -1,5 +1,4 @@
 import pkg from 'pg';
-import imageSize from "image-size";
 const { Client } = pkg;
 
 const bdParams = {
@@ -39,7 +38,22 @@ export async function deleteForm(id) {
 };
 
 export async function getRequests(typeId, filterStatement) {
-  const baseQuery = "SELECT r.id, r.request_data, r.ts, r.request_number, r.person_id, a.status_id FROM backoffice.tblformrequest as r JOIN backoffice.tblformanswer as a ON r.id = a.request_id WHERE r.type_id = $1";
+  // const baseQuery = "SELECT \
+  //                     r.id, \
+  //                     r.request_data, \
+  //                     r.ts, \
+  //                     r.request_number, \
+  //                     r.person_id, \
+  //                     a.status_id \
+  //                   FROM backoffice.tblformrequest as r \
+  //                   JOIN backoffice.tblformanswer as a \
+  //                   ON r.id = a.request_id WHERE r.type_id = $1";
+  const baseQuery = "SELECT r.id, r.request_data, r.ts, r.request_number, r.person_id, a.status_id, a.category_id, a.priority_id \
+                    FROM backoffice.tblformrequest as r \
+                    JOIN (SELECT DISTINCT ON (request_id) * \
+                          FROM (SELECT * FROM tblformanswer ORDER BY change_time DESC) as sorted_answers \
+                          ORDER BY request_id, change_time DESC) as a \
+                    ON r.id = a.request_id WHERE r.type_id = $1"
   let query = `SELECT * FROM (${baseQuery}) dq`;
   if (filterStatement != '') {
     filterStatement = 'dq.' + filterStatement;
