@@ -106,17 +106,26 @@
 <script>
 import axios from 'axios'
 export default {
-  name: 'ModalDelete',
+  name: 'ModalAnswer',
   props: {
+    requestId: {
+      type: String
+    },
     requestNumber: {
       type: String,
       default: '' 
     },
     requestData: {
-      type: Array,
+      type: Array
     },
-    requestId: {
-      type: String,
+    requestStatus: {
+      type: String
+    },
+    requestCategory: {
+      type: String
+    },
+    requestPriority: {
+      type: String
     },
     statuses: {
       type: Array
@@ -146,7 +155,7 @@ export default {
     }
   },
   mounted() {
-    this.getLastAnswer();
+    // this.getLastAnswer();
     this.$forceUpdate()
   },
   methods: {

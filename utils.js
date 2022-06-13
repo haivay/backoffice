@@ -38,22 +38,14 @@ export async function deleteForm(id) {
 };
 
 export async function getRequests(typeId, filterStatement) {
-  // const baseQuery = "SELECT \
-  //                     r.id, \
-  //                     r.request_data, \
-  //                     r.ts, \
-  //                     r.request_number, \
-  //                     r.person_id, \
-  //                     a.status_id \
-  //                   FROM backoffice.tblformrequest as r \
-  //                   JOIN backoffice.tblformanswer as a \
-  //                   ON r.id = a.request_id WHERE r.type_id = $1";
-  const baseQuery = "SELECT r.id, r.request_data, r.ts, r.request_number, r.person_id, a.status_id, a.category_id, a.priority_id \
-                    FROM backoffice.tblformrequest as r \
-                    JOIN (SELECT DISTINCT ON (request_id) * \
-                          FROM (SELECT * FROM tblformanswer ORDER BY change_time DESC) as sorted_answers \
-                          ORDER BY request_id, change_time DESC) as a \
-                    ON r.id = a.request_id WHERE r.type_id = $1"
+  // const baseQuery = "SELECT r.id, r.request_data, r.request_number, r.person_id, a.status_id FROM backoffice.tblformrequest as r JOIN backoffice.tblformanswer as a ON r.id = a.request_id WHERE r.type_id = $1";
+
+  const baseQuery = "SELECT r.id, r.request_data, r.ts, r.request_number, r.category_id, r.priority_id, a.change_time, a.answer, a.request_id, a.status_id \
+                     FROM backoffice.tblformrequest as r \
+                     LEFT JOIN backoffice.tblformanswer as a ON r.id = a.request_id \
+                     WHERE ((a.request_id, a.change_time) IN \
+                     (SELECT request_id, max(change_time) FROM backoffice.tblformanswer GROUP BY request_id) \
+                     OR a.request_id is null) AND type_id = $1"
   let query = `SELECT * FROM (${baseQuery}) dq`;
   if (filterStatement != '') {
     filterStatement = 'dq.' + filterStatement;
@@ -104,10 +96,17 @@ export async function getPriorities() {
   return queryResult.rows;
 };
 
+// export async function saveAnswer(status_id, category_id, priority_id, answer, request_id) {
+//   const query = "INSERT INTO backoffice.tblformanswer(status_id, change_time, answer, request_id) VALUES ($1, $2, $3, $4)";
+//   await client.query(query, [status_id, "now", answer, request_id]);
+// };
+
 export async function saveAnswer(status_id, category_id, priority_id, answer, request_id) {
-  const query = "INSERT INTO backoffice.tblformanswer(status_id, category_id, priority_id, change_time, answer, request_id) VALUES ($1, $2, $3, $4, $5, $6)";
-  await client.query(query, [status_id, category_id, priority_id, "now", answer, request_id]);
-};
+  const query1 = "INSERT INTO backoffice.tblformanswer(status_id, change_time, answer, request_id) VALUES ($1, $2, $3, $4)";
+  const query2 = "UPDATE backoffice.tblformrequest SET category_id = $2, priority_id = $3 WHERE id = $1;";
+  await client.query(query1, [status_id, "now", answer, request_id]);
+  await client.query(query2, [request_id, category_id, priority_id]);
+}; 
 
 export async function getAnswerByRequestNumber(requestNumber) {
   const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformanswer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";

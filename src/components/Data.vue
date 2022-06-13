@@ -2,16 +2,26 @@
   <div class="data">
     <div class="container-fluid main-content-wrapper">
       <h2>{{ title }}</h2>
-      <div>
+      <div class="form-selector-panel">
         <label for="form-selector_label">Форма:</label>
-        <div class="form-selector">
-          <v-selectize
-            :options="formsByStaffId" 
-            v-model="selectedForm"
-            placeholder="Выберите форму"
-            label="type_name"
-            :keys="['id', 'type_name']"
-          />
+        <div class="d-flex flex-row">
+          <div class="form-selector flex-fill">
+            <v-selectize
+              :options="formsByStaffId" 
+              v-model="selectedForm"
+              placeholder="Выберите форму"
+              label="type_name"
+              :keys="['id', 'type_name']"
+            />
+          </div>
+          <button 
+            class="btn btn-sm btn-refresh ml-2" 
+            style="height: 36px; border-color: #b8b8b8; background-color: #f9f9f9;"
+            @click="resetFilters()"
+            :disabled="!isFormSelected"
+          >
+            <font-awesome-icon :icon="['fas', 'retweet']" class="icon alt"/>
+          </button>
         </div>
       </div>
       <div 
@@ -26,173 +36,194 @@
           <span class="sr-only">Загрузка...</span>
         </div>
       </div>
-      <table v-if="isFormSelected && !loading" class="table table-hover">
-        <thead class="thead-dark">
-          <tr>
-            <td 
-              class="th-label"
-              style="width: 100px"
-            >
-              <div class="sort-link" @click="toggleSortField('request_number')">
-                №
-                <span v-if="sortField === 'request_number'">
-                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
-                </span>
-              </div>
-              <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters['request_number']" @keyup="applyFieldFilter">
-            </td>
-            <td 
-              class="th-label"
-              style="width: 150px"
-            >
-              <div class="sort-link" @click="toggleSortField('status_id')">
-                Статус
-                <span v-if="sortField === 'status_id'">
-                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
-                </span>
-              </div>
-              <v-selectize
-                v-if="isFilterOn"
-                :options="modalStatuses" 
-                v-model="statusFilter"
-                placeholder="Выберите статус"
-                :theme="'w-100'"
-                style="width: 200px;"
-                label="status"
-                :keys="['id', 'status']"
-              />
-              <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
-            </td>
-            <td 
-              class="th-label"
-              style="width: 150px"
-            >
-              <div class="sort-link" @click="toggleSortField('category_id')">
-                Категория
-                <span v-if="sortField === 'category_id'">
-                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
-                </span>
-              </div>
-              <v-selectize
-                v-if="isFilterOn"
-                :options="modalCategories" 
-                v-model="categoryFilter"
-                placeholder="Выберите категорию"
-                :theme="'w-100'"
-                style="width: 200px;"
-                label="category"
-                :keys="['id', 'category']"
-              />
-              <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
-            </td>
-            <td 
-              class="th-label"
-              style="width: 150px"
-            >
-              <div class="sort-link" @click="toggleSortField('priority_id')">
-                Приоритет
-                <span v-if="sortField === 'priority_id'">
-                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
-                </span>
-              </div>
-              <v-selectize
-                v-if="isFilterOn"
-                :options="modalPriorities" 
-                v-model="priorityFilter"
-                placeholder="Выберите приоритет"
-                :theme="'w-100'"
-                style="width: 200px;"
-                label="priority"
-                :keys="['id', 'priority']"
-              />
-              <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
-            </td>
-            <td 
-              class="th-label"
-              style="width: 130px"
-            >
-              <div class="sort-link" @click="toggleSortField('ts')">
-                Дата подачи
-                <span v-if="sortField === 'ts'">
-                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
-                </span>
-              </div>
-              <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters['ts']" @keyup="applyFieldFilter">
-            </td>
-            <td 
-              v-for="(value, name, index) in this.header"
-              :key="index"
-              class="th-label"
-              style="width: 100px"
-            >
-              <div class="sort-link" @click="toggleSortField(value.id)">
-                {{ value.label }}
-                <span v-if="sortField === value.id">
-                  <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
-                </span>
-              </div>
-              <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters[value.id]" @keyup="applyFieldFilter">
-            </td>
-            <td>
-              <button 
-                @click="isFilterOn = !isFilterOn"
-                type="button" 
-                class="btn btn-light btn-sm"
+      <div 
+        v-if="isFormSelected && data.length === 0 && !loading"
+        class="alert alert-info mt-3" 
+        role="alert"
+      >
+        Заявок пока не поступило...
+      </div>
+      <div v-if="isFormSelected && data.length != 0 && !loading" class="table-and-nav">
+        <table v-if="isFormSelected && !loading" class="table table-hover">
+          <thead class="thead-dark">
+            <tr>
+              <td 
+                class="th-label"
+                style="width: 100px"
               >
-                <font-awesome-icon :icon="['fas', 'filter']" class="icon alt"/>
-                Фильтрация
-              </button>
-            </td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="(row, indexRow) in data"
-            :key="indexRow"
-            :class="getColorForTableRow(row)"
-          >
-            <th scope="row" class="border-right text-center">{{ row.request_number || '-' }}</th>
-            <td>{{ getStatusById(row.status_id) }}</td>
-            <td>{{ getCategoryById(row.category_id) }}</td>
-            <td>{{ getPriorityById(row.priority_id) }}</td>
-            <td>{{ getDateFromISO(row.ts) }}</td>
-            <td
-              v-for="n in getMaxCellsCount()"
-              :key="n"
-            >
-              {{ getValue(row, n-1) }}
-            </td>
-            <td class="w100">
-              <button 
-                @click="showModalAnswer(indexRow)"
-                type="button" 
-                class="btn btn-light btn-sm"
+                <div class="sort-link" @click="toggleSortField('request_number')">
+                  №
+                  <span v-if="sortField === 'request_number'">
+                    <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                  </span>
+                </div>
+                <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters['request_number']" @keyup="applyFieldFilter">
+              </td>
+              <td 
+                class="th-label"
+                style="width: 150px"
               >
-                Открыть
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <nav v-if="isFormSelected && !loading">
-        <ul class="pagination justify-content-center">
-          <li class="page-item disabled">
-            <a class="page-link">Предыдущая</a>
-          </li>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item">
-            <a class="page-link" href="#">Следующая</a>
-          </li>
-        </ul>
-      </nav>
+                <div class="sort-link" @click="toggleSortField('status_id')">
+                  Статус
+                  <span v-if="sortField === 'status_id'">
+                    <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                  </span>
+                </div>
+                <v-selectize
+                  v-if="isFilterOn"
+                  :options="modalStatuses" 
+                  v-model="statusFilter"
+                  placeholder="Выберите статус"
+                  :theme="'w-100'"
+                  style="width: 200px;"
+                  label="status"
+                  :keys="['id', 'status']"
+                />
+                <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
+              </td>
+              <td 
+                class="th-label"
+                style="width: 150px"
+              >
+                <div class="sort-link" @click="toggleSortField('category_id')">
+                  Категория
+                  <span v-if="sortField === 'category_id'">
+                    <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                  </span>
+                </div>
+                <v-selectize
+                  v-if="isFilterOn"
+                  :options="modalCategories" 
+                  v-model="categoryFilter"
+                  placeholder="Выберите категорию"
+                  :theme="'w-100'"
+                  style="width: 200px;"
+                  label="category"
+                  :keys="['id', 'category']"
+                />
+                <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
+              </td>
+              <td 
+                class="th-label"
+                style="width: 150px"
+              >
+                <div class="sort-link" @click="toggleSortField('priority_id')">
+                  Приоритет
+                  <span v-if="sortField === 'priority_id'">
+                    <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                  </span>
+                </div>
+                <v-selectize
+                  v-if="isFilterOn"
+                  :options="modalPriorities" 
+                  v-model="priorityFilter"
+                  placeholder="Выберите приоритет"
+                  :theme="'w-100'"
+                  style="width: 200px;"
+                  label="priority"
+                  :keys="['id', 'priority']"
+                />
+                <input v-if="isFilterOn" class="form-control form-control-sm invisible" @keyup="applyFieldFilter" style="height: 0">
+              </td>
+              <td 
+                class="th-label"
+                style="width: 130px"
+              >
+                <div class="sort-link" @click="toggleSortField('ts')">
+                  Дата подачи
+                  <span v-if="sortField === 'ts'">
+                    <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                  </span>
+                </div>
+                <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters['ts']" @keyup="applyFieldFilter">
+              </td>
+              <td 
+                v-for="(value, name, index) in this.header"
+                :key="index"
+                class="th-label"
+                style="width: 100px"
+              >
+                <div class="sort-link" @click="toggleSortField(value.id)">
+                  {{ value.label }}
+                  <span v-if="sortField === value.id">
+                    <font-awesome-icon :icon="sortOrder === 'ASC' ? ['fas', 'sort-down'] : ['fas', 'sort-up']" class="icon alt"/>
+                  </span>
+                </div>
+                <input v-if="isFilterOn" class="form-control form-control-sm" v-model="fieldFilters[value.id]" @keyup="applyFieldFilter">
+              </td>
+              <td>
+                <button 
+                  v-if="!isFilterOn"
+                  @click="isFilterOn = !isFilterOn"
+                  type="button" 
+                  class="btn btn-light btn-sm"
+                >
+                  <font-awesome-icon :icon="['fas', 'filter']" class="icon alt"/>
+                  Фильтрация
+                </button>
+                <button 
+                  v-if="isFilterOn"
+                  @click="resetFilters()"
+                  type="button" 
+                  class="btn btn-light btn-sm mt-1"
+                >
+                  Очистить фильтры
+                </button>
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(row, indexRow) in data"
+              :key="indexRow"
+              :class="getColorForTableRow(row)"
+            >
+              <th scope="row" class="border-right text-center">{{ row.request_number || '-' }}</th>
+              <td>{{ getStatusById(row.status_id) }}</td>
+              <td>{{ getCategoryById(row.category_id) }}</td>
+              <td>{{ getPriorityById(row.priority_id) }}</td>
+              <td>{{ getDateFromISO(row.ts) }}</td>
+              <td
+                v-for="n in getMaxCellsCount()"
+                :key="n"
+              >
+                {{ getValue(row, n-1) }}
+              </td>
+              <td class="w100">
+                <button 
+                  @click="showModalAnswer(indexRow)"
+                  type="button" 
+                  class="btn btn-light btn-sm"
+                >
+                  Открыть
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <nav v-if="isFormSelected && !loading">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link">Предыдущая</a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#">Следующая</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
       <transition name="fade">
         <ModalAnswer 
           v-if="isModalAnswerOpen"
           :requestNumber="modalRequestNumber"
           :requestData="modalData"
           :requestId="modalRequestId"
+          :requestStatus="modalStatus"
+          :requestCategory="modalCategory"
+          :requestPriority="modalPriority"
           :statuses="modalStatuses"
           :categories="modalCategories"
           :priorities="modalPriorities"
@@ -237,9 +268,13 @@ export default {
       isFile: false,
       currentStaffId: 'eda81559-403b-46c8-9afd-35e93fbef1cc', // моковый id сотрудника
       isModalAnswerOpen: false,
-      modalTitle: '',
-      modalData: [],
+      requestColors: ['table-light', 'table-info', 'table-primary', 'table-success', 'table-danger', 'table-dark'],
       modalRequestId: '',
+      modalData: [],
+      modalRequestNumber: '',
+      modalStatus: null,
+      modalCategory: null,
+      modalPriority: null,
       modalStatuses: [],
       modalCategories: [],
       modalPriorities: [],
@@ -248,6 +283,7 @@ export default {
   watch: {
     "selectedForm"() {
       this.loading = true
+      this.resetFilters()
       if (this.selectedForm === null) {
         this.isFormSelected = false
         return
@@ -264,23 +300,23 @@ export default {
       if (this.statusFilter) {
         this.fieldFilters['status_id'] = this.statusFilter.id
       } else {
-        this.fieldFilters['status_id'] = null
+        delete this.fieldFilters['status_id']
       }
       this.getData()
     },
     categoryFilter() {
       if (this.categoryFilter) {
-        this.fieldFilters['a.category_id'] = this.categoryFilter.id
+        this.fieldFilters['category_id'] = this.categoryFilter.id
       } else {
-        this.fieldFilters['a.category_id'] = null
+        delete this.fieldFilters['category_id']
       }
       this.getData()
     },
     priorityFilter() {
       if (this.priorityFilter) {
-        this.fieldFilters['a.priority_id'] = this.priorityFilter.id
+        this.fieldFilters['priority_id'] = this.priorityFilter.id
       } else {
-        this.fieldFilters['a.priority_id'] = null
+        delete this.fieldFilters['priority_id']
       }
       this.getData()
     },
@@ -308,11 +344,19 @@ export default {
         this.timer = null;
       }
       this.timer = setTimeout(() => {
-        this.getData()
+        // this.getData()
+        console.log(this.fieldFilters)
       }, 800);
     },
-    forceUpdate() {
-      this.$forceUpdate()
+    resetFilters() {
+      this.filterBy = ''
+      this.filterRule = ''
+      this.fieldFilters = {}
+      this.statusFilter = {}
+      this.categoryFilter = {}
+      this.priorityFilter = {}
+      this.isFilterOn = false
+      this.getData()
     },
     getForms() {
       axios
@@ -320,7 +364,7 @@ export default {
         .then((response) => {
           this.forms = JSON.parse(JSON.stringify(response.data));
           this.formsByStaffId = this.forms.filter(form => form.staff_id?.includes(this.currentStaffId))
-          this.forceUpdate();
+          this.$forceUpdate();
       });
     },
     getStatuses() {
@@ -344,19 +388,26 @@ export default {
       let sortField = this.sortField ? this.sortField : null
       let sortOrder = this.sortField ? this.sortOrder : null
       let filters = null
+      let filtersJSON = null
 
       if (Object.keys(this.fieldFilters).length != 0) {
-        filters = this.fieldFilters
+        for (let field in this.fieldFilters) {
+          if (field == 'request_number' || field == 'status_id' || field == 'category_id' || field == 'priority_id' || field == 'ts') {
+            filters[field] = this.fieldFilters[field]
+          } else {
+            filtersJSON[field] = this.fieldFilters[field]
+          }
+        }
       }
+
 
       let queryData = {
         id: this.selectedForm.id,
         filters: filters,
+        filtersJSON: filtersJSON,
         sortField: sortField,
         sortOrder: sortOrder,
       }
-
-      console.log(queryData)
 
       await axios
         .post('/getRequests', queryData)
@@ -370,53 +421,26 @@ export default {
       this.maxCellsCount = this.header.length;
       return this.maxCellsCount;
     },
-    // async addAnswerToData() {
-    //   this.data.forEach( async (item, i) => {
-    //     const result = await axios.post('/getAnswerByRequestNumber', { requestNumber: item.request_number })
-    //     const answer = result.data
-    //     console.log(answer)
-
-    //     if (answer.length === 0) {
-    //       this.$set(this.data[i], 'status_id', 'new')
-    //       this.$set(this.data[i], 'category_id', '-')
-    //       this.$set(this.data[i], 'priority_id', '-')
-    //       this.$set(this.data[i], 'change_time', '-')
-    //     } else {
-    //       this.$set(this.data[i], 'status_id', answer[0].status_id)
-    //       this.$set(this.data[i], 'category_id', answer[0].category_id)
-    //       this.$set(this.data[i], 'priority_id', answer[0].priority_id)
-    //       this.$set(this.data[i], 'change_time', answer[0].change_time)
-    //     }
-
-    //     if (i === this.data.length - 1) {
-    //       this.loading = false
-    //     }
-    //   })
-    // },
     getColorForTableRow(row) {
-      return {
-        'table-info': row.status_id === 'accepted',
-        'table-success': row.status_id === 'processed',
-        'table-danger': row.status_id === 'rejected',
-        'table-primary': row.status_id === 'inProcess',
-        'table-light': row.status_id === 'new',
-        'table-dark': row.status_id === 'closed'
-      }
+      console.log(`row ${row}`)
+      // console.log(this.modalStatuses.findIndex(status => status.id == row.status.id))
+      // return {
+      //   'table-info': row.status_id === 'accepted',
+      //   'table-success': row.status_id === 'processed',
+      //   'table-danger': row.status_id === 'rejected',
+      //   'table-primary': row.status_id === 'inProcess',
+      //   'table-light': row.status_id === 'new',
+      //   'table-dark': row.status_id === 'closed'
+      // }
     },
     getStatusById(id) {
-      if (id) {
-        return id === 'new' ? 'Новая' : this.modalStatuses.filter(s => s.id === id)[0].status
-      }
+      return id === null ? '-' : this.modalStatuses.filter(s => s.id === id)[0].status
     },
     getCategoryById(id) {
-      if (id) {
-        return id === '-' ? id : this.modalCategories.filter(c => c.id === id)[0].category
-      }
+      return id === null ? '-' : this.modalCategories.filter(c => c.id === id)[0].category
     },
     getPriorityById(id) {
-      if (id) {
-        return id === '-' ? id : this.modalPriorities.filter(p => p.id === id)[0].priority
-      }
+      return id === null ? '-' : this.modalPriorities.filter(p => p.id === id)[0].priority
     },
     getDateFromISO(dateIso) {
       let someDate = new Date(dateIso);
@@ -428,15 +452,12 @@ export default {
       let resultValue = row.request_data[this.header[n].id]
       return (resultValue === undefined || resultValue === null)  ? '-' : resultValue 
     },
-    updateData() {
-      this.loading = true
-
-
-      this.loading = false
-    },
     showModalAnswer(indexRow) {
+      this.modalRequestId = this.data[indexRow].id
       this.modalRequestNumber = this.data[indexRow].request_number
-      this.modalRequestId = this.data[indexRow].id;
+      this.modalStatus = this.data[indexRow].status_id
+      this.modalCategory = this.data[indexRow].category_id
+      this.modalPriority = this.data[indexRow].priority_id
       this.modalData = []
       let label = ''
       let value = ''
@@ -456,15 +477,6 @@ export default {
       })
 
       this.isModalAnswerOpen = true
-    },
-    convertValue(data) {
-      if (Array.isArray(data.value)) {
-        return data.value.join(', ')
-      }
-      if (data.fieldType === 'date') {
-        return data.value.split('-').reverse().join('.')
-      }
-      return data.value
     },
     downloadFile(index) {
       const file = this.data[index].request_data.file

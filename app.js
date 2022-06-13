@@ -124,7 +124,7 @@ app.post('/getStatuses', async (req, res) => {
   try {
     res.status(200).send(await ut.getStatuses());
   } catch (error) {
-    console.log(err);
+    console.log(error);
   };
 });
 
@@ -132,7 +132,7 @@ app.post('/getCategories', async (req, res) => {
   try {
     res.status(200).send(await ut.getCategories());
   } catch (error) {
-    console.log(err);
+    console.log(error);
   };
 });
 
@@ -140,7 +140,7 @@ app.post('/getPriorities', async (req, res) => {
   try {
     res.status(200).send(await ut.getPriorities());
   } catch (error) {
-    console.log(err);
+    console.log(error);
   };
 });
 

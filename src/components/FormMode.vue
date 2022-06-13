@@ -62,10 +62,7 @@
                     :multiple="field.isMultiple"
                     :invalid="errors[index]"
                     v-model="field.value[0]" 
-                  /> 
-                  <!-- <p v-if="errors[index]" class="invalid-feedback">
-                    Обязательное поле
-                  </p> -->
+                  />
                 </div>
                 <p v-if="errors[index]" class="invalid-feedback">
                   Обязательное поле
@@ -261,27 +258,31 @@ export default {
         data[field.id] = value
       }
 
-      let formData = new FormData();
-      formData.append('id', this.form.id)
-      formData.append('data', JSON.stringify(data))
-      formData.append('personId', 'eda81559-403b-46c8-9afd-35e93fbef1cc')
-      if (this.file != '') {
-        formData.append('file', this.file);
+      // let formData = new FormData();
+      // formData.append('id', this.form.id)
+      // formData.append('data', JSON.stringify(data))
+      // formData.append('personId', 'eda81559-403b-46c8-9afd-35e93fbef1cc')
+      // if (this.file != '') {
+      //   formData.append('file', this.file);
+      // }
+
+      let formData = {
+        id: this.form.id,
+        data: JSON.stringify(data),
+        personId: 'eda81559-403b-46c8-9afd-35e93fbef1cc'
       }
 
-      axios.post('/saveRequest', formData, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-        }
-      }).then((response) => {
-        this.requestNumber = response.data.request_number
-        this.file = ''
-      }).catch((err) => {
-        console.error(err)
-      });
+      axios
+        .post('/saveRequest', formData)
+        .then((response) => {
+          this.requestNumber = response.data.request_number
+          this.file = ''
+        })
+        .catch((err) => {
+          console.error(err)
+        });
 
-      // this.clearForm()
+      this.clearForm()
       this.isModalSuccessSendDataOpen = true;
     },
     clearForm() {
