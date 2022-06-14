@@ -428,16 +428,9 @@ export default {
       return this.maxCellsCount;
     },
     getColorForTableRow(row) {
-      console.log(`row ${row}`)
-      // console.log(this.modalStatuses.findIndex(status => status.id == row.status.id))
-      // return {
-      //   'table-info': row.status_id === 'accepted',
-      //   'table-success': row.status_id === 'processed',
-      //   'table-danger': row.status_id === 'rejected',
-      //   'table-primary': row.status_id === 'inProcess',
-      //   'table-light': row.status_id === 'new',
-      //   'table-dark': row.status_id === 'closed'
-      // }
+      let index = this.modalStatuses.findIndex(status => status.id == row.status_id)
+      let color = this.requestColors[index]
+      return color
     },
     getStatusById(id) {
       return id === null ? '-' : this.modalStatuses.filter(s => s.id === id)[0].status
