@@ -250,9 +250,9 @@ export default {
       filterBy: '',
       filterRule: '',
       fieldFilters: {},
-      statusFilter: {},
-      categoryFilter: {},
-      priorityFilter: {},
+      statusFilter: null,
+      categoryFilter: null,
+      priorityFilter: null,
       sortField: '',
       sortOrder: '',
       sortOrders: ['ASC', 'DESC'],
@@ -283,7 +283,6 @@ export default {
   watch: {
     "selectedForm"() {
       this.loading = true
-      this.resetFilters()
       if (this.selectedForm === null) {
         this.isFormSelected = false
         return
@@ -292,33 +291,37 @@ export default {
         this.isFormSelected = true
         this.data = []
         this.header = this.selectedForm.document_fields;
-        this.getData();
+        this.resetFilters()
         return
       }
     },
     statusFilter() {
-      if (this.statusFilter) {
+      console.log('статус фильтр')
+      if (Object.keys(this.statusFilter).length != 0) {
         this.fieldFilters['status_id'] = this.statusFilter.id
       } else {
         delete this.fieldFilters['status_id']
       }
-      this.getData()
+      // this.getData()
+      this.applyFieldFilter()
     },
     categoryFilter() {
-      if (this.categoryFilter) {
+      if (Object.keys(this.categoryFilter).length != 0) {
         this.fieldFilters['category_id'] = this.categoryFilter.id
       } else {
         delete this.fieldFilters['category_id']
       }
-      this.getData()
+      // this.getData()
+      this.applyFieldFilter()
     },
     priorityFilter() {
-      if (this.priorityFilter) {
+      if (Object.keys(this.priorityFilter).length != 0) {
         this.fieldFilters['priority_id'] = this.priorityFilter.id
       } else {
         delete this.fieldFilters['priority_id']
       }
-      this.getData()
+      // this.getData()
+      this.applyFieldFilter()
     },
   },
   mounted() {
@@ -344,8 +347,8 @@ export default {
         this.timer = null;
       }
       this.timer = setTimeout(() => {
-        // this.getData()
-        console.log(this.fieldFilters)
+        this.getData()
+        // console.log(this.fieldFilters)
       }, 800);
     },
     resetFilters() {
@@ -356,7 +359,7 @@ export default {
       this.categoryFilter = {}
       this.priorityFilter = {}
       this.isFilterOn = false
-      this.getData()
+      // this.getData()
     },
     getForms() {
       axios
@@ -383,14 +386,16 @@ export default {
         .then(response => this.modalPriorities = response.data)
     },
     async getData() {
+      console.log('getData')
       this.loading = true
 
       let sortField = this.sortField ? this.sortField : null
       let sortOrder = this.sortField ? this.sortOrder : null
-      let filters = null
-      let filtersJSON = null
+      let filters = {}
+      let filtersJSON = {}
 
       if (Object.keys(this.fieldFilters).length != 0) {
+        console.log(this.fieldFilters)
         for (let field in this.fieldFilters) {
           if (field == 'request_number' || field == 'status_id' || field == 'category_id' || field == 'priority_id' || field == 'ts') {
             filters[field] = this.fieldFilters[field]
@@ -400,6 +405,8 @@ export default {
         }
       }
 
+      filters = Object.keys(filters).length != 0 ? filters : null
+      filtersJSON = Object.keys(filtersJSON).length != 0 ? filtersJSON : null
 
       let queryData = {
         id: this.selectedForm.id,
@@ -414,7 +421,6 @@ export default {
         .then((response) => { 
           this.data = response.data
           this.loading = false
-          // this.addAnswerToData() 
         })
     },
     getMaxCellsCount() {
