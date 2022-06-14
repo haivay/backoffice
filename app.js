@@ -74,6 +74,12 @@ app.post('/getRequests', async (req, res) => {
     filterParts.push(`${field}::text ILIKE '%${filters[field]}%'`);
   }
   }
+  if(req.body.filtersJSON != null){
+    const filtersJSON = req.body.filtersJSON;
+  for (const field in filtersJSON) {
+    filterParts.push(`request_data ->> '${field}'::text ILIKE '%${filtersJSON[field]}%'`);
+  }
+  }
   const filterStatement = filterParts.join(' AND ');
   console.log(filterParts);
   try {
