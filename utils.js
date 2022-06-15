@@ -51,7 +51,6 @@ export async function getRequests(typeId, filterStatement) {
     filterStatement = 'dq.' + filterStatement;
     query = `${query} WHERE ${filterStatement}`;
   }
-<<<<<<< HEAD
 
   if (sortField != null) {
     query = `${query} ORDER BY ${sortField} ${sortOrder}`;
@@ -69,20 +68,6 @@ export async function getRequests(typeId, filterStatement) {
 
   const queryResult = await client.query(query, [typeId]);
   return {data:queryResult.rows, totalRows}
-=======
-  
-  const queryData = await client.query(query, [typeId]);
-  const rowCountQuery = `SELECT COUNT(1) as cnt FROM (${query}) as qcnt`
-  const queryRowCount = await client.query(rowCountQuery, [typeId]);
-  const totalRows = queryRowCount.rows[0].cnt;
-
-  const result = {
-    data: queryData.rows,
-    totalRows
-  }
-  
-  return result
->>>>>>> 060a3aaa816b83dd63dbe048b898f09d9ff6ca61
 };
 
 export async function saveRequest(formId, formData, personId = null) {
