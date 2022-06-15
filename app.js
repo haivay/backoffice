@@ -67,7 +67,11 @@ app.post('/deleteForm', async (req, res) =>{
 
 app.post('/getRequests', async (req, res) => {
   const typeId = req.body.id;
+  const page = req.body.page;
+  const sortField = req.body.sortField;
+  const sortOrder = req.body.sortOrder;
   const filterParts = [];
+
   if(req.body.filters != null){
     const filters = req.body.filters;
   for (const field in filters) {
@@ -83,7 +87,7 @@ app.post('/getRequests', async (req, res) => {
   const filterStatement = filterParts.join(' AND ');
   console.log(filterParts);
   try {
-    res.status(200).send(await ut.getRequests(typeId, filterStatement));
+    res.status(200).send(await ut.getRequests(typeId, filterStatement, page, sortField, sortOrder));
   } catch (error) {
     console.log(error);
   };

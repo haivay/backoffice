@@ -51,8 +51,23 @@ export async function getRequests(typeId, filterStatement) {
     filterStatement = 'dq.' + filterStatement;
     query = `${query} WHERE ${filterStatement}`;
   }
+
+  if (sortField != null) {
+    query = `${query} ORDER BY ${sortField} ${sortOrder}`;
+  }
+
+  const qrowcount = await execQuery(`SELECT COUNT(1) as cnt FROM (${query}) qcnt`);
+  const totalRows = qrowcount.rows[0].cnt;
+
+  const totalPages = Math.ceil(totalRows / rowNum);
+  if (page > totalPages) page = totalPages;
+  if (rowNum < 0) rowNum = 0;
+  let offsetRow = (rowNum * page) - rowNum;
+  if (offsetRow < 0) offsetRow = 0;
+  query += ` OFFSET ${offsetRow} LIMIT 10`;
+
   const queryResult = await client.query(query, [typeId]);
-  return queryResult.rows
+  return {data:queryResult.rows, totalRows}
 };
 
 export async function saveRequest(formId, formData, personId = null) {
