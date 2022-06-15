@@ -85,7 +85,6 @@ app.post('/getRequests', async (req, res) => {
   }
   }
   const filterStatement = filterParts.join(' AND ');
-  console.log(filterParts);
   try {
     res.status(200).send(await ut.getRequests(typeId, filterStatement, page, sortField, sortOrder));
   } catch (error) {

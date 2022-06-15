@@ -37,15 +37,15 @@ export async function deleteForm(id) {
   await client.query(query, [id]);
 };
 
-export async function getRequests(typeId, filterStatement) {
+export async function getRequests(typeId, filterStatement, page, sortField, sortOrder) {
   // const baseQuery = "SELECT r.id, r.request_data, r.request_number, r.person_id, a.status_id FROM backoffice.tblformrequest as r JOIN backoffice.tblformanswer as a ON r.id = a.request_id WHERE r.type_id = $1";
 
-  const baseQuery = "SELECT r.id, r.request_data, r.ts, r.request_number, r.category_id, r.priority_id, a.change_time, a.answer, a.request_id, a.status_id \
-                     FROM backoffice.tblformrequest as r \
-                     LEFT JOIN backoffice.tblformanswer as a ON r.id = a.request_id \
-                     WHERE ((a.request_id, a.change_time) IN \
-                     (SELECT request_id, max(change_time) FROM backoffice.tblformanswer GROUP BY request_id) \
-                     OR a.request_id is null) AND type_id = $1"
+  const baseQuery = `SELECT r.id, r.request_data, r.ts, r.request_number, r.category_id, r.priority_id, a.change_time, a.answer, a.request_id, a.status_id\
+                     FROM backoffice.tblformrequest as r\
+                     LEFT JOIN backoffice.tblformanswer as a ON r.id = a.request_id\
+                     WHERE ((a.request_id, a.change_time) IN\
+                     (SELECT request_id, max(change_time) FROM backoffice.tblformanswer GROUP BY request_id)\
+                     OR a.request_id is null) AND type_id = '${typeId}'`
   let query = `SELECT * FROM (${baseQuery}) dq`;
   if (filterStatement != '') {
     filterStatement = 'dq.' + filterStatement;
@@ -56,17 +56,18 @@ export async function getRequests(typeId, filterStatement) {
     query = `${query} ORDER BY ${sortField} ${sortOrder}`;
   }
 
-  const qrowcount = await execQuery(`SELECT COUNT(1) as cnt FROM (${query}) qcnt`);
+  const qrowcount = await client.query(`SELECT COUNT(1) as cnt FROM (${query}) qcnt`);
   const totalRows = qrowcount.rows[0].cnt;
+  const rowNum = 10;
 
   const totalPages = Math.ceil(totalRows / rowNum);
   if (page > totalPages) page = totalPages;
   if (rowNum < 0) rowNum = 0;
   let offsetRow = (rowNum * page) - rowNum;
   if (offsetRow < 0) offsetRow = 0;
-  query += ` OFFSET ${offsetRow} LIMIT 10`;
+  query += ` OFFSET ${offsetRow} LIMIT ${rowNum}`;
 
-  const queryResult = await client.query(query, [typeId]);
+  const queryResult = await client.query(query);
   return {data:queryResult.rows, totalRows}
 };
 
