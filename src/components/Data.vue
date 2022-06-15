@@ -202,15 +202,40 @@
           </tbody>
         </table>
         <nav v-if="isFormSelected && !loading">
-          <ul class="pagination justify-content-center">
-            <li class="page-item disabled">
-              <a class="page-link">Предыдущая</a>
+          <ul class="pagination justify-content-center" v-if="totalPages > 1">
+            <li class="page-item mr-2" :class="page === 1 ? 'disabled' : ''" style="cursor: pointer">
+              <a @click="page = 1" class="page-link">
+                <font-awesome-icon :icon="['fas', 'angle-double-left']" class="icon alt"/>
+              </a>
             </li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item">
-              <a class="page-link" href="#">Следующая</a>
+            <li class="page-item mr-2" :class="page === 1 ? 'disabled' : ''" style="cursor: pointer">
+              <a @click="page--" class="page-link">
+                <font-awesome-icon :icon="['fas', 'angle-left']" class="icon alt"/>
+              </a>
+            </li>
+            <li 
+              v-for="navPage in navPages"
+              :key="navPage"
+              class="page-item"
+              :class="navPage === page ? 'active' : ''"
+              style="cursor: pointer"
+            >
+              <a 
+                class="page-link"
+                @click="page = navPage"
+              >
+                {{ navPage }}
+              </a>
+            </li>
+            <li class="page-item ml-2" :class="page === totalPages ? 'disabled' : ''" style="cursor: pointer">
+              <a @click="page++" class="page-link">
+                <font-awesome-icon :icon="['fas', 'angle-right']" class="icon alt"/>
+              </a>
+            </li>
+            <li class="page-item ml-2" :class="page === totalPages? 'disabled' : ''" style="cursor: pointer">
+              <a @click="page = totalPages" class="page-link">
+                <font-awesome-icon :icon="['fas', 'angle-double-right']" class="icon alt"/>
+              </a>
             </li>
           </ul>
         </nav>
@@ -263,6 +288,10 @@ export default {
       selectedForm: null,
       isFormSelected: false,
       data: [],
+      totalRows: 0,
+      totalPages: 0,
+      page: 1,
+      // navPages: [],
       header: [],
       maxCellsCount: 0,
       isFile: false,
@@ -323,6 +352,27 @@ export default {
       // this.getData()
       this.applyFieldFilter()
     },
+    totalRows() {
+      this.totalPages = Math.ceil(this.totalRows / 10)
+    },
+    page() {
+      this.getData()
+    }
+  },
+  computed: {
+    navPages() {
+      const pages = [];
+      if (this.page - 1 <= 1) {
+        pages.push((this.page - 1 > 1) ? this.page - 1 : 1);
+        if ((this.page < this.totalPages) || (2 < this.totalPages)) pages.push((this.page - 1 > 1) ? this.page : 2);
+        if ((this.page + 1 < this.totalPages) || (3 < this.totalPages)) pages.push((this.page - 1 > 1) ? this.page + 1 : 3);
+        return pages;
+      }
+      pages.push((this.page + 1 < this.totalPages) ? this.page - 1 : this.totalPages - 2);
+      pages.push((this.page + 1 < this.totalPages) ? this.page : this.totalPages - 1);
+      pages.push((this.page + 1 < this.totalPages) ? this.page + 1 : this.totalPages);
+      return pages;
+    }
   },
   mounted() {
     this.getForms();
@@ -358,6 +408,7 @@ export default {
       this.statusFilter = {}
       this.categoryFilter = {}
       this.priorityFilter = {}
+      this.page = 1
       this.isFilterOn = false
       // this.getData()
     },
@@ -410,16 +461,20 @@ export default {
 
       let queryData = {
         id: this.selectedForm.id,
+        page: this.page,
         filters: filters,
         filtersJSON: filtersJSON,
         sortField: sortField,
         sortOrder: sortOrder,
       }
 
+      console.log(queryData)
+
       await axios
         .post('/getRequests', queryData)
         .then((response) => { 
-          this.data = response.data
+          this.data = response.data.data
+          this.totalRows = +response.data.totalRows
           this.loading = false
         })
     },
