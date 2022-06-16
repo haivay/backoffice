@@ -127,6 +127,9 @@ export default {
     requestPriority: {
       type: String
     },
+    requestAnswer: {
+      type: String
+    },
     statuses: {
       type: Array
     },
@@ -155,40 +158,31 @@ export default {
     }
   },
   mounted() {
-    // this.getLastAnswer();
+    this.setLastAnswer()
     this.$forceUpdate()
   },
   methods: {
     closeModal() {
       this.$emit('close')
     },
-    getLastAnswer() {
-      const form = {
-        requestNumber: this.requestNumber
-      }
-
-      axios
-        .post('/getAnswerByRequestNumber', form)
-        .then(response => {
-          this.answers = response.data
-          this.lastAnswer = response.data[0]
-        });
-    },
     setLastAnswer() {
-      if (this.lastAnswer.status_id != '') {
+      if (this.requestStatus != null) {
         this.status = this.statuses.find(s => {
-          return s.id == this.lastAnswer.status_id ? s : ''
+          return s.id === this.requestStatus ? s : ''
         })
       }
-      if (this.lastAnswer.category_id != '') {
+      if (this.requestCategory != null) {
         this.category = this.categories.find(c => {
-          return c.id == this.lastAnswer.category_id ? c : ''
+          return c.id === this.requestCategory ? c : ''
         })
       }
-      if (this.lastAnswer.priority_id != '') {
+      if (this.requestPriority != null) {
         this.priority = this.priorities.find(p => {
-          return p.id == this.lastAnswer.priority_id ? p : ''
+          return p.id === this.requestPriority ? p : ''
         })
+      }
+      if (this.requestAnswer != null) {
+        this.textAnswer = this.requestAnswer
       }
       this.$forceUpdate()
     },

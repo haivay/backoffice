@@ -249,6 +249,7 @@
           :requestStatus="modalStatus"
           :requestCategory="modalCategory"
           :requestPriority="modalPriority"
+          :requestAnswer="modalAnswer"
           :statuses="modalStatuses"
           :categories="modalCategories"
           :priorities="modalPriorities"
@@ -304,6 +305,7 @@ export default {
       modalStatus: null,
       modalCategory: null,
       modalPriority: null,
+      modalAnswer: null,
       modalStatuses: [],
       modalCategories: [],
       modalPriorities: [],
@@ -512,6 +514,7 @@ export default {
       this.modalStatus = this.data[indexRow].status_id
       this.modalCategory = this.data[indexRow].category_id
       this.modalPriority = this.data[indexRow].priority_id
+      this.modalAnswer = this.data[indexRow].answer
       this.modalData = []
       let label = ''
       let value = ''
