@@ -125,7 +125,7 @@ export async function saveAnswer(status_id, category_id, priority_id, answer, re
 }; 
 
 export async function getAnswerByRequestNumber(requestNumber) {
-  const query = "SELECT status_id, category_id, priority_id, change_time, answer from backoffice.tblformanswer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";
+  const query = "SELECT status_id, change_time, answer from backoffice.tblformanswer WHERE request_id = (SELECT id from backoffice.tblformrequest WHERE request_number = $1) ORDER BY change_time DESC";
   const queryResult = await client.query(query, [requestNumber]);
   return queryResult.rows
 };

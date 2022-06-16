@@ -38,12 +38,11 @@
         <div 
           v-if="this.status"
           class="alert"
-          :class="checkStatus" 
+          :class="getColorByStatus" 
           role="alert"
         >
           <h4 class="alert-heading mt-2">Статус: {{ status.status }}</h4>
           <hr>
-          <!-- <p></p> -->
           <p class="mb-0">Ответ по заявке: {{ answer.answer }}</p>
         </div>
       </div>
@@ -69,7 +68,8 @@ export default {
       invalid: false,
       errorMessage: '',
       answer: {},
-      status: ''
+      status: '',
+      requestColors: ['table-light', 'table-info', 'table-primary', 'table-success', 'table-danger', 'table-dark'],
     }
   },
   mounted() {
@@ -83,16 +83,10 @@ export default {
     }
   },
   computed: {
-    checkStatus() {
-      return {
-        '': this.status === undefined,
-        'alert-info': this.status.id === 'accepted',
-        'alert-success': this.status.id === 'processed',
-        'alert-danger': this.status.id === 'rejected',
-        'alert-primary': this.status.id === 'inProcess',
-        'alert-light': this.status.id === 'new',
-        'alert-dark': this.status.id === 'closed'
-      }
+    getColorByStatus() {
+      let index = this.statuses.findIndex(status => status.id === this.answer.status_id)
+      let color = this.requestColors[index]
+      return color
     }
   },
   methods: {
