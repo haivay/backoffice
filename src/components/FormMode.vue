@@ -219,8 +219,11 @@ export default {
 
         if (this.form.document_fields[i].isRequire && !this.form.document_fields[i].value.length) {
           errors[i] = true
-        } else if (fieldType === 'select' && this.form.document_fields[i].isRequire && !this.form.document_fields[i].value[0].length) {
-          errors[i] = true
+        } else if (fieldType === 'select' && this.form.document_fields[i].isRequire) {
+          if (!this.form.document_fields[i].value.length || this.form.document_fields[i].value[0] === null || !this.form.document_fields[i].value[0].length) {
+            console.log('select error')
+            errors[i] = true
+          }
         } else {
           errors[i] = false
         }
