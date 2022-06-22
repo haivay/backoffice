@@ -1,317 +1,331 @@
 <template>
   <div class="root">
-      <div class="container-fluid main-content-wrapper">
-        <div class="row">
-          <div class="col-sm-12 col-lg-4">
-            <div class="row">
-              <div class="col">
-                <input 
-                  class="form-control mb-2" 
-                  type="text" 
-                  placeholder="Поиск по формам"
-                  v-model="formSearch"
-                >
-              </div>
-              <div class="col-auto nopadding-left">
+    <div class="navbar navbar-default navbar-expand-sm navbar-light bg-light mb-3" role="navigation">
+      <ul class="nav navbar navbar-nav">
+        <li class="dropdown nav-item modulemenuitemtext">
+          <a class="nav-link" style="cursor: pointer;" tabindex="-1" @click="goToMainPage()">
+            <font-awesome-icon :icon="['fas', 'home']" class="icon alt"/> Редактор заявок
+          </a>
+        </li>
+        <li class="dropdown nav-item modulemenuitemtext">
+          <a class="nav-link" style="cursor: pointer;" tabindex="-1" @click="goToDataPage()">
+            <font-awesome-icon :icon="['fas', 'columns']" class="icon alt"/> Данные
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="container-fluid main-content-wrapper">
+      <div class="row">
+        <div class="col-sm-12 col-lg-4">
+          <div class="row">
+            <div class="col">
+              <input 
+                class="form-control mb-2" 
+                type="text" 
+                placeholder="Поиск по формам"
+                v-model="formSearch"
+              >
+            </div>
+            <div class="col-auto nopadding-left">
+              <button 
+                type="button" 
+                class="btn btn-outline-primary mb-3" 
+                aria-current="true"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="right" 
+                title="Добавить форму"
+                @click="createForm"
+              >
+                <font-awesome-icon :icon="['fas', 'plus']" class="icon alt"/>
+              </button>
+            </div>
+          </div>
+          <div class="formList">
+            <div 
+              class="forms"
+              v-for="(form, index) of formsFiltred"
+              :key="index"
+            >
+              <div class="list-group list-group-flush">
                 <button 
                   type="button" 
-                  class="btn btn-outline-primary mb-3" 
+                  class="list-group-item list-group-item-border list-group-item-action" 
                   aria-current="true"
-                  data-bs-toggle="tooltip" 
-                  data-bs-placement="right" 
-                  title="Добавить форму"
-                  @click="createForm"
+                  @click="selectForm(index)" 
+                  :class="checkSelectedForm(index) ? 'list-group-item-border-blue' : ''"
                 >
-                  <font-awesome-icon :icon="['fas', 'plus']" class="icon alt"/>
+                  {{ form.type_name }}
                 </button>
               </div>
             </div>
-            <div class="formList">
-              <div 
-                class="forms"
-                v-for="(form, index) of formsFiltred"
-                :key="index"
-              >
-                <div class="list-group list-group-flush">
-                  <button 
-                    type="button" 
-                    class="list-group-item list-group-item-border list-group-item-action" 
-                    aria-current="true"
-                    @click="selectForm(index)" 
-                    :class="checkSelectedForm(index) ? 'list-group-item-border-blue' : ''"
-                  >
-                    {{ form.type_name }}
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div v-if="formSearchError" class="formListEmpty">
-              <div class="alert alert-warning" role="alert">
-                Форма не найдена...
-              </div>
-            </div>
           </div>
-          <div class="col-sm-12 col-lg-8">
-            <div 
-              v-if="!isFormSelected && !isAnyFormEditing && !isFormCreating"
-              class="alert alert-primary" 
-              role="alert"
-            >
-              Форма не выбрана
-            </div>
-            <div 
-              v-else-if="isFormSelected && !isAnyFormEditing && !isFormCreating"
-              class="form"
-            >
-              <div class="row justify-content-between h-100">
-                <div class="col">
-                  <h2 class="title mb-3">{{ selectedForm.type_name | formNameLength(selectedForm.type_name) }}</h2>
-                </div>
-                <div class="col-auto nopadding">
-                  <button 
-                    type="button" 
-                    class="btn btn-open btn-outline-success"
-                    @click="openThisForm(selectedForm.id)"
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="right" 
-                    title="Открыть форму"
-                  >
-                    <font-awesome-icon :icon="['fas', 'external-link-alt']" class="icon alt"/>
-                  </button>
-                </div>
-                <div class="col-auto">
-                  <button 
-                    type="button" 
-                    class="btn btn-clone btn-outline-info"
-                    @click="cloneThisForm(selectedForm.id)"
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="right" 
-                    title="Клонировать форму"
-                  >
-                    <font-awesome-icon :icon="['far', 'clone']" class="icon alt"/>
-                  </button>
-                </div>
-                <div class="col-auto nopadding">
-                  <button 
-                    type="button" 
-                    class="btn btn-edit btn-outline-primary"
-                    @click="editThisForm(selectedForm.id)"
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="right" 
-                    title="Редактировать форму"
-                  >
-                    <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
-                  </button>
-                </div>
-                <div class="col-auto">
-                  <button 
-                    type="button" 
-                    class="btn btn-edit btn-outline-danger"
-                    @click="openModalDelete"
-                    data-bs-toggle="tooltip" 
-                    data-bs-placement="right" 
-                    title="Удалить форму"
-                  >
-                    <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
-                  </button>
-                </div>
-              </div>
-              <!-- <form class="doc" @submit.prevent="checkForm" enctype="multipart/form-data"> -->
-              <form class="doc" enctype="multipart/form-data">
-                <div class="fields">
-                  <div 
-                    class="field"
-                    v-for="(field, index) of selectedForm.document_fields"
-                    :key="index"
-                  >
-                    <!-- {{ field.fieldType }} -->
-                    <!-- INPUT -->
-                    <div 
-                      v-if="field.fieldType === 'input'" 
-                      class="form-group"
-                    >
-                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                      <input 
-                        :type="field.dataType" 
-                        :id="field.fieldType + index.toString()"
-                        :placeholder="field.placeholder"
-                        class="form-control"
-                        :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
-                        v-model.trim="field.value"
-                      >
-                      <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
-                        Обязательное поле
-                      </p> 
-                    </div>
-                    <!-- TEXTAREA -->
-                    <div 
-                      v-if="field.fieldType === 'textarea'" 
-                      class="form-group"
-                    >
-                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                      <textarea 
-                        :id="field.fieldType + index.toString()"
-                        :placeholder="field.placeholder"
-                        class="form-control textareaExample" 
-                        :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
-                        rows="5"
-                        v-model.trim="field.value"
-                      >
-                      </textarea>
-                      <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
-                        Обязательное поле
-                      </p> 
-                    </div>
-                    <!-- SELECT -->
-                    <div 
-                      v-if="field.fieldType === 'select'" 
-                      class="form-group"
-                    >
-                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                      <div class="form-selector">
-                        <v-selectize 
-                          :placeholder="field.placeholder"
-                          :options="field.options" 
-                          :create-item="maybeCreate(field)"
-                          :multiple="field.isMultiple"
-                          v-model="field.value[0]" 
-                        />
-                      </div>
-                      <!-- <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
-                        Обязательное поле
-                      </p> -->
-                    </div>
-                    <!-- CHECKBOX -->
-                    <div 
-                      v-if="field.fieldType === 'checkbox'" 
-                      class="custom-control custom-checkbox"
-                    >
-                      <input 
-                        :type="field.fieldType" 
-                        class="custom-control-input" 
-                        :id="field.fieldType + index.toString()"
-                        :class="field.value === true ? 'checked' : ''"
-                        v-model="field.value"
-                      >
-                      <label 
-                        class="custom-control-label form-check-label" 
-                        :for="field.fieldType + index.toString()"
-                      >
-                        {{ field.label }}
-                      </label>
-                    </div>
-                    <!-- DATE -->
-                    <div 
-                      v-if="field.fieldType === 'date'" 
-                      class="form-group111"
-                    >
-                      <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
-                      <b-form-datepicker 
-                        class="mb-2"
-                        :id="field.fieldType + index.toString()" 
-                        :placeholder="field.placeholder"
-                        :required="field.isRequire"
-                        locale="ru-RU"
-                        start-weekday="1"
-                        :hide-header="true"
-                        labelHelp=""
-                        :date-format-options="{ 'year': 'numeric', 'month': 'numeric', 'day': 'numeric' }"
-                        label-current-month="Текущий месяц"
-                        label-prev-month="Предыдущий месяц"
-                        label-next-month="Следующий месяц"
-                        label-prev-year="Предыдущий год"
-                        label-next-year="Следующий год"
-                        v-model="field.value" 
-                      ></b-form-datepicker>
-                      <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
-                        Обязательное поле
-                      </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
-                    </div>
-                    <!-- FILE -->
-                    <div 
-                      v-if="field.fieldType === 'file'"
-                      class="custom-file"
-                    >
-                      <label 
-                        :for="field.fieldType + index.toString()"
-                      >
-                        {{ field.label }}
-                      </label>
-                      <input 
-                        :type="field.fieldType"  
-                        class="form-control-file" 
-                        :id="field.fieldType + index.toString()"
-                        ref="file"
-                        @change="handleFileUpload()"
-                      >
-                    </div>
-                  </div>
-                </div>
-                <!-- <button 
-                  type="submit" 
-                  class="btn btn-outline-primary w-100 mt-4 mb-2"
-                  :class="isAnyFormEditing ? 'disabled' : ''"
-                  @keypress.enter="console.log('enter pressed')"
-                >
-                  Отправить
-                </button> -->
-              </form>
-              <button 
-                type="button" 
-                class="btn btn-outline-secondary w-100 mb-4" 
-                @click="unselectForm"
-              >
-                Назад
-              </button>
-            </div>
-            <div 
-              v-else
-              class="form-editor"
-            >
-              <!-- добавить форму -->
-              <FormEditor
-                v-if="isFormCreating && !isAnyFormEditing"
-                :title="'Создание формы'"
-                :formName="formName"
-                :saveButtonTitle="'Добавить форму'"
-                :backButtonTitle="'Назад'"
-                v-model="formName"
-                @update="getForms"
-                @closeEditor="stopCreatingForm"
-                :key="1"
-              />
-              <!-- редактировать форму -->
-              <FormEditor 
-                v-if="isAnyFormEditing && !isFormCreating"
-                :title="'Редактирование формы'"
-                :id="editingForm.id"
-                :formName="editingForm.type_name"
-                :formFields="editingForm.document_fields"
-                :formStaff="editingForm.staff_id"
-                :saveButtonTitle="'Сохранить изменения'"
-                :backButtonTitle="'Прекратить редактирование'"
-                v-model="editingForm.type_name"
-                @update="getForms"
-                @closeEditor="stopEditingForm"
-                :key="2"
-              />
+          <div v-if="formSearchError" class="formListEmpty">
+            <div class="alert alert-warning" role="alert">
+              Форма не найдена...
             </div>
           </div>
         </div>
-        <!-- <transition name="slide-fade">
-          <SuccessSendDataToast 
-            v-if="isSuccessSendDataToastOpen"
-            @close="isSuccessSendDataToastOpen = false"
-          />
-        </transition> -->
-        <transition name="fade">
-          <ModalDelete 
-            v-if="isModalDeleteOpen"
-            :title="'Подтвердите действие'"
-            @close="isModalDeleteOpen = false"
-            @deleteForm="deleteThisForm"
-          />
-        </transition>
+        <div class="col-sm-12 col-lg-8">
+          <div 
+            v-if="!isFormSelected && !isAnyFormEditing && !isFormCreating"
+            class="alert alert-primary" 
+            role="alert"
+          >
+            Форма не выбрана
+          </div>
+          <div 
+            v-else-if="isFormSelected && !isAnyFormEditing && !isFormCreating"
+            class="form"
+          >
+            <div class="row justify-content-between h-100">
+              <div class="col">
+                <h2 class="title mb-3">{{ selectedForm.type_name | formNameLength(selectedForm.type_name) }}</h2>
+              </div>
+              <div class="col-auto nopadding">
+                <button 
+                  type="button" 
+                  class="btn btn-open btn-outline-success"
+                  @click="openThisForm(selectedForm.id)"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="right" 
+                  title="Открыть форму"
+                >
+                  <font-awesome-icon :icon="['fas', 'external-link-alt']" class="icon alt"/>
+                </button>
+              </div>
+              <div class="col-auto">
+                <button 
+                  type="button" 
+                  class="btn btn-clone btn-outline-info"
+                  @click="cloneThisForm(selectedForm.id)"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="right" 
+                  title="Клонировать форму"
+                >
+                  <font-awesome-icon :icon="['far', 'clone']" class="icon alt"/>
+                </button>
+              </div>
+              <div class="col-auto nopadding">
+                <button 
+                  type="button" 
+                  class="btn btn-edit btn-outline-primary"
+                  @click="editThisForm(selectedForm.id)"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="right" 
+                  title="Редактировать форму"
+                >
+                  <font-awesome-icon :icon="['far', 'edit']" class="icon alt"/>
+                </button>
+              </div>
+              <div class="col-auto">
+                <button 
+                  type="button" 
+                  class="btn btn-edit btn-outline-danger"
+                  @click="openModalDelete"
+                  data-bs-toggle="tooltip" 
+                  data-bs-placement="right" 
+                  title="Удалить форму"
+                >
+                  <font-awesome-icon :icon="['far', 'trash-alt']" class="icon alt"/>
+                </button>
+              </div>
+            </div>
+            <!-- <form class="doc" @submit.prevent="checkForm" enctype="multipart/form-data"> -->
+            <form class="doc" enctype="multipart/form-data">
+              <div class="fields">
+                <div 
+                  class="field"
+                  v-for="(field, index) of selectedForm.document_fields"
+                  :key="index"
+                >
+                  <!-- {{ field.fieldType }} -->
+                  <!-- INPUT -->
+                  <div 
+                    v-if="field.fieldType === 'input'" 
+                    class="form-group"
+                  >
+                    <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                    <input 
+                      :type="field.dataType" 
+                      :id="field.fieldType + index.toString()"
+                      :placeholder="field.placeholder"
+                      class="form-control"
+                      :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
+                      v-model.trim="field.value"
+                    >
+                    <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
+                      Обязательное поле
+                    </p> 
+                  </div>
+                  <!-- TEXTAREA -->
+                  <div 
+                    v-if="field.fieldType === 'textarea'" 
+                    class="form-group"
+                  >
+                    <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                    <textarea 
+                      :id="field.fieldType + index.toString()"
+                      :placeholder="field.placeholder"
+                      class="form-control textareaExample" 
+                      :class="$v.selectedForm.document_fields.$each[index].value.$error ? 'is-invalid' : ''"
+                      rows="5"
+                      v-model.trim="field.value"
+                    >
+                    </textarea>
+                    <p v-if="$v.selectedForm.document_fields.$each[index].value.$dirty && !$v.selectedForm.document_fields.$each[index].value.required" class="invalid-feedback">
+                      Обязательное поле
+                    </p> 
+                  </div>
+                  <!-- SELECT -->
+                  <div 
+                    v-if="field.fieldType === 'select'" 
+                    class="form-group"
+                  >
+                    <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                    <div class="form-selector">
+                      <v-selectize 
+                        :placeholder="field.placeholder"
+                        :options="field.options" 
+                        :create-item="maybeCreate(field)"
+                        :multiple="field.isMultiple"
+                        v-model="field.value[0]" 
+                      />
+                    </div>
+                    <!-- <p v-if="$v.form.formSelected.$dirty && !form.formSelected.required" class="invalid-feedback">
+                      Обязательное поле
+                    </p> -->
+                  </div>
+                  <!-- CHECKBOX -->
+                  <div 
+                    v-if="field.fieldType === 'checkbox'" 
+                    class="custom-control custom-checkbox"
+                  >
+                    <input 
+                      :type="field.fieldType" 
+                      class="custom-control-input" 
+                      :id="field.fieldType + index.toString()"
+                      :class="field.value === true ? 'checked' : ''"
+                      v-model="field.value"
+                    >
+                    <label 
+                      class="custom-control-label form-check-label" 
+                      :for="field.fieldType + index.toString()"
+                    >
+                      {{ field.label }}
+                    </label>
+                  </div>
+                  <!-- DATE -->
+                  <div 
+                    v-if="field.fieldType === 'date'" 
+                    class="form-group111"
+                  >
+                    <label :for="field.fieldType + index.toString()">{{ field.label }}</label>
+                    <b-form-datepicker 
+                      class="mb-2"
+                      :id="field.fieldType + index.toString()" 
+                      :placeholder="field.placeholder"
+                      :required="field.isRequire"
+                      locale="ru-RU"
+                      start-weekday="1"
+                      :hide-header="true"
+                      labelHelp=""
+                      :date-format-options="{ 'year': 'numeric', 'month': 'numeric', 'day': 'numeric' }"
+                      label-current-month="Текущий месяц"
+                      label-prev-month="Предыдущий месяц"
+                      label-next-month="Следующий месяц"
+                      label-prev-year="Предыдущий год"
+                      label-next-year="Следующий год"
+                      v-model="field.value" 
+                    ></b-form-datepicker>
+                    <!-- <p v-if="$v.form.fullName.$dirty && !form.fullName.required" class="invalid-feedback">
+                      Обязательное поле
+                    </p> :class="$v.form.input1.$error ? 'is-invalid' : ''" -->
+                  </div>
+                  <!-- FILE -->
+                  <div 
+                    v-if="field.fieldType === 'file'"
+                    class="custom-file"
+                  >
+                    <label 
+                      :for="field.fieldType + index.toString()"
+                    >
+                      {{ field.label }}
+                    </label>
+                    <input 
+                      :type="field.fieldType"  
+                      class="form-control-file" 
+                      :id="field.fieldType + index.toString()"
+                      ref="file"
+                      @change="handleFileUpload()"
+                    >
+                  </div>
+                </div>
+              </div>
+              <!-- <button 
+                type="submit" 
+                class="btn btn-outline-primary w-100 mt-4 mb-2"
+                :class="isAnyFormEditing ? 'disabled' : ''"
+                @keypress.enter="console.log('enter pressed')"
+              >
+                Отправить
+              </button> -->
+            </form>
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary w-100 mb-4" 
+              @click="unselectForm"
+            >
+              Назад
+            </button>
+          </div>
+          <div 
+            v-else
+            class="form-editor"
+          >
+            <!-- добавить форму -->
+            <FormEditor
+              v-if="isFormCreating && !isAnyFormEditing"
+              :title="'Создание формы'"
+              :formName="formName"
+              :saveButtonTitle="'Добавить форму'"
+              :backButtonTitle="'Назад'"
+              v-model="formName"
+              @update="getForms"
+              @closeEditor="stopCreatingForm"
+              :key="1"
+            />
+            <!-- редактировать форму -->
+            <FormEditor 
+              v-if="isAnyFormEditing && !isFormCreating"
+              :title="'Редактирование формы'"
+              :id="editingForm.id"
+              :formName="editingForm.type_name"
+              :formFields="editingForm.document_fields"
+              :formStaff="editingForm.staff_id"
+              :saveButtonTitle="'Сохранить изменения'"
+              :backButtonTitle="'Прекратить редактирование'"
+              v-model="editingForm.type_name"
+              @update="getForms"
+              @closeEditor="stopEditingForm"
+              :key="2"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- <transition name="slide-fade">
+        <SuccessSendDataToast 
+          v-if="isSuccessSendDataToastOpen"
+          @close="isSuccessSendDataToastOpen = false"
+        />
+      </transition> -->
+      <transition name="fade">
+        <ModalDelete 
+          v-if="isModalDeleteOpen"
+          :title="'Подтвердите действие'"
+          @close="isModalDeleteOpen = false"
+          @deleteForm="deleteThisForm"
+        />
+      </transition>
     </div>
   </div>
 </template>
@@ -385,6 +399,12 @@ export default {
     }
   },
   methods: {
+    goToMainPage() {
+      window.location.assign(`/`);
+    },
+    goToDataPage() {
+      window.location.assign(`/data`);
+    },
     forceUpdate() {
       this.$forceUpdate()
     },

@@ -1,5 +1,19 @@
 <template>
   <div class="data">
+    <div class="navbar navbar-default navbar-expand-sm navbar-light bg-light mb-3" role="navigation">
+      <ul class="nav navbar navbar-nav">
+        <li class="dropdown nav-item modulemenuitemtext">
+          <a class="nav-link" style="cursor: pointer;" tabindex="-1" @click="goToMainPage()">
+            <font-awesome-icon :icon="['fas', 'home']" class="icon alt"/> Редактор заявок
+          </a>
+        </li>
+        <li class="dropdown nav-item modulemenuitemtext">
+          <a class="nav-link" style="cursor: pointer;" tabindex="-1" @click="goToDataPage()">
+            <font-awesome-icon :icon="['fas', 'columns']" class="icon alt"/> Данные
+          </a>
+        </li>
+      </ul>
+    </div>
     <div class="container-fluid main-content-wrapper">
       <h2>{{ title }}</h2>
       <div class="form-selector-panel">
@@ -37,13 +51,27 @@
         </div>
       </div>
       <div 
-        v-if="isFormSelected && data.length === 0 && !loading"
+        v-if="isFormSelected && data.length === 0 && !loading && Object.keys(fieldFilters).length === 0"
         class="alert alert-info mt-3" 
         role="alert"
       >
         Заявок пока не поступило...
       </div>
+      <div 
+        v-if="isFormSelected && data.length === 0 && !loading && Object.keys(fieldFilters).length != 0"
+        class="alert alert-warning mt-3" 
+        role="alert"
+      >
+        Применение фильтров не дало результатов...
+        <a @click="resetFilters()">Сбросить фильтры</a>
+      </div>
       <div v-if="isFormSelected && data.length != 0 && !loading" class="table-and-nav">
+        <!-- <DataGrid 
+          :dataURL="detDataFunc"
+          :rowNum="250"
+          :rowList="[100, 250, 500, 1000]"
+          :gridHeight="'400px'"
+        /> -->
         <table v-if="isFormSelected && !loading" class="table table-hover">
           <thead class="thead-dark">
             <tr>
@@ -263,7 +291,7 @@
 
 <script>
 import ModalAnswer from './ModalAnswer.vue'
-import VSelectize from '@isneezy/vue-selectize'  
+import VSelectize from '@isneezy/vue-selectize'
 import axios from 'axios';
 
 export default {
@@ -384,6 +412,12 @@ export default {
     this.sortOrder = this.sortOrders[0]
   },
   methods: {
+    goToMainPage() {
+      window.location.assign(`/`);
+    },
+    goToDataPage() {
+      window.location.assign(`/data`);
+    },
     toggleSortField(newSortField) {
       if (newSortField != this.sortField) {
         this.sortField = newSortField
@@ -450,8 +484,10 @@ export default {
       if (Object.keys(this.fieldFilters).length != 0) {
         console.log(this.fieldFilters)
         for (let field in this.fieldFilters) {
-          if (field == 'request_number' || field == 'status_id' || field == 'category_id' || field == 'priority_id' || field == 'ts') {
+          if (field == 'request_number' || field == 'status_id' || field == 'category_id' || field == 'priority_id') {
             filters[field] = this.fieldFilters[field]
+          } else if (field == 'ts') {
+            filters[field] = this.fieldFilters[field].split('.').reverse().join('-')
           } else {
             filtersJSON[field] = this.fieldFilters[field]
           }

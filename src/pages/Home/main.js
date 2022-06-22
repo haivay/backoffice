@@ -10,10 +10,10 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 //fontAwesome
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faTrashAlt, faEdit, faClone,  } from '@fortawesome/free-regular-svg-icons'
-import { faGripLines, faPlus, faUsersCog, faUserMinus, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons'
+import { faGripLines, faPlus, faUsersCog, faUserMinus, faExternalLinkAlt, faHome, faColumns } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faTrashAlt, faEdit, faGripLines, faPlus, faClone, faUsersCog, faUserMinus, faExternalLinkAlt)
+library.add(faTrashAlt, faEdit, faGripLines, faPlus, faClone, faUsersCog, faUserMinus, faExternalLinkAlt, faHome, faColumns)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
